@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grandpa Album Scene</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      width: 400px;
+      height: 350px;
+      z-index: 2;
+    }
+
+    .hotspot.green {
+      top: 5%;
+      left: 35%;
+    }
+
+    .hotspot.red {
+      top: 47%;
+      left: 35%;
+    }
+
+    
+    .text-overlay {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/grandpaAlbum/Grandpa.png" alt="Grandpa Background">
+    <div class="hotspot green" id="greenHotspot"></div>
+    <div class="hotspot red" id="redHotspot"></div>
+
+    <img class="text-overlay" id="grandpaText1" src="../assets/grandpaAlbum/GrandpaText1.png" alt="Grandpa Text 1">
+    <img class="text-overlay" id="grandpaText2" src="../assets/grandpaAlbum/GrandpaText2.png" alt="Grandpa Text 2">
+  </div>
+
+  <audio id="lullabyAudio" src="../assets/grandpaAlbum/lullabyChild.mp3" loop></audio>
+  <audio id="voice1Audio" src="../assets/grandpaAlbum/GrandpaVoice1.wav"></audio>
+  <audio id="voice2Audio" src="../assets/grandpaAlbum/GrandpaVoice2.wav"></audio>
+
+  <script src="grandpaAlbum.js"></script>
+</body>
+</html>
