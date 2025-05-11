@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Students Crush Eraser Interaction</title>
+  <style>
+      html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .students {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30%; /* Adjust this value to change students image size */
+      height: auto;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    .students.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .letter {
+      position: absolute;
+      top: 80%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30%; /* Adjust size of the letter */
+      height: auto;
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 1s ease;
+      cursor: pointer;
+    }
+
+    .letter.visible {
+      opacity: 1;
+    }
+
+    .opened-letter {
+      position: absolute;
+      top: 70%; /* Center vertically */
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30%; /* Make opened letter larger */
+      height: auto;
+      z-index: 4;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      cursor: pointer;
+    }
+
+    .opened-letter.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .opened-letter.front {
+      z-index: 6;
+    }
+
+    .opened-letter2 {
+      position: absolute;
+      top: 60%; /* Adjust vertical position */
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20%; /* Adjust size */
+      height: auto;
+      z-index: 5;
+      opacity: 0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .opened-letter2.visible {
+      opacity: 1;
+    }
+
+    .opened-letter2.front {
+      z-index: 6;
+    }
+
+    .scribbles {
+      position: absolute;
+      top: 25%;
+      left: 45%;
+      transform: translate(-50%, -50%);
+      width: 20%; /* Adjust this value to change scribbles size */
+      height: auto;
+      z-index: 2;
+      transition: opacity 4s ease;
+    }
+
+    .eraser {
+      position: absolute;
+      bottom: 700px;
+      right: 600px;
+      width: 100px; /* Adjust this value to change eraser size */
+      height: auto;
+      cursor: grab;
+      z-index: 3;
+    }
+
+    .eraser.dragging {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+  <!-- Audio elements -->
+  <audio id="eraserSound" preload="auto">
+    <source src="../assets/StudentsCrush/eraser.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="laughingSound" preload="auto" loop>
+    <source src="../assets/StudentsCrush/laughing.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="container" id="interactionArea">
+    <img class="background" src="../assets/StudentsCrush/ScribblesAlbum.png" alt="Background">
+    <img class="students" id="students1" src="../assets/StudentsCrush/firstStudents.png" alt="Students">
+    <img class="students hidden" id="students2" src="../assets/StudentsCrush/Students2.png" alt="Students 2">
+    <img class="students hidden" id="students3" src="../assets/StudentsCrush/Students3.png" alt="Students 3">
+    <img class="scribbles" id="scribbles" src="../assets/StudentsCrush/scribbles.png" alt="Scribbles">
+    <img class="eraser" id="eraser" src="../assets/StudentsCrush/Eraser.png" alt="Eraser">
+    <img class="letter" id="foldedLetter" src="../assets/StudentsCrush/foldedLetter.png" alt="Folded Letter">
+    <img class="opened-letter" id="openedLetter" src="../assets/StudentsCrush/openedLetter.png" alt="Opened Letter">
+    <img class="opened-letter2" id="openedLetter2" src="../assets/StudentsCrush/openedLetter2.png" alt="Opened Letter 2">
+  </div>
+
+  <script src="StudentsCrush.js"></script>
+</body>
+</html>

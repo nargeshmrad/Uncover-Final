@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Divorce Album Interaction</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+
+    .tear {
+      position: absolute;
+      height: auto;
+      cursor: grab;
+      z-index: 1;
+      transition: all 2s ease;
+    }
+
+    #tear1 {
+      top: 20%;
+      left: 50%; /* Initial position */
+      width: 220px; /* Fixed width for tear1 */
+      transform: scale(1);
+    }
+
+    #tear2 {
+      top: 15.8%;
+      left: 39.7%; /* Initial position */
+      width: 220px; /* Same width as tear1 */
+      transform: scale(0.83);
+    }
+
+    .tear.moved-right {
+      transform: translateX(50px) scale(1) !important;
+    }
+
+    .tear.moved-left {
+      transform: translateX(-50px) scale(0.83) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="interactionArea">
+    <img class="background" src="../assets/DivorceAlbum/DivorceAlbum.png" alt="Background">
+    <img class="tear" id="tear1" src="../assets/DivorceAlbum/TearedDivorce1.png" alt="Tear 1">
+    <img class="tear" id="tear2" src="../assets/DivorceAlbum/TearedDivorce2.png" alt="Tear 2">
+  </div>
+
+  <script>
+    const tears = document.querySelectorAll('.tear');
+    const tear1 = document.getElementById('tear1');
+    const tear2 = document.getElementById('tear2');
+    let tearsHaveMoved = false;
+
+    // Function to handle the initial tear separation
+    function handleTearHover() {
+      if (!tearsHaveMoved) {
+        tear1.classList.add('moved-right');
+        tear2.classList.add('moved-left');
+        tearsHaveMoved = true;
+      }
+    }
+
+    // Add hover listeners to both tears
+    tear1.addEventListener('mouseenter', handleTearHover);
+    tear2.addEventListener('mouseenter', handleTearHover);
+
+    // Dragging functionality
+    tears.forEach(tear => {
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      tear.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+        tear.style.cursor = 'grabbing';
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const rect = tear.parentElement.getBoundingClientRect();
+          tear.style.left = `${e.clientX - rect.left - offsetX}px`;
+          tear.style.top = `${e.clientY - rect.top - offsetY}px`;
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+        tear.style.cursor = 'grab';
+      });
+    });
+  </script>
+
+</body>
+</html>

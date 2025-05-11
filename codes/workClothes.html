@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Work Clothes Interaction</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .work-clothes {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40%;
+      height: auto;
+      z-index: 1;
+    }
+
+    /* Base styles for draggable items */
+    .draggable {
+      position: absolute;
+      cursor: grab;
+      z-index: 2;
+      transition: all 0.5s ease;
+      height: auto;
+      /* Default size - can be overridden */
+      width: 250px;
+    }
+
+    .draggable.faded {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Individual positioning for each item */
+    #kimono {
+      bottom: 65%;
+      right: 10%;
+      width: 250px; /* Bigger size */
+    }
+
+    #coat {
+      bottom: 65%;
+      left: 10%;
+      width: 250px; /* Bigger size */
+    }
+
+    .dropzone {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      border: 2px dashed red;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/workClothes/backgrundAlbum.png" alt="Background">
+    <img class="work-clothes" id="workClothes" src="../assets/workClothes/WorkClothes1.png" alt="Work Clothes">
+    <div class="dropzone" id="dropzone"></div>
+    <img class="draggable" id="kimono" src="../assets/workClothes/kimonoOnFloor.png" alt="Kimono">
+    <img class="draggable" id="coat" src="../assets/workClothes/coatOnFloor.png" alt="Coat">
+  </div>
+
+  <script>
+    const workClothes = document.getElementById('workClothes');
+    const dropzone = document.getElementById('dropzone');
+
+    function makeDraggable(item, replacementImage) {
+      let isDragging = false;
+      let startX, startY;
+
+      item.addEventListener('mousedown', dragStart);
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', dragEnd);
+
+      function dragStart(e) {
+        if (e.target === item) {
+          isDragging = true;
+          item.style.cursor = 'grabbing';
+          
+          // Get initial mouse position and item position
+          const rect = item.getBoundingClientRect();
+          startX = e.clientX - rect.left;
+          startY = e.clientY - rect.top;
+        }
+      }
+
+      function drag(e) {
+        if (isDragging) {
+          e.preventDefault();
+          
+          // Calculate new position relative to container
+          const container = item.parentElement;
+          const containerRect = container.getBoundingClientRect();
+          const newX = e.clientX - containerRect.left - startX;
+          const newY = e.clientY - containerRect.top - startY;
+          
+          // Update position
+          item.style.left = `${newX}px`;
+          item.style.top = `${newY}px`;
+        }
+      }
+
+      function dragEnd(e) {
+        if (isDragging) {
+          isDragging = false;
+          item.style.cursor = 'grab';
+
+          const itemRect = item.getBoundingClientRect();
+          const dropzoneRect = dropzone.getBoundingClientRect();
+
+          const isDroppedInside = !(itemRect.right < dropzoneRect.left ||
+                                  itemRect.left > dropzoneRect.right ||
+                                  itemRect.bottom < dropzoneRect.top ||
+                                  itemRect.top > dropzoneRect.bottom);
+
+          if (isDroppedInside) {
+            workClothes.src = replacementImage;
+            item.classList.add('faded');
+          }
+        }
+      }
+    }
+
+    makeDraggable(document.getElementById('kimono'), "../assets/workClothes/WorkClothes2.png");
+    makeDraggable(document.getElementById('coat'), "../assets/workClothes/WorkClothes3.png");
+  </script>
+
+</body>
+</html>

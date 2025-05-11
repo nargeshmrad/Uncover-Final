@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Him In Mirror Interaction</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    #dirtCanvas {
+      position: absolute;
+      top: 13%;     /* Adjust position */
+      left: 39.5%;    /* Adjust position */
+      width: 142px; /* Adjust size */
+      height: 410px;
+      z-index: 2;   /* Behind hotspot but above background */
+    }
+
+    .hotspot {
+      position: absolute;
+      top: 45%;  /* Change this to move */
+      left: 50%; /* Change this to move */
+      width: 500px; /* Change this to resize */
+      height: 700px; /* Change this to resize */
+      border: 2px dashed red;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    .hotspot.dirt-erased:hover {
+      cursor: url('../assets/HimInMirrorAlbum/eyeCursor.png') 35 35, auto;
+    }
+
+    .textbox {
+      position: absolute;
+      top: 80%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+
+    .sponge {
+  position: absolute;
+  top: 5%;    /* Change position */
+  left: 55%;   /* Change position */
+  width: 70px;/* Change size */
+  height: auto;
+  z-index: 4;
+  display: none; /* Hidden by default */
+  cursor: grab;
+}
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/HimInMirrorAlbum/HimInMirrorAlbum.png" alt="Background">
+    <canvas id="dirtCanvas"></canvas>
+    
+    <img class="sponge" id="sponge" src="assets/HimInMirrorAlbum/sponge.png" alt="Sponge">
+
+    <div class="hotspot" id="hotspot"></div>
+    <img class="textbox" id="textbox" src="../assets/HimInMirrorAlbum/TexBoxMirror.png" alt="Textbox">
+    
+  </div>
+
+  <audio id="mirrorDirtAudio" src="../assets/HimInMirrorAlbum/mirrorDirt.mp3" loop></audio>
+  <audio id="dreamVoiceAudio" src="../assets/HimInMirrorAlbum/DreamVoice.mp3"></audio>
+
+  <script src="himInMirrorAlbum.js"></script>
+</body>
+</html>

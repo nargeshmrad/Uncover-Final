@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Luggage Album</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      top: 250px; /* You can adjust this */
+      left: 600px; /* You can adjust this */
+      width: 500px;
+      height: 500px;
+      border: 2px dashed red;
+    }
+
+    .hotspot:hover {
+        cursor: url('../assets/luggageAlbum/eyeCursor.png') 35 35, auto;    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/luggageAlbum/luggage.png" alt="Luggage Background" />
+    <div class="hotspot" onclick="window.location.href='page2.html'"></div>
+  </div>
+
+</body>
+</html>

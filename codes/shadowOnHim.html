@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shadow Interaction</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      cursor: auto;
+    }
+
+    .light-cursor {
+      cursor: url('../assets/ShadowAlbum/light.png'), auto;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .background-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    .container img.background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      transition: opacity 2s ease;
+    }
+
+    .background2 {
+      opacity: 0;
+    }
+
+    .shadow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 600px;
+      height: 800px;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.1s linear;
+      z-index: 2;
+    }
+
+    .textbox {
+      position: absolute;
+      top: 80%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+
+    .light {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      width: 100px;
+      height: 100px;
+      opacity: 0;
+      cursor: grab;
+      user-select: none;
+      transition: opacity 0.5s ease;
+      z-index: 4;
+    }
+
+    .light.dragging {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="background-container">
+      <img class="background background1" id="bg1" src="../assets/ShadowAlbum/shadowOnHim1.png" alt="Background 1">
+      <img class="background background2" id="bg2" src="../assets/ShadowAlbum/shadowOnHim2.png" alt="Background 2">
+    </div>
+    <img class="shadow" id="shadow" src="../assets/ShadowAlbum/shadow.png" alt="Shadow">
+    <img class="textbox" id="textbox" src="../assets/ShadowAlbum/TexBoxShadow.png" alt="Textbox">
+    <img class="light" id="light" src="../assets/ShadowAlbum/light.png" alt="Light">
+  </div>
+
+  <audio id="shadowMusic" src="../assets/ShadowAlbum/shadowMusic.mp3"></audio>
+  <audio id="shadowVoice" src="../assets/ShadowAlbum/shadowVoice.mp3"></audio>
+
+  <script src="shadowOnHim.js"></script>
+
+</body>
+</html>

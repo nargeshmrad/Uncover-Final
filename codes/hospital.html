@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Page 2</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .caption-container {
+      position: absolute;
+      width: 300px;
+      height: auto;
+      bottom: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+
+    .caption-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: opacity 0.3s ease;
+    }
+
+    #englishCaption {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+    }
+
+    #farsiCaption {
+      opacity: 1;
+    }
+
+    .caption-container:hover #englishCaption {
+      opacity: 1;
+    }
+
+    .caption-container:hover #farsiCaption {
+      opacity: 0;
+    }
+
+    .hotspot {
+      position: absolute;
+      top: 150px;
+      left: 550px;
+      width: 600px;
+      height: 600px;
+      cursor: pointer;
+    }
+
+    .text-box {
+      position: absolute;
+      max-width: 300px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s;
+      z-index: 3;
+    }
+
+    .text-box.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #fatherTextBox {
+      top: 85%;
+      right: 50%;
+    }
+
+    #motherTextBox {
+      top: 85%;
+      right: 50%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img src="../assets/hospital/hospital.png" alt="hospital Image" />
+    <div class="hotspot"></div>
+    <div class="caption-container">
+      <img id="farsiCaption" class="caption-image" src="../assets/hospital/HospitalFarsiCaption.png" alt="Farsi Caption" />
+      <img id="englishCaption" class="caption-image" src="../assets/hospital/HospitalEnglishCaption.png" alt="English Caption" />
+    </div>
+  </div>
+
+  <audio id="fatherVoice" src="../assets/hospital/FatherHospitalVoice.mp3"></audio>
+  <audio id="motherVoice" src="../assets/hospital/MotherHospitalVoice.mp3"></audio>
+
+  <div id="fatherTextBox" class="text-box">
+    <img src="../assets/hospital/FatherHospitalTextBox.png" alt="Father's message" />
+  </div>
+  <div id="motherTextBox" class="text-box">
+    <img src="../assets/hospital/MotherHospitalTextBox.png" alt="Mother's message" />
+  </div>
+
+  <script>
+    const hotspot = document.querySelector('.hotspot');
+    const fatherVoice = document.getElementById('fatherVoice');
+    const motherVoice = document.getElementById('motherVoice');
+    const fatherTextBox = document.getElementById('fatherTextBox');
+    const motherTextBox = document.getElementById('motherTextBox');
+
+    let isPlaying = false;
+
+    function showTextBox(textBox) {
+      textBox.classList.add('visible');
+    }
+
+    function hideTextBox(textBox) {
+      textBox.classList.remove('visible');
+    }
+
+    function resetAudio() {
+      fatherVoice.pause();
+      motherVoice.pause();
+      fatherVoice.currentTime = 0;
+      motherVoice.currentTime = 0;
+      hideTextBox(fatherTextBox);
+      hideTextBox(motherTextBox);
+      isPlaying = false;
+    }
+
+    function playSequence() {
+      if (isPlaying) return;
+      
+      isPlaying = true;
+      showTextBox(fatherTextBox);
+      fatherVoice.play();
+
+      fatherVoice.onended = () => {
+        hideTextBox(fatherTextBox);
+        showTextBox(motherTextBox);
+        motherVoice.play();
+
+        motherVoice.onended = () => {
+          hideTextBox(motherTextBox);
+          isPlaying = false;
+        };
+      };
+    }
+
+    hotspot.addEventListener('mouseenter', () => {
+      playSequence();
+    });
+
+    hotspot.addEventListener('mouseleave', () => {
+      // Don't reset on mouseleave - let the sequence complete
+    });
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    hotspot.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.offsetX;
+      offsetY = e.offsetY;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const rect = hotspot.parentElement.getBoundingClientRect();
+        hotspot.style.left = (e.clientX - rect.left - offsetX) + 'px';
+        hotspot.style.top = (e.clientY - rect.top - offsetY) + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+  </script>
+
+</body>
+</html>

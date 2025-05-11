@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nail Polish Effect</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <style>
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: black;
+      }
+      .container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      canvas {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+    <script>
+      let topLayer;
+      let middleLayer;
+      let img1, img2;
+      let cursorImg, padImg;
+      let pad;
+      let isDraggingPad = false;
+      let padX = 600;  // Moved more to the right
+      let padY = 300;
+      let isPadSelected = false;  // New variable to track if pad is selected
+      let showPad = false;  // Only show pad after all dialogues
+      let padOpacity = 0;  // For fade-in effect
+      let bgMusic;  // Background music variable
+      let brushSound;  // Paint brush sound effect
+      let happySound;  // Happy sound for first click
+      let noProblemHomeSound;  // Sound for second dialogue
+      let noHeWontSound;  // Sound for third dialogue
+      let maybeTalksSound;  // Sound for fourth dialogue
+      let youMeanSound;  // Sound for fifth dialogue
+      let notOppressionSound;  // Sound for sixth dialogue
+      let ifHeHasSound;  // Sound for seventh dialogue
+      let heCanWearSound;  // Sound for eighth dialogue
+      let beforeShameSound;  // Sound for ninth dialogue
+      let cautionSound;  // Sound for tenth dialogue
+      let clickCount = 0;  // Track number of clicks
+      let showText = false;  // Whether to show the text
+      let currentText = '';  // Current text to display
+      let sadNailMusic;  // Sad music for pad erasing
+      let sadMusicVolume = 0;  // For fade-in/out effect
+      let hasPadBeenUsed = false;  // Track if pad has been used
+      let isSadMusicPlaying = false;  // Track if sad music is currently playing
+
+      function preload() {
+        img1 = loadImage("../assets/NailPolishScene/NailPolishScene1.png");
+        img2 = loadImage("../assets/NailPolishScene/NailPolishScene2.png");
+        cursorImg = loadImage("../assets/NailPolishScene/nailBrush.png");
+        padImg = loadImage("../assets/NailPolishScene/pad.png");
+        bgMusic = loadSound("../assets/NailPolishScene/Birds-morning.mp3");  // Load the background music
+        brushSound = loadSound("../assets/NailPolishScene/paintBrush.mp3");  // Load the brush sound
+        happySound = loadSound("../assets/NailPolishScene/happy.m4a");  // Load happy sound
+        noProblemHomeSound = loadSound("../assets/NailPolishScene/noProblemHome.m4a");  // Load no problem home sound
+        noHeWontSound = loadSound("../assets/NailPolishScene/No.HeWont.m4a");  // Load no he won't sound
+        maybeTalksSound = loadSound("../assets/NailPolishScene/MaybeHeTalks.m4a");  // Load maybe he talks sound
+        youMeanSound = loadSound("../assets/NailPolishScene/YouMean.m4a");  // Load you mean sound
+        notOppressionSound = loadSound("../assets/NailPolishScene/NotOppression.m4a");  // Load not oppression sound
+        ifHeHasSound = loadSound("../assets/NailPolishScene/IfHeHas.m4a");  // Load if he has sound
+        heCanWearSound = loadSound("../assets/NailPolishScene/HeCanWear.m4a");  // Load he can wear sound
+        beforeShameSound = loadSound("../assets/NailPolishScene/BeforeShame.m4a");  // Load before shame sound
+        cautionSound = loadSound("../assets/NailPolishScene/Caution.m4a");
+        sadNailMusic = loadSound("../assets/NailPolishScene/SadNail.mp3");  // Load caution sound
+      }
+
+
+
+      function setup() {
+        createCanvas(windowWidth, windowHeight);
+        topLayer = createGraphics(windowWidth, windowHeight);
+        middleLayer = createGraphics(windowWidth, windowHeight);
+        textFont('Comic Sans MS');
+        textSize(15);
+        textAlign(CENTER, BOTTOM);
+        angleMode(DEGREES);
+        
+        // Draw NailPolish1 to top layer
+        topLayer.image(img1, 0, 0, width, height);
+        topLayer.blendMode(DIFFERENCE);
+
+        // Draw NailPolish2 to middle layer
+        middleLayer.image(img2, 0, 0, width, height);
+        middleLayer.blendMode(DIFFERENCE);
+        
+        noCursor(); // Hide the default cursor
+        
+        // Play background music on loop
+        bgMusic.loop();
+        bgMusic.setVolume(0.5);  // Set volume to 50%
+      }
+
+      function draw() {
+        // Draw the bottom image (NailPolish1 again)
+        image(img1, 0, 0, width, height);
+
+
+        
+        // When mouse is pressed (not pad), erase top layer to reveal NailPolish2
+        if (mouseIsPressed && !isPadSelected) {
+          topLayer.erase();
+          topLayer.noStroke();
+          topLayer.ellipse(mouseX, mouseY, 50);
+          topLayer.noErase();
+          
+          // Play brush sound if not already playing
+          if (!brushSound.isPlaying()) {
+            brushSound.loop();
+            brushSound.setVolume(0.5);
+          }
+        }
+
+        // When pad is selected and mouse is pressed, erase both layers to reveal NailPolish1
+        if (mouseIsPressed && isPadSelected) {
+          topLayer.erase();
+          topLayer.noStroke();
+          topLayer.ellipse(mouseX, mouseY, 50);
+          topLayer.noErase();
+          
+          middleLayer.erase();
+          middleLayer.noStroke();
+          middleLayer.ellipse(mouseX, mouseY, 50);
+          middleLayer.noErase();
+          
+          // Play brush sound if not already playing
+          if (!brushSound.isPlaying()) {
+            brushSound.loop();
+            brushSound.setVolume(0.5);
+          }
+        }
+
+        // Stop brush sound if mouse is not pressed
+        if (!mouseIsPressed && brushSound.isPlaying()) {
+          brushSound.stop();
+        }
+
+        // Draw the middle and top layers
+        image(middleLayer, 0, 0);
+        image(topLayer, 0, 0);
+
+        // Handle erasing based on pad visibility
+        if (showPad) {
+          // After all dialogues, handle pad cursor and erasing
+          if (padOpacity < 255) {
+            padOpacity += 2;  // Gradually increase opacity
+          }
+          
+          if (mouseIsPressed && padOpacity > 50) {  // Only allow erasing when pad is somewhat visible
+            // Start sad music on first use of pad if it hasn't been used yet
+            if (!hasPadBeenUsed) {
+              hasPadBeenUsed = true;
+              isSadMusicPlaying = true;
+              sadNailMusic.loop();
+              sadNailMusic.setVolume(0.05); // Start at 5% volume
+            }
+            
+            // Gradually increase sad music volume if it's playing
+            if (isSadMusicPlaying && sadMusicVolume < 0.3) {
+              sadMusicVolume += 0.0005;  // Very slowly increase volume
+              sadNailMusic.setVolume(sadMusicVolume);
+            }
+            
+            // Erase both layers with pad
+            topLayer.erase();
+            topLayer.noStroke();
+            topLayer.ellipse(mouseX, mouseY, 50);
+            topLayer.noErase();
+            
+            middleLayer.erase();
+            middleLayer.noStroke();
+            middleLayer.ellipse(mouseX, mouseY, 50);
+            middleLayer.noErase();
+            
+            // Play brush sound
+            if (!brushSound.isPlaying()) {
+              brushSound.loop();
+              brushSound.setVolume(0.5);
+            }
+          }
+
+          // Show fading pad cursor
+          tint(255, padOpacity);  // Apply opacity to the pad
+          image(padImg, mouseX - 25, mouseY - 25, 50, 50);  // Show pad as cursor
+          noTint();  // Reset tint for other images
+        } else {
+          // Before pad appears, only erase top layer if mouse is pressed
+          if (mouseIsPressed) {
+            topLayer.erase();
+            topLayer.noStroke();
+            topLayer.ellipse(mouseX, mouseY, 50);
+            topLayer.noErase();
+            
+            if (!brushSound.isPlaying()) {
+              brushSound.loop();
+              brushSound.setVolume(0.5);
+            }
+          }
+          // Show brush cursor
+          image(cursorImg, mouseX - cursorImg.width/4, mouseY - cursorImg.height/2, cursorImg.width/2, cursorImg.height/2);
+        }
+
+        // Display text if it should be shown
+        if (showText) {
+          fill(255);  // White text
+          stroke(0);  // Black outline
+          strokeWeight(3);
+          text(currentText, width/2, height - 800);
+        }
+      }
+
+      function mousePressed() {
+        // Check if mouse is over or near the pad (with 20px buffer zone) and if pad should be shown
+        let buffer = 20;
+        if (showPad && mouseX > padX - buffer && mouseX < padX + 50 + buffer && 
+            mouseY > padY - buffer && mouseY < padY + 50 + buffer) {
+          isPadSelected = true;  // Set pad as selected when clicked
+          isDraggingPad = true;
+        } else {
+          // Increment click count and update text
+          clickCount++;
+          showText = true;
+          switch(clickCount) {
+            case 1:
+              currentText = "He looks happy. He's just painting his nails. What's wrong with that?";
+              if (!happySound.isPlaying()) {
+                happySound.play();
+              }
+              break;
+            case 2:
+              currentText = "At home, nothing. But what if he walks outside like that?";
+              if (!noProblemHomeSound.isPlaying()) {
+                noProblemHomeSound.play();
+              }
+              break;
+            case 3:
+              currentText = "He won't. He knows the difference.";
+              if (!noHeWontSound.isPlaying()) {
+                noHeWontSound.play();
+              }
+              break;
+            case 4:
+              currentText = "He might talk about it. You know what people might say or do.";
+              if (!maybeTalksSound.isPlaying()) {
+                maybeTalksSound.play();
+              }
+              break;
+            case 5:
+              currentText = "So we oppress him now, to protect him later?";
+              if (!youMeanSound.isPlaying()) {
+                youMeanSound.play();
+              }
+              break;
+            case 6:
+              currentText = "It's not oppression. It's surviving.";
+              if (!notOppressionSound.isPlaying()) {
+                notOppressionSound.play();
+              }
+              break;
+            case 7:
+              currentText = "He's not surviving if he has to hide everything that makes him feel real.";
+              if (!ifHeHasSound.isPlaying()) {
+                ifHeHasSound.play();
+              }
+              break;
+            case 8:
+              currentText = "He can wear the skirt, paint his nails but only inside. Just not at school. Not with the neighbors.";
+              if (!heCanWearSound.isPlaying()) {
+                heCanWearSound.play();
+              }
+              break;
+            case 9:
+              currentText = "So we teach him shame before they do?";
+              if (!beforeShameSound.isPlaying()) {
+                beforeShameSound.play();
+              }
+              break;
+            case 10:
+              currentText = "We teach him caution. That's how we keep him safe. I am scared for him, not of him.";
+              if (!cautionSound.isPlaying()) {
+                cautionSound.play();
+                cautionSound.onended(() => {
+                  // After the sound finishes, wait 2 seconds then show the pad
+                  setTimeout(() => {
+                    showPad = true;
+                  }, 2000);
+                });
+              }
+              break;
+          }
+        }
+      }
+
+      function mouseDragged() {
+        // No need for dragging logic anymore as pad follows cursor automatically
+      }
+
+      function mouseReleased() {
+        if (brushSound.isPlaying()) {
+          brushSound.stop();
+        }
+        // Don't stop the sad music when releasing mouse
+        // Let it play until the end
+      }
+    </script>
+  </body>
+</html>

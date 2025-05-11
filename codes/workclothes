@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Work Clothes Interaction</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .work-clothes {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40%;
+      height: auto;
+      z-index: 1;
+    }
+
+    .draggable {
+      position: absolute;
+      bottom: 10%;
+      left: 10%;
+      width: 100px;
+      height: auto;
+      cursor: grab;
+      z-index: 2;
+    }
+
+    #coat {
+      left: 20%;
+    }
+
+    .dropzone {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+      border: 2px dashed red;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="assets/WorkClothes/backgrundAlbum.png" alt="Background">
+    <img class="work-clothes" id="workClothes" src="assets/WorkClothes/WorkClothes1.png" alt="Work Clothes">
+    <div class="dropzone" id="dropzone"></div>
+    <img class="draggable" id="kimono" src="assets/WorkClothes/kimonoOnFloor.png" alt="Kimono">
+    <img class="draggable" id="coat" src="assets/WorkClothes/coatOnFloor.png" alt="Coat">
+  </div>
+
+  <script>
+    const workClothes = document.getElementById('workClothes');
+    const dropzone = document.getElementById('dropzone');
+
+    function makeDraggable(item, replacementImage) {
+      let isDragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+
+      item.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+        item.style.cursor = 'grabbing';
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const rect = item.parentElement.getBoundingClientRect();
+          item.style.left = `${e.clientX - rect.left - offsetX}px`;
+          item.style.top = `${e.clientY - rect.top - offsetY}px`;
+        }
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          item.style.cursor = 'grab';
+
+          const itemRect = item.getBoundingClientRect();
+          const dropzoneRect = dropzone.getBoundingClientRect();
+
+          const isDroppedInside = !(itemRect.right < dropzoneRect.left ||
+                                    itemRect.left > dropzoneRect.right ||
+                                    itemRect.bottom < dropzoneRect.top ||
+                                    itemRect.top > dropzoneRect.bottom);
+
+          if (isDroppedInside) {
+            workClothes.src = replacementImage;
+          }
+        }
+      });
+    }
+
+    makeDraggable(document.getElementById('kimono'), "assets/WorkClothes/WorkClothes2.png");
+    makeDraggable(document.getElementById('coat'), "assets/WorkClothes/WorkClothes3.png");
+  </script>
+
+</body>
+</html>

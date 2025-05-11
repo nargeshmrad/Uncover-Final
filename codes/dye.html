@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hair Coloring Interaction</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+
+    #dialogueText {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgb(0, 0, 0);
+      font-size: 24px;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: none;
+      font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+      max-width: 80%;
+      padding: 15px;
+    }
+
+
+
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+
+
+
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('../assets/DyeHairScene/DyeHair3.png');
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: white;
+      cursor: none;
+    }
+
+
+    #brushHair {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-image: url('.. /assets/Dye/brush.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      z-index: 1000;
+      transform: translate(-50%, -50%);
+    }
+
+
+
+
+    .overlay-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 1;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+
+
+
+    #revealCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+
+
+
+    #drawingCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 3;
+    }
+
+
+
+
+    #bleachBowl {
+      position: absolute;
+      top: 65%;  /* Adjust this to change the bowl position */
+      left: 42%;
+      width: 150px;
+      z-index: 5;
+      opacity: 1;
+      transition: opacity 3s ease-out;
+    }
+
+
+
+
+    #colorBowl {
+      position: absolute;
+      top: 65%;  /* Adjust this to change the bowl position */
+      left: 42%;
+      width: 150px;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 4s ease-in;
+    }
+
+
+
+
+    #brushHair {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+      z-index: 9999; /* Increased to ensure it's always on top */
+      transform: translate(-50%, -50%);
+      display: none;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+  </style>
+</head>
+<body>
+
+
+
+
+  <div id="gameContainer">
+    <div id="dialogueText"></div>
+    <div id="overlayImage2" class="overlay-image" style="background-image: url('../assets/DyeHairScene/DyeHair2.png');"></div>
+    <div id="overlayImage1" class="overlay-image" style="background-image: url('../assets/DyeHairScene/DyeHair1.png');"></div>
+    <canvas id="revealCanvas"></canvas>
+    <canvas id="drawingCanvas"></canvas>
+    <img src="../assets/DyeHairScene/bleachBowl.png" id="bleachBowl" alt="Bleach Bowl">
+    <img src="../assets/DyeHairScene/colorBowl.png" id="colorBowl" alt="Color Bowl" style="display: none;">
+    <img src="../assets/DyeHairScene/brushHair.png" id="brushHair" alt="Brush Hair">
+  </div>
+
+
+
+
+  <script>
+    const brush = document.getElementById("brushHair");
+    const gameContainer = document.getElementById("gameContainer");
+    const canvas = document.getElementById("drawingCanvas");
+    const ctx = canvas.getContext("2d");
+    const revealCanvas = document.getElementById("revealCanvas");
+    const revealCtx = revealCanvas.getContext("2d");
+    const overlayImage1 = document.getElementById("overlayImage1");
+    const overlayImage2 = document.getElementById("overlayImage2");
+   
+    let canRevealFinal = false; // Flag to control when we can reveal Mirror-Colored3
+
+
+
+
+    let rectX = 650, rectY = 50, rectWidth = 400, rectHeight = 400;
+    let opacity = 1.0;
+    let isInSquare = false;
+    let isMouseDown = false;
+    let hasInitialClick = false;
+    let lastUpdateTime = 0;
+    const updateInterval = 30;
+    const initialFadeAmount = 0.1; // 10% fade on first click
+    const dragFadeSpeed = 0.0005; // Continuous fade speed while dragging
+    let bleachSound; // Sound for bleaching
+    let colorSound; // Sound for coloring
+    let hasPlayedBleachSound = false; // Flag to track if bleach sound has been played
+    let hasPlayedColorSound = false; // Flag to track if color sound has been played
+    let letters = []; // Array to store floating letters
+    let floatingText = ''; // Text to float
+    let isFloating = false; // Whether text should float
+    let floatingCanvas; // p5.js canvas for floating text
+
+
+
+
+    // Set canvas size to match window size
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      revealCanvas.width = window.innerWidth;
+      revealCanvas.height = window.innerHeight;
+      drawGreenRectangle();
+      setupRevealCanvas();
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+
+
+
+    // Function to draw the green rectangle
+    function drawGreenRectangle() {
+      ctx.strokeStyle = 'green';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(rectX, rectY, rectWidth, rectHeight);
+    }
+
+
+
+
+    // Setup canvas sizes
+    function setupRevealCanvas() {
+      revealCanvas.width = window.innerWidth;
+      revealCanvas.height = window.innerHeight;
+    }
+
+
+
+
+    // Load sounds
+    // Letter class for floating text effect
+    class Letter {
+      constructor(x, y, letter) {
+        this.x = x;
+        this.y = y;
+        this.letter = letter;
+        this.vx = Math.random() * 4 - 2; // Random velocity between -2 and 2
+        this.vy = Math.random() * 4 - 2;
+        this.size = Math.random() * 20 + 20; // Random size between 20 and 40
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = Math.random() * 10 - 5;
+        this.opacity = 0.7; // Start with 70% opacity
+        this.fadeSpeed = 0.003; // How fast the opacity decreases
+      }
+
+
+      update(p) {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+        this.opacity = Math.max(0, this.opacity - this.fadeSpeed); // Gradually reduce opacity
+      }
+
+
+      display(p) {
+        p.push();
+        p.translate(this.x, this.y);
+        p.rotate(this.rotation);
+        // Set fill and stroke with opacity
+        p.fill(255, 255, 255, this.opacity * 255);
+        p.stroke(0, 0, 0, this.opacity * 255);
+        p.strokeWeight(2);
+        p.textSize(this.size);
+        p.textAlign(p.CENTER, p.CENTER);
+        p.text(this.letter, 0, 0);
+        p.pop();
+      }
+
+
+      offScreen(p) {
+        return (this.x < -50 || this.x > p.width + 50 ||
+                this.y < -50 || this.y > p.height + 50 ||
+                this.opacity <= 0); // Remove letter when fully transparent
+      }
+    }
+
+
+    // Initialize p5.js
+    const p5Instance = new p5((p) => {
+      p.preload = function() {
+        bleachSound = p.loadSound('../assets/DyeHairScene/Bleach.m4a');
+        colorSound = p.loadSound('../assets/DyeHairScene/color.m4a');
+      };
+
+
+      p.setup = function() {
+        floatingCanvas = p.createCanvas(window.innerWidth, window.innerHeight);
+        floatingCanvas.position(0, 0);
+        floatingCanvas.style('z-index', '1000');
+        floatingCanvas.style('pointer-events', 'none');
+        p.angleMode(p.DEGREES);
+        p.textFont('Arial');
+      };
+
+
+      p.draw = function() {
+        p.clear();
+        if (isFloating) {
+          for (let i = letters.length - 1; i >= 0; i--) {
+            letters[i].update(p);
+            letters[i].display(p);
+            if (letters[i].offScreen(p)) {
+              letters.splice(i, 1);
+            }
+          }
+          if (letters.length === 0) {
+            isFloating = false;
+          }
+        }
+      };
+    });
+
+
+    function startFloatingText(text, x, y) {
+      for (let i = 0; i < text.length; i++) {
+        let letter = text[i];
+        letters.push(new Letter(x, y, letter));
+      }
+      isFloating = true;
+    }
+
+
+    // Initial draw
+    drawGreenRectangle();
+
+
+
+
+    function isInRectangle(x, y) {
+      return x >= rectX && x <= rectX + rectWidth &&
+             y >= rectY && y <= rectY + rectHeight;
+    }
+
+
+
+
+    function updateOpacity(amount) {
+      opacity = Math.max(0, Math.min(1, opacity - amount));
+
+
+
+
+      if (!canRevealFinal) {
+        // First transition - fade out Mirror-Colored1 to reveal Mirror-Colored2
+        const transitionSpeed = amount * 0.1; // Super gradual first transition
+        opacity = Math.max(0, Math.min(1, opacity - transitionSpeed));
+        overlayImage1.style.opacity = opacity;
+      } else {
+        // Second transition - fade out Mirror-Colored2 to reveal Mirror-Colored3
+        overlayImage2.style.opacity = opacity;
+      }
+
+
+
+
+      // Check if transition is complete
+      if (opacity === 0) {
+        if (!canRevealFinal) {
+          const bleachBowl = document.getElementById('bleachBowl');
+          const colorBowl = document.getElementById('colorBowl');
+         
+          // Start the fade out of bleachBowl
+          bleachBowl.style.opacity = '0';
+         
+          // After bleachBowl fades out, show and fade in colorBowl
+          setTimeout(() => {
+            bleachBowl.style.display = 'none';
+            colorBowl.style.display = 'block';
+            // Add a longer pause before starting the fade in
+            setTimeout(() => {
+              colorBowl.style.opacity = '1';
+              canRevealFinal = true;
+              opacity = 1.0; // Reset opacity for second transition
+              hasInitialClick = false; // Reset for second phase
+            }, 2000); // 2 second pause before fade in
+          }, 3200); // Wait for bleachBowl to fully fade out + extra pause
+        } else {
+          // Second transition complete, Mirror-Colored3 is now fully visible
+          overlayImage.style.display = 'none';
+        }
+      }
+    }
+
+
+
+
+    gameContainer.addEventListener("mousedown", (e) => {
+      if (isInRectangle(e.clientX, e.clientY)) {
+        isMouseDown = true;
+       
+        // Play sound and show text on first click for each phase
+        if (!hasPlayedBleachSound && !canRevealFinal) {
+          hasPlayedBleachSound = true;
+          bleachSound.play();
+          let text = "I hope I don't fry my hair… but I'm doing it anyway. They think I'm too scared to change—let them watch.";
+          dialogueText.textContent = text;
+          dialogueText.style.display = 'block';
+         
+          // Start floating text effect after sound finishes with added delay
+          bleachSound.onended(() => {
+            setTimeout(() => {
+              // Get the position of the dialogue text
+              const dialogueRect = dialogueText.getBoundingClientRect();
+              // Start floating from the dialogue's position
+              startFloatingText(text, dialogueRect.left + dialogueRect.width / 2, dialogueRect.top + dialogueRect.height / 2);
+              // Hide the original text
+              dialogueText.style.display = 'none';
+            }, 4000); // 4 second delay before floating text starts
+          });
+        } else if (!hasPlayedColorSound && canRevealFinal && !hasInitialClick) {
+          hasPlayedColorSound = true;
+          colorSound.play();
+          let text = "I feel like a rebel. I look in the mirror and see someone real.";
+          dialogueText.textContent = text;
+          dialogueText.style.display = 'block';
+         
+          // Start floating text effect after sound finishes with added delay
+          colorSound.onended(() => {
+            setTimeout(() => {
+              // Get the position of the dialogue text
+              const dialogueRect = dialogueText.getBoundingClientRect();
+              // Start floating from the dialogue's position
+              startFloatingText(text, dialogueRect.left + dialogueRect.width / 2, dialogueRect.top + dialogueRect.height / 2);
+              // Hide the original text
+              dialogueText.style.display = 'none';
+            }, 4000); // 4 second delay before floating text starts
+          });
+        }
+        if (!hasInitialClick) {
+          updateOpacity(initialFadeAmount);
+          hasInitialClick = true;
+        }
+        lastUpdateTime = Date.now();
+      }
+    });
+
+
+
+
+    gameContainer.addEventListener("mouseup", () => {
+      isMouseDown = false;
+    });
+
+
+
+
+    gameContainer.addEventListener("mousemove", (e) => {
+      brush.style.display = "block";
+      brush.style.left = e.clientX + "px";
+      brush.style.top = e.clientY + "px";
+
+
+      isInSquare = isInRectangle(e.clientX, e.clientY);
+      const currentTime = Date.now();
+
+
+      if (hasInitialClick && isInSquare && isMouseDown && currentTime - lastUpdateTime >= updateInterval) {
+        const timeDelta = currentTime - lastUpdateTime;
+        updateOpacity(dragFadeSpeed * timeDelta);
+        lastUpdateTime = currentTime;
+      }
+    });
+
+
+
+
+    gameContainer.addEventListener("mouseleave", () => {
+      brush.style.display = "none";
+      isInSquare = false;
+      isMouseDown = false;
+    });
+  </script>
+
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Painting Scene</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .cloud {
+      position: absolute;
+      top: 30%;
+      left: 38%;
+      width: 10%;
+      cursor: move;
+      transition: transform 0.5s ease;
+      animation: floatMotion 3s infinite alternate;
+    }
+
+    @keyframes floatMotion {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(10px, 10px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .shadow {
+      position: absolute;
+      top: 55%;
+      left: 52%;
+      transform: translate(-50%, -50%);
+      width: 10%;
+      opacity: 0;
+      transition: opacity 6s ease;
+      pointer-events: none;
+    }
+
+    .textBox {
+      position: absolute;
+      top: 90%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40%;
+      opacity: 0;
+      transition: opacity 7s ease;
+      pointer-events: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/painting/painting.png" alt="Painting Background" />
+    <img class="cloud" src="../assets/painting/cloud.png" alt="Cloud" />
+    <img class="shadow" src="../assets/painting/shadow.png" alt="Shadow" />
+    <img class="textBox" src="../assets/painting/textBoxPainting.png" alt="Text Box" />
+  </div>
+
+  <audio id="paintingAudio" src="../assets/painting/painting.mp3"></audio>
+
+  <script>
+    const cloud = document.querySelector('.cloud');
+    const shadow = document.querySelector('.shadow');
+    const textBox = document.querySelector('.textBox');
+    const audio = document.getElementById('paintingAudio');
+
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    const squareArea = { top: 200, left: 300, width: 400, height: 400 }; // Define your square area
+
+    cloud.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      offsetX = e.offsetX;
+      offsetY = e.offsetY;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const rect = cloud.parentElement.getBoundingClientRect();
+        let newLeft = e.clientX - rect.left - offsetX;
+        let newTop = e.clientY - rect.top - offsetY;
+        cloud.style.left = `${newLeft}px`;
+        cloud.style.top = `${newTop}px`;
+
+        // Check if cloud is outside the square
+        if (newLeft < squareArea.left || newLeft > squareArea.left + squareArea.width ||
+            newTop < squareArea.top || newTop > squareArea.top + squareArea.height) {
+          
+          shadow.style.opacity = 1;
+          textBox.style.opacity = 1;
+          setTimeout(() => {
+            if (audio.paused) {
+              audio.currentTime = 0;
+              audio.play();
+            }
+          }, 1000); // 2-second delay
+
+        } else {
+          shadow.style.opacity = 0;
+          textBox.style.opacity = 0;
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Hide text box when audio ends
+    audio.addEventListener('ended', () => {
+      textBox.style.opacity = 0;
+    });
+  </script>
+
+</body>
+</html>
