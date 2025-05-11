@@ -1,6 +1,5 @@
 # Assets folders
-assets/
-**/assets/
+
 
 # Build directories
 build/
