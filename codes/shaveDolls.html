@@ -12,9 +12,14 @@
 
     .container {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
       overflow: hidden;
+      outline: 2px solid rgb(165, 219, 50); /* Debug */
     }
 
     .container img.background {
@@ -29,9 +34,8 @@
       top: 70%;
       left: 54%;
       transform: translate(-50%, -50%);
-      width: 8%; /* Make it 50% of the container width */
+      width: 8%;
       height: auto;
-      max-height: 50vh; /* Maximum height of 50% of the viewport height */
       object-fit: contain;
       display: block;
       transition: opacity 1s ease;
@@ -42,33 +46,30 @@
       top: 90%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 30%; /* Make it 50% of the container width */
+      width: 55%;
       height: auto;
-      max-height: 50vh; /* Maximum height of 50% of the viewport height */
       object-fit: contain;
       display: block;
       transition: opacity 1s ease;
-    }
-
-    .textBox {
       opacity: 0;
       pointer-events: none;
     }
 
     .hotspot {
       position: absolute;
-      top: 400px;
-      left: 630px;
-      width: 400px;
-      height: 400px;
+      top: 8%;    /* 400 / 1176 */
+      left: 22%; /* 630 / 1070 */
+      width: 50.4%; /* 400 / 1070 */
+      height: 34%;  /* 400 / 1176 */
       border: 2px dashed red;
       cursor: move;
+      z-index: 2;
     }
   </style>
 </head>
 <body>
 
-  <audio id="hoverAudio" src="../assets/shaveDolls/dolls.mp3" ></audio>
+  <audio id="hoverAudio" src="../assets/shaveDolls/dolls.mp3"></audio>
 
   <div class="container">
     <img class="background" src="../assets/shaveDolls/shaveDolls.png" alt="Background" />
@@ -81,10 +82,10 @@
     const hotspot = document.querySelector('.hotspot');
     const dolls = document.querySelector('.dolls');
     const textBox = document.querySelector('.textBox');
+    const audio = document.getElementById('hoverAudio');
 
     let hoverTimeout = null;
     let fadeOutInterval = null;
-    const audio = document.getElementById('hoverAudio');
 
     hotspot.addEventListener('mouseenter', () => {
       textBox.style.opacity = 1;
@@ -94,15 +95,14 @@
       audio.play();
       hoverTimeout = setTimeout(() => {
         dolls.style.opacity = 0;
-      }, 3000); // 3 seconds delay
+      }, 3000);
     });
 
     hotspot.addEventListener('mouseleave', () => {
       clearTimeout(hoverTimeout);
       dolls.style.opacity = 1;
       textBox.style.opacity = 0;
-      
-      // Fade out audio
+
       fadeOutInterval = setInterval(() => {
         if (audio.volume > 0.05) {
           audio.volume -= 0.05;
@@ -114,7 +114,7 @@
       }, 100);
     });
 
-    // Make the hotspot draggable
+    // Drag logic
     let isDragging = false;
     let offsetX, offsetY;
 
@@ -127,8 +127,10 @@
     document.addEventListener('mousemove', (e) => {
       if (isDragging) {
         const rect = hotspot.parentElement.getBoundingClientRect();
-        hotspot.style.left = (e.clientX - rect.left - offsetX) + 'px';
-        hotspot.style.top = (e.clientY - rect.top - offsetY) + 'px';
+        const newX = e.clientX - rect.left - offsetX;
+        const newY = e.clientY - rect.top - offsetY;
+        hotspot.style.left = `${(newX / rect.width) * 100}%`;
+        hotspot.style.top = `${(newY / rect.height) * 100}%`;
       }
     });
 

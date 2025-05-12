@@ -12,9 +12,14 @@
 
     .container {
       position: relative;
-      width: 100%;
-      height: 100vh;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
       overflow: hidden;
+      outline: 2px solid rgb(165, 219, 50); /* Debug */
     }
 
     .container img.background {
@@ -26,20 +31,20 @@
 
     #dirtCanvas {
       position: absolute;
-      top: 13%;     /* Adjust position */
-      left: 39.5%;    /* Adjust position */
-      width: 142px; /* Adjust size */
-      height: 410px;
-      z-index: 2;   /* Behind hotspot but above background */
+      top: 13%;
+      left: 31.9%;
+      width: 18.5%;  /* 142 / 1070 */
+      height: 45%; /* 410 / 1176 */
+      z-index: 2;
     }
 
     .hotspot {
       position: absolute;
-      top: 45%;  /* Change this to move */
-      left: 50%; /* Change this to move */
-      width: 500px; /* Change this to resize */
-      height: 700px; /* Change this to resize */
-      border: 2px dashed red;
+      top: 45%;
+      left: 50%;
+      width: 46.7%;   /* 500 / 1070 */
+      height: 59.5%;  /* 700 / 1176 */
+      /*border: 2px dashed red;*/
       transform: translate(-50%, -50%);
       z-index: 2;
     }
@@ -50,25 +55,25 @@
 
     .textbox {
       position: absolute;
-      top: 80%;
+      top: 85%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 30%;
+      width: 55%;
       opacity: 0;
       transition: opacity 0.5s ease;
       z-index: 3;
     }
 
     .sponge {
-  position: absolute;
-  top: 5%;    /* Change position */
-  left: 55%;   /* Change position */
-  width: 70px;/* Change size */
-  height: auto;
-  z-index: 4;
-  display: none; /* Hidden by default */
-  cursor: grab;
-}
+      position: absolute;
+      top: 5%;
+      left: 55%;
+      width: 6.5%; /* 70 / 1070 */
+      height: auto;
+      z-index: 4;
+      display: none;
+      cursor: grab;
+    }
   </style>
 </head>
 <body>
@@ -76,12 +81,11 @@
   <div class="container">
     <img class="background" src="../assets/HimInMirrorAlbum/HimInMirrorAlbum.png" alt="Background">
     <canvas id="dirtCanvas"></canvas>
-    
-    <img class="sponge" id="sponge" src="assets/HimInMirrorAlbum/sponge.png" alt="Sponge">
+
+    <img class="sponge" id="sponge" src="../assets/HimInMirrorAlbum/sponge.png" alt="Sponge">
 
     <div class="hotspot" id="hotspot"></div>
     <img class="textbox" id="textbox" src="../assets/HimInMirrorAlbum/TexBoxMirror.png" alt="Textbox">
-    
   </div>
 
   <audio id="mirrorDirtAudio" src="../assets/HimInMirrorAlbum/mirrorDirt.mp3" loop></audio>

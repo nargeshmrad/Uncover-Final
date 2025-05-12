@@ -6,16 +6,26 @@ const sponge = document.getElementById('sponge');
 const canvas = document.getElementById('dirtCanvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-// Set canvas size to match CSS dimensions
-canvas.width = 142;
-canvas.height = 410;
-
 // Load and draw dirt image
 const dirtImage = new Image();
-dirtImage.src = 'assets/HimInMirrorAlbum/DirtOnMirror.png';
+dirtImage.src = '../assets/HimInMirrorAlbum/DirtOnMirror.png';
+
+// Resize canvas to match displayed size
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+
+  // Redraw dirt image after resizing
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(dirtImage, 0, 0, canvas.width, canvas.height);
+}
+
+// Redraw on image load and window resize
 dirtImage.onload = () => {
-    ctx.drawImage(dirtImage, 0, 0, canvas.width, canvas.height);
+  resizeCanvas();
 };
+window.addEventListener('resize', resizeCanvas);
 
 let voiceTimer = null;
 let resetTimer = null;
@@ -54,18 +64,14 @@ sponge.addEventListener('mousedown', (e) => {
   sponge.style.cursor = 'grabbing';
 });
 
-// Function to check if the canvas is completely transparent
+// Check if the canvas is fully erased (transparent)
 function isCanvasEmpty() {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const pixels = imageData.data;
-    
-    // Check alpha channel (every 4th value)
-    for (let i = 3; i < pixels.length; i += 4) {
-        if (pixels[i] > 0) { // If any pixel has opacity
-            return false;
-        }
-    }
-    return true;
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = imageData.data;
+  for (let i = 3; i < pixels.length; i += 4) {
+    if (pixels[i] > 0) return false; // Non-transparent pixel found
+  }
+  return true;
 }
 
 document.addEventListener('mousemove', (e) => {
@@ -81,20 +87,18 @@ document.addEventListener('mousemove', (e) => {
     const eraseX = e.clientX - canvasRect.left;
     const eraseY = e.clientY - canvasRect.top;
 
-    // Only erase if we're over the canvas
-    if (eraseX >= 0 && eraseX <= canvasRect.width &&
-        eraseY >= 0 && eraseY <= canvasRect.height) {
+    if (eraseX >= 0 && eraseX <= canvasRect.width && eraseY >= 0 && eraseY <= canvasRect.height) {
       // Convert screen coordinates to canvas coordinates
       const canvasX = (eraseX / canvasRect.width) * canvas.width;
       const canvasY = (eraseY / canvasRect.height) * canvas.height;
-      
-      // Erase a circular area
+
+      // Erase circular area
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
       ctx.arc(canvasX, canvasY, 20, 0, Math.PI * 2);
       ctx.fill();
 
-      // Check if canvas is empty after erasing
+      // Check if fully erased
       if (isCanvasEmpty()) {
         hotspot.classList.add('dirt-erased');
         sponge.style.display = 'none'; // Hide sponge when done

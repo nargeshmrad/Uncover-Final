@@ -11,9 +11,14 @@
 
     .container {
       position: relative;
-      width: 100%;
-      height: 100vh;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
       overflow: hidden;
+      outline: 2px solid rgb(165, 219, 50); /* Debug */
     }
 
     .container img.background {
@@ -25,19 +30,20 @@
 
     .hotspot {
       position: absolute;
-      width: 400px;
-      height: 350px;
+      width: 50.4%; /* 400 / 1070 */
+      height: 20.7%; /* 350 / 1176 */
       z-index: 2;
+      /*border: 2px dashed red;*/ /* Optional debug */
     }
 
     .hotspot.high {
-      top: 5%;
-      left: 35%;
+      top: 18.25%;   /* 50 / 1176 */
+      left: 25.7%;  /* 350 / 1070 */
     }
 
     .hotspot.low {
-      top: 47%;
-      left: 35%;
+      top: 57.9%;   /* 470 / 1176 */
+      left: 25.7%;  /* 350 / 1070 */
     }
 
     .text-overlay {
@@ -45,7 +51,7 @@
       top: 85%;
       left: 50%;
       transform: translateX(-50%);
-      width: 30%;
+      width: 55%;
       opacity: 0;
       transition: opacity 0.5s ease;
       z-index: 3;
@@ -56,6 +62,7 @@
 
   <div class="container">
     <img class="background" src="../assets/skyAlbum/skysAlbum.png" alt="Sky Background">
+
     <div class="hotspot high" id="highHotspot"></div>
     <div class="hotspot low" id="lowHotspot"></div>
 

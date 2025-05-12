@@ -12,9 +12,14 @@
 
     .container {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
       overflow: hidden;
+      outline: 2px solid rgb(165, 219, 50); /* Debug border */
     }
 
     .container img.background {
@@ -26,9 +31,9 @@
 
     .cloud {
       position: absolute;
-      top: 30%;
-      left: 38%;
-      width: 10%;
+      top: 25%;
+      left: 25%;
+      width: 20%;
       cursor: move;
       transition: transform 0.5s ease;
       animation: floatMotion 3s infinite alternate;
@@ -53,15 +58,14 @@
 
     .textBox {
       position: absolute;
-      top: 90%;
+      top: 85%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 40%;
+      width: 60%;
       opacity: 0;
       transition: opacity 7s ease;
       pointer-events: none;
     }
-
   </style>
 </head>
 <body>
@@ -84,7 +88,10 @@
     let isDragging = false;
     let offsetX, offsetY;
 
-    const squareArea = { top: 200, left: 300, width: 400, height: 400 }; // Define your square area
+    const container = document.querySelector('.container');
+
+    // Responsive square area in percentage relative to container size
+    const squareAreaRatio = { top: 18.2, left: 28, width: 37.4, height: 34 }; // Example ratios
 
     cloud.addEventListener('mousedown', (e) => {
       isDragging = true;
@@ -94,15 +101,20 @@
 
     document.addEventListener('mousemove', (e) => {
       if (isDragging) {
-        const rect = cloud.parentElement.getBoundingClientRect();
+        const rect = container.getBoundingClientRect();
         let newLeft = e.clientX - rect.left - offsetX;
         let newTop = e.clientY - rect.top - offsetY;
-        cloud.style.left = `${newLeft}px`;
-        cloud.style.top = `${newTop}px`;
 
-        // Check if cloud is outside the square
-        if (newLeft < squareArea.left || newLeft > squareArea.left + squareArea.width ||
-            newTop < squareArea.top || newTop > squareArea.top + squareArea.height) {
+        cloud.style.left = `${(newLeft / rect.width) * 100}%`;
+        cloud.style.top = `${(newTop / rect.height) * 100}%`;
+
+        const squareLeftPx = (squareAreaRatio.left / 100) * rect.width;
+        const squareTopPx = (squareAreaRatio.top / 100) * rect.height;
+        const squareWidthPx = (squareAreaRatio.width / 100) * rect.width;
+        const squareHeightPx = (squareAreaRatio.height / 100) * rect.height;
+
+        if (newLeft < squareLeftPx || newLeft > squareLeftPx + squareWidthPx ||
+            newTop < squareTopPx || newTop > squareTopPx + squareHeightPx) {
           
           shadow.style.opacity = 1;
           textBox.style.opacity = 1;
@@ -111,7 +123,7 @@
               audio.currentTime = 0;
               audio.play();
             }
-          }, 1000); // 2-second delay
+          }, 1000);
 
         } else {
           shadow.style.opacity = 0;
@@ -126,7 +138,6 @@
       isDragging = false;
     });
 
-    // Hide text box when audio ends
     audio.addEventListener('ended', () => {
       textBox.style.opacity = 0;
     });

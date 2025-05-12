@@ -11,9 +11,14 @@
 
     .container {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
       overflow: hidden;
+      outline: 2px solid rgb(165, 219, 50); /* Debug */
     }
 
     .background {
@@ -25,10 +30,10 @@
 
     .flip-card {
       position: absolute;
-      top: 500px;
-      left: 660px;
-      width: 400px;
-      height: 300px;
+      top: 49.5%;   /* 500 / 1176 */
+      left: 26.7%;  /* 660 / 1070 */
+      width: 46.8%; /* 400 / 1070 */
+      height: 32.5%;/* 300 / 1176 */
       perspective: 1000px;
       cursor: pointer;
       z-index: 3;
@@ -69,11 +74,11 @@
 
     .postcard-text {
       position: absolute;
-      top: 85px; /* adjust */
-      left: 205px; /* adjust */
-      width: 180px !important; /* using !important to override any other styles */
-      max-width: 250px !important;
-      height: auto !important;
+      top: 28%;     /* 85 / 300 */
+      left: 51.25%; /* 205 / 400 */
+      width: 5%;   /* 180 / 400 */
+      max-width: 90%; /* 250 / 400 */
+      height: auto;
       pointer-events: auto;
       transition: opacity 0.3s ease;
       z-index: 4;
@@ -82,10 +87,10 @@
 
     .hotspot-top {
       position: absolute;
-      top: 10px;
-      left: 650px;
-      width: 400px;
-      height: 400px;
+      top: 0.85%;   /* 10 / 1176 */
+      left: 60.7%;  /* 650 / 1070 */
+      width: 37.4%; /* 400 / 1070 */
+      height: 34%;  /* 400 / 1176 */
       z-index: 2;
     }
 
