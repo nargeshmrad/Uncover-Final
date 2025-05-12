@@ -11,9 +11,14 @@
 
     .container {
       position: relative;
-      width: 100%;
-      height: 100vh;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
       overflow: hidden;
+      outline: 2px solid rgb(165, 219, 50); /* Debug border */
     }
 
     .container img.background {
@@ -25,11 +30,12 @@
 
     .hotspot {
       position: absolute;
-      top: 40%;
-      left: 35%;
-      width: 400px;
-      height: 350px;
+      top: 25%; /* Adjust based on container height */
+      left: 15%; /* Adjust based on container width */
+      width: 70%; /* Relative to container width */
+      height: 50%; /* Relative to container height */
       z-index: 2;
+      outline: 2px solid red; /* Debug border */
     }
 
     .text-overlay {
@@ -37,7 +43,7 @@
       top: 85%;
       left: 50%;
       transform: translateX(-50%);
-      width: 30%;
+      width: 50%;
       opacity: 0;
       transition: opacity 0.5s ease;
       z-index: 3;
