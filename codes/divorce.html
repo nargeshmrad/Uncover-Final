@@ -24,7 +24,6 @@
       display: block;
     }
 
-
     .tear {
       position: absolute;
       height: auto;
@@ -35,15 +34,15 @@
 
     #tear1 {
       top: 20%;
-      left: 50%; /* Initial position */
-      width: 220px; /* Fixed width for tear1 */
+      left: 50%;
+      width: 220px;
       transform: scale(1);
     }
 
     #tear2 {
       top: 15.8%;
-      left: 39.7%; /* Initial position */
-      width: 220px; /* Same width as tear1 */
+      left: 39.7%;
+      width: 220px;
       transform: scale(0.83);
     }
 
@@ -64,22 +63,28 @@
     <img class="tear" id="tear2" src="../assets/DivorceAlbum/TearedDivorce2.png" alt="Tear 2">
   </div>
 
+  <!-- Audio Element -->
+  <audio id="divorceAudio" src="../assets/DivorceAlbum/DivorceSad.mp3" preload="auto"></audio>
+
   <script>
     const tears = document.querySelectorAll('.tear');
     const tear1 = document.getElementById('tear1');
     const tear2 = document.getElementById('tear2');
+    const divorceAudio = document.getElementById('divorceAudio');
     let tearsHaveMoved = false;
 
-    // Function to handle the initial tear separation
     function handleTearHover() {
       if (!tearsHaveMoved) {
         tear1.classList.add('moved-right');
         tear2.classList.add('moved-left');
         tearsHaveMoved = true;
+
+        // Play audio
+        divorceAudio.currentTime = 0; // Reset to start
+        divorceAudio.play();
       }
     }
 
-    // Add hover listeners to both tears
     tear1.addEventListener('mouseenter', handleTearHover);
     tear2.addEventListener('mouseenter', handleTearHover);
 

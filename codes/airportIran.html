@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Airport Grandpa Scene</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      width: 400px;
+      height: 350px;
+      z-index: 2;
+    }
+
+    .hotspot.green {
+      top: 5%;
+      left: 35%;
+    }
+
+    .hotspot.red {
+      top: 47%;
+      left: 35%;
+    }
+
+    .text-overlay {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/AirportGrandpa/AirportGrandpa.png" alt="Airport Grandpa Background">
+    <div class="hotspot green" id="greenHotspot"></div>
+    <div class="hotspot red" id="redHotspot"></div>
+
+    <img class="text-overlay" id="grandpaText" src="../assets/AirportGrandpa/GrandpaAirportText.png" alt="Grandpa Text">
+    <img class="text-overlay" id="momText1" src="../assets/AirportGrandpa/MomIranAirplaneText1.png" alt="Mom Text 1">
+    <img class="text-overlay" id="momText2" src="../assets/AirportGrandpa/MomIranAirplaneText2.png" alt="Mom Text 2">
+  </div>
+
+  <audio id="grandpaAudio" src="../assets/AirportGrandpa/grandpaAirportVoice.wav"></audio>
+  <audio id="grandpaBgMusic" src="../assets/AirportGrandpa/AirportIran.mp3"></audio>
+  <audio id="momAudio1" src="../assets/AirportGrandpa/momAirplaneIranVoice1.mp3"></audio>
+  <audio id="momAudio2" src="../assets/AirportGrandpa/momAirplaneIranVoice2.mp3"></audio>
+  <audio id="airportIranMusic" src="../assets/AirportGrandpa/AirportIranTakeOff.mp3"></audio>
+
+  <script src="airportIran.js"></script>
+</body>
+</html>

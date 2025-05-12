@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Divorce Look Past</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .scene-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: 60%;
+      object-fit: contain;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    .fade-out {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="interactionArea">
+    <img class="background" src="../assets/DivorceLookPast/DivorceAlbum.png" alt="Background">
+    <img id="sceneImage" class="scene-image" src="../assets/DivorceLookPast/BeachDadPast1.png" alt="Scene">
+  </div>
+
+  <audio id="divorceAudio" src="../assets/DivorceLookPast/DivorceSad.mp3" preload="auto"></audio>
+
+  <script>
+    const interactionArea = document.getElementById('interactionArea');
+    const sceneImage = document.getElementById('sceneImage');
+    const divorceAudio = document.getElementById('divorceAudio');
+
+    const imageSequence = [
+      "../assets/DivorceLookPast/BeachDadPast2.png",
+      "../assets/DivorceLookPast/HillsMomPast1.png",
+      "../assets/DivorceLookPast/HillsMomPast2.png",
+      "../assets/DivorceLookPast/MomDadPast1.png",
+      "../assets/DivorceLookPast/MomDadPast2.png"
+    ];
+
+    const changeDelay = 3000; // 3 seconds delay
+    let hasPlayed = false;
+
+    interactionArea.addEventListener('mouseenter', () => {
+      if (hasPlayed) return;
+
+      hasPlayed = true;
+      divorceAudio.currentTime = 0;
+      divorceAudio.play();
+
+      // Start the sequence after 3 seconds
+      setTimeout(() => {
+        let index = 0;
+        
+        const updateImage = () => {
+          // Fade out current image
+          sceneImage.classList.add('fade-out');
+          
+          // Wait for fade out, then change image and fade in
+          setTimeout(() => {
+            sceneImage.src = imageSequence[index];
+            // Remove fade-out class to trigger fade in
+            sceneImage.classList.remove('fade-out');
+            
+            index++;
+            if (index < imageSequence.length) {
+              setTimeout(updateImage, changeDelay);
+            }
+          }, 1000); // Wait for fade out to complete
+        };
+        
+        updateImage();
+      }, 3000); // Initial delay before starting sequence
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Airplane to Iran Scene</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      top: 40%;
+      left: 35%;
+      width: 400px;
+      height: 350px;
+      z-index: 2;
+    }
+
+    .text-overlay {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/AirplaneToIran/AirplaneToIran.png" alt="Airplane Background">
+    <div class="hotspot" id="hotspot"></div>
+
+    <img class="text-overlay" id="text1" src="../assets/AirplaneToIran/AskMomPlaneJapan.png" alt="Ask Mom">
+    <img class="text-overlay" id="text2" src="../assets/AirplaneToIran/MomPlaneJapanAnswer.png" alt="Mom Answer">
+    <img class="text-overlay" id="text3" src="../assets/AirplaneToIran/AskDadPlaneJapan.png" alt="Ask Dad">
+    <img class="text-overlay" id="text4" src="../assets/AirplaneToIran/DadPlaneJapanAnswer.png" alt="Dad Answer">
+  </div>
+
+  <audio id="ambienceAudio" src="../assets/AirplaneToIran/airplaneAmbience.mp3" loop></audio>
+  <audio id="dialogAudio" src="../assets/AirplaneToIran/AirplaneDialog.mp3"></audio>
+
+  <script src="AirplaneToIran.js"></script>
+</body>
+</html>

@@ -126,6 +126,17 @@
     .eraser.dragging {
       cursor: grabbing;
     }
+
+    .text-overlay {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 6;
+    }
   </style>
 </head>
 <body>
@@ -135,6 +146,9 @@
   </audio>
   <audio id="laughingSound" preload="auto" loop>
     <source src="../assets/StudentsCrush/laughing.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="studentYardAudio" preload="auto">
+    <source src="../assets/StudentsCrush/StudentAskYard.mp3" type="audio/mpeg">
   </audio>
 
   <div class="container" id="interactionArea">
@@ -147,8 +161,14 @@
     <img class="letter" id="foldedLetter" src="../assets/StudentsCrush/foldedLetter.png" alt="Folded Letter">
     <img class="opened-letter" id="openedLetter" src="../assets/StudentsCrush/openedLetter.png" alt="Opened Letter">
     <img class="opened-letter2" id="openedLetter2" src="../assets/StudentsCrush/openedLetter2.png" alt="Opened Letter 2">
+    <img class="text-overlay" id="studentYardText" src="../assets/StudentsCrush/studentYardText1.png" alt="Student Yard Text">
   </div>
 
   <script src="StudentsCrush.js"></script>
 </body>
 </html>
+
+
+
+  
+  

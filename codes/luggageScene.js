@@ -38,22 +38,22 @@ let currentlyDraggedSprite = null;
 //let displayTextImg; // Variable for the image
 
 function preload() {
-  backgroundImg = loadImage("assets/luggageScene/LuggageScene.png");
-  shirtImg = loadImage("assets/luggageScene/Tshirt.png");
-  unfoldedShirtImg = loadImage("assets/luggageScene/TshirtUnfolded.png");
-  kimonoImg = loadImage("assets/luggageScene/Kimono.png");
-  unfoldedKimonoImg = loadImage("assets/luggageScene/KimonoUnfolded.png");
+  backgroundImg = loadImage("../assets/luggageScene/LuggageScene.png");
+  shirtImg = loadImage("../assets/luggageScene/Tshirt.png");
+  unfoldedShirtImg = loadImage("../assets/luggageScene/TshirtUnfolded.png");
+  kimonoImg = loadImage("../assets/luggageScene/Kimono.png");
+  unfoldedKimonoImg = loadImage("../assets/luggageScene/KimonoUnfolded.png");
   // Get references to audio elements
   kimonoSound = document.getElementById('kimonoAudio');
   skirtSound = document.getElementById('skirtAudio');
   clothesMovementSound = document.getElementById('clothesAudio');
   
-  foldedSkirtImg = loadImage("assets/luggageScene/Skirt.png");
-  unfoldedSkirtImg = loadImage("assets/luggageScene/SkirtUnfolded.png");
-  noSleeveShirtImg = loadImage("assets/luggageScene/Top.png");
-  unfoldedNoSleeveImg = loadImage("assets/luggageScene/TopUnfolded.png");
-  foldedYellowImg = loadImage("assets/luggageScene/ShortSleeveShirt.png");
-  unfoldedYellowImg = loadImage("assets/luggageScene/ShortSleeveShirtUnfolded.png");
+  foldedSkirtImg = loadImage("../assets/luggageScene/Skirt.png");
+  unfoldedSkirtImg = loadImage("../assets/luggageScene/SkirtUnfolded.png");
+  noSleeveShirtImg = loadImage("../assets/luggageScene/Top.png");
+  unfoldedNoSleeveImg = loadImage("../assets/luggageScene/TopUnfolded.png");
+  foldedYellowImg = loadImage("../assets/luggageScene/ShortSleeveShirt.png");
+  unfoldedYellowImg = loadImage("../assets/luggageScene/ShortSleeveShirtUnfolded.png");
   foldedJeanImg = loadImage("assets/luggageScene/Jean.png");
   unfoldedJeanImg = loadImage("assets/luggageScene/JeanUnfolded.png");
   displayTextImg = loadImage("assets/luggageScene/kimonoTextBox.png"); // Load the image

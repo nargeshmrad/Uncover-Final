@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
   const eraser = document.getElementById('eraser');
   const scribbles = document.getElementById('scribbles');
@@ -9,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const openedLetter2 = document.getElementById('openedLetter2');
   const eraserSound = document.getElementById('eraserSound');
   const laughingSound = document.getElementById('laughingSound');
+  const studentYardAudio = document.getElementById('studentYardAudio');
+  const studentYardText = document.getElementById('studentYardText');
 
   // Set initial volume for laughing sound
   laughingSound.volume = 0.3; // 30% volume
@@ -72,6 +75,17 @@ document.addEventListener('DOMContentLoaded', () => {
           students2.classList.add('hidden');
           students3.classList.remove('hidden');
           
+          // Play student yard audio and show text when students3 appears
+          studentYardAudio.currentTime = 0;
+          studentYardAudio.play();
+          setTimeout(() => {
+            studentYardText.style.opacity = '1';
+            // Fade out the text after 3 seconds
+            setTimeout(() => {
+              studentYardText.style.opacity = '0';
+            }, 3000);
+          }, 1000);
+
           // Show the folded letter after 5 more seconds
           setTimeout(() => {
             foldedLetter.classList.add('visible');
@@ -143,4 +157,3 @@ document.addEventListener('DOMContentLoaded', () => {
     openedLetter2.classList.add('front');
   });
 });
-

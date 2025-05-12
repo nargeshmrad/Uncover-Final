@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Scene</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      width: 400px;
+      height: 350px;
+      z-index: 2;
+    }
+
+    .hotspot.high {
+      top: 5%;
+      left: 35%;
+    }
+
+    .hotspot.low {
+      top: 47%;
+      left: 35%;
+    }
+
+    .text-overlay {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img class="background" src="../assets/skyAlbum/skysAlbum.png" alt="Sky Background">
+    <div class="hotspot high" id="highHotspot"></div>
+    <div class="hotspot low" id="lowHotspot"></div>
+
+    <img class="text-overlay" id="skyText1" src="../assets/skyAlbum/skysText1.png" alt="Sky Text 1">
+    <img class="text-overlay" id="skyText2" src="../assets/skyAlbum/skysText2.png" alt="Sky Text 2">
+    <img class="text-overlay" id="skyText3" src="../assets/skyAlbum/skysText3.png" alt="Sky Text 3">
+    <img class="text-overlay" id="askMomText" src="../assets/skyAlbum/AskMomPoemText.png" alt="Ask Mom Poem Text">
+    <img class="text-overlay" id="momAnswerText" src="../assets/skyAlbum/MomAnswerPoemText.png" alt="Mom Answer Poem Text">
+  </div>
+
+  <audio id="skyAudio" src="../assets/skyAlbum/sky.mp3"></audio>
+  <audio id="askMomAudio" src="../assets/skyAlbum/AskMomPoem.mp3"></audio>
+  <audio id="momAnswerAudio" src="../assets/skyAlbum/MomAnswerPoem.mp3"></audio>
+
+  <script src="skyAlbum.js"></script>
+</body>
+</html>
