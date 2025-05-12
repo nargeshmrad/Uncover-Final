@@ -3,8 +3,16 @@ let brushOpacity = 255;
 let brushActive = false;
 let activeColor = null; // 'pink', 'yellow', or 'green'
 
+// Define eyeshadow area dimensions
+let eyeshadowArea = {
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0
+};
+
 function preload() {
-    brushImg = loadImage('assets/EyeShadowScene/brush.png');
+    brushImg = loadImage('../assets/EyeShadowScene/brush.png');
 }
 
 function setup() {

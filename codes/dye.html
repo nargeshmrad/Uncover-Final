@@ -189,14 +189,9 @@
     const updateInterval = 30;
     const initialFadeAmount = 0.1; // 10% fade on first click
     const dragFadeSpeed = 0.0005; // Continuous fade speed while dragging
-    let bleachSound; // Sound for bleaching
-    let colorSound; // Sound for coloring
     let hasPlayedBleachSound = false; // Flag to track if bleach sound has been played
     let hasPlayedColorSound = false; // Flag to track if color sound has been played
-    let letters = []; // Array to store floating letters
-    let floatingText = ''; // Text to float
-    let isFloating = false; // Whether text should float
-    let floatingCanvas; // p5.js canvas for floating text
+
 
 
 
@@ -235,97 +230,9 @@
 
 
 
-    // Load sounds
-    // Letter class for floating text effect
-    class Letter {
-      constructor(x, y, letter) {
-        this.x = x;
-        this.y = y;
-        this.letter = letter;
-        this.vx = Math.random() * 4 - 2; // Random velocity between -2 and 2
-        this.vy = Math.random() * 4 - 2;
-        this.size = Math.random() * 20 + 20; // Random size between 20 and 40
-        this.rotation = Math.random() * 360;
-        this.rotationSpeed = Math.random() * 10 - 5;
-        this.opacity = 0.7; // Start with 70% opacity
-        this.fadeSpeed = 0.003; // How fast the opacity decreases
-      }
-
-
-      update(p) {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.rotation += this.rotationSpeed;
-        this.opacity = Math.max(0, this.opacity - this.fadeSpeed); // Gradually reduce opacity
-      }
-
-
-      display(p) {
-        p.push();
-        p.translate(this.x, this.y);
-        p.rotate(this.rotation);
-        // Set fill and stroke with opacity
-        p.fill(255, 255, 255, this.opacity * 255);
-        p.stroke(0, 0, 0, this.opacity * 255);
-        p.strokeWeight(2);
-        p.textSize(this.size);
-        p.textAlign(p.CENTER, p.CENTER);
-        p.text(this.letter, 0, 0);
-        p.pop();
-      }
-
-
-      offScreen(p) {
-        return (this.x < -50 || this.x > p.width + 50 ||
-                this.y < -50 || this.y > p.height + 50 ||
-                this.opacity <= 0); // Remove letter when fully transparent
-      }
-    }
-
-
-    // Initialize p5.js
-    const p5Instance = new p5((p) => {
-      p.preload = function() {
-        bleachSound = p.loadSound('../assets/DyeHairScene/Bleach.m4a');
-        colorSound = p.loadSound('../assets/DyeHairScene/color.m4a');
-      };
-
-
-      p.setup = function() {
-        floatingCanvas = p.createCanvas(window.innerWidth, window.innerHeight);
-        floatingCanvas.position(0, 0);
-        floatingCanvas.style('z-index', '1000');
-        floatingCanvas.style('pointer-events', 'none');
-        p.angleMode(p.DEGREES);
-        p.textFont('Arial');
-      };
-
-
-      p.draw = function() {
-        p.clear();
-        if (isFloating) {
-          for (let i = letters.length - 1; i >= 0; i--) {
-            letters[i].update(p);
-            letters[i].display(p);
-            if (letters[i].offScreen(p)) {
-              letters.splice(i, 1);
-            }
-          }
-          if (letters.length === 0) {
-            isFloating = false;
-          }
-        }
-      };
-    });
-
-
-    function startFloatingText(text, x, y) {
-      for (let i = 0; i < text.length; i++) {
-        let letter = text[i];
-        letters.push(new Letter(x, y, letter));
-      }
-      isFloating = true;
-    }
+    // Initialize sounds
+    const bleachSound = new Audio('../assets/DyeHairScene/Bleach.m4a');
+    const colorSound = new Audio('../assets/DyeHairScene/color.m4a');
 
 
     // Initial draw
@@ -404,17 +311,10 @@
           dialogueText.textContent = text;
           dialogueText.style.display = 'block';
          
-          // Start floating text effect after sound finishes with added delay
-          bleachSound.onended(() => {
-            setTimeout(() => {
-              // Get the position of the dialogue text
-              const dialogueRect = dialogueText.getBoundingClientRect();
-              // Start floating from the dialogue's position
-              startFloatingText(text, dialogueRect.left + dialogueRect.width / 2, dialogueRect.top + dialogueRect.height / 2);
-              // Hide the original text
-              dialogueText.style.display = 'none';
-            }, 4000); // 4 second delay before floating text starts
-          });
+          // Hide dialogue text after delay
+          setTimeout(() => {
+            dialogueText.style.display = 'none';
+          }, 4000);
         } else if (!hasPlayedColorSound && canRevealFinal && !hasInitialClick) {
           hasPlayedColorSound = true;
           colorSound.play();
@@ -422,17 +322,10 @@
           dialogueText.textContent = text;
           dialogueText.style.display = 'block';
          
-          // Start floating text effect after sound finishes with added delay
-          colorSound.onended(() => {
-            setTimeout(() => {
-              // Get the position of the dialogue text
-              const dialogueRect = dialogueText.getBoundingClientRect();
-              // Start floating from the dialogue's position
-              startFloatingText(text, dialogueRect.left + dialogueRect.width / 2, dialogueRect.top + dialogueRect.height / 2);
-              // Hide the original text
-              dialogueText.style.display = 'none';
-            }, 4000); // 4 second delay before floating text starts
-          });
+          // Hide dialogue text after delay
+          setTimeout(() => {
+            dialogueText.style.display = 'none';
+          }, 4000);
         }
         if (!hasInitialClick) {
           updateOpacity(initialFadeAmount);
