@@ -6,111 +6,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const shadowVoice = document.getElementById('shadowVoice');
     const bg1 = document.getElementById('bg1');
     const bg2 = document.getElementById('bg2');
+    const container = document.querySelector('.container');
 
     let resetTimer;
     let voiceTimer;
-    let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
     let isPlaying = false;
     let hasPlayedVoice = false;
-    let xOffset = 0;
-    let yOffset = 0;
     let shadowOpacity = 1;
     let hasTransitioned = false;
+    let hasLightCursor = false;
+    let fadingShadow = false;
 
     // Set up music to loop
     shadowMusic.loop = true;
 
-    function checkCollision(light, shadow) {
-        const lightRect = light.getBoundingClientRect();
-        const shadowRect = shadow.getBoundingClientRect();
 
-        return !(
-            lightRect.right < shadowRect.left ||
-            lightRect.left > shadowRect.right ||
-            lightRect.bottom < shadowRect.top ||
-            lightRect.top > shadowRect.bottom
-        );
-    }
+    // Remove the light image from the DOM (or hide it)
+    light.style.display = 'none';
 
-    // Set initial position of light
-    light.style.top = '5%';
-    light.style.left = '50%';
-    light.style.transform = 'translate(-50%, -50%)';
 
-    function dragStart(e) {
-        if (light.style.opacity === '1') {
-            e.preventDefault();
-            const rect = light.getBoundingClientRect();
-            initialX = e.clientX - rect.left;
-            initialY = e.clientY - rect.top;
-            
-            if (e.target === light) {
-                isDragging = true;
-                light.classList.add('dragging');
-            }
-        }
-    }
-
-    function drag(e) {
-        if (isDragging) {
-            e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-
-            xOffset = currentX;
-            yOffset = currentY;
-
-            setTranslate(currentX, currentY, light);
-
-            // Check if light is touching shadow
-            if (checkCollision(light, shadow)) {
-                // Decrease shadow opacity very slowly
-                shadowOpacity = Math.max(0, shadowOpacity - 0.002);
-                shadow.style.opacity = shadowOpacity;
-
-                // If shadow is completely faded
-                if (shadowOpacity === 0 && !hasTransitioned) {
-                    hasTransitioned = true;
-                    shadow.style.display = 'none';
-                    
-                    // Start background transition
-                    bg2.style.opacity = '1';
-                    
-                    // Optional: Remove the light after transition
-                    setTimeout(() => {
-                        light.style.opacity = '0';
-                    }, 2000); // Same duration as background transition
-                }
-            }
-        }
-    }
-
-    function setTranslate(xPos, yPos, el) {
-        el.style.transform = `translate(0, 0)`;
-        el.style.left = `${xPos}px`;
-        el.style.top = `${yPos}px`;
-    }
-
-    function dragEnd(e) {
-        initialX = currentX;
-        initialY = currentY;
-        isDragging = false;
-        light.classList.remove('dragging');
-    }
-
-    // Add the event listeners
-    light.addEventListener('mousedown', dragStart);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', dragEnd);
-
-    // Prevent light from triggering shadow events
-    light.addEventListener('mouseenter', (e) => {
-        e.stopPropagation();
-    });
 
     shadow.addEventListener('mouseenter', async () => {
         if (isPlaying) return; // Prevent multiple plays
@@ -132,10 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         textbox.style.opacity = '1';
                         hasPlayedVoice = true;
 
-                        // Show light when voice ends
+                        // After voice ends, enable light cursor
                         resetTimer = setTimeout(() => {
                             textbox.style.opacity = '0';
-                            light.style.opacity = '1';
+                            //light.style.opacity = '1';
+                            hasLightCursor = true;
+                            fadingShadow = false;
+                            document.body.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+                            container.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+                            shadow.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
                             isPlaying = false; // Reset playing state when everything is done
                         }, shadowVoice.duration * 1000);
                     } catch (error) {
@@ -144,8 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }, 2000);
             } else {
-                // If voice has already played, just make sure light is visible
-                light.style.opacity = '1';
+                // If voice has already played, just enable light cursor
+                hasLightCursor = true;
+                fadingShadow = false;
+                container.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
                 isPlaying = false;
             }
         } catch (error) {
@@ -154,12 +75,73 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Fade shadow on hover with light-cursor
+    shadow.addEventListener('mousemove', (e) => {
+        if (!hasLightCursor || hasTransitioned || fadingShadow) return;
+        fadingShadow = true;
+        function fade() {
+            if (!hasLightCursor || hasTransitioned) { fadingShadow = false; return; }
+            shadowOpacity = Math.max(0, shadowOpacity - 0.002);
+            shadow.style.opacity = shadowOpacity;
+            if (shadowOpacity === 0 && !hasTransitioned) {
+                hasTransitioned = true;
+                shadow.style.display = 'none';
+                bg2.style.opacity = '1';
+                // Fade out the light cursor smoothly using CSS overlay
+                document.body.classList.add('light-cursor-fadeout');
+                document.body.classList.add('fading');
+                container.style.cursor = 'default';
+                shadow.style.cursor = 'default';
+                hasLightCursor = false;
+                fadingShadow = false;
+                setTimeout(() => {
+                    document.body.classList.remove('light-cursor-fadeout');
+                    document.body.classList.remove('fading');
+                    document.body.style.cursor = 'default';
+                }, 600); // Duration matches CSS transition
+                return;
+            }
+            if (hasLightCursor && !hasTransitioned) {
+                requestAnimationFrame(fade);
+            } else {
+                fadingShadow = false;
+            }
+        }
+        requestAnimationFrame(fade);
+    });
+
+    // Remove light cursor if user leaves shadow
     shadow.addEventListener('mouseleave', () => {
-        if (!isDragging) {
-            // Only reset light position if not dragging
-            light.style.top = '5%';
-            light.style.left = '50%';
-            light.style.transform = 'translate(-50%, -50%)';
+        fadingShadow = false;
+        if (hasLightCursor && !hasTransitioned) {
+            document.body.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+            container.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+            shadow.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+        } else {
+            document.body.style.cursor = 'default';
+            container.style.cursor = 'default';
+            shadow.style.cursor = 'default';
         }
     });
+
+    // Ensure cursor is set on mouseenter for shadow and container after light mode enabled
+    shadow.addEventListener('mouseenter', () => {
+        if (hasLightCursor && !hasTransitioned) {
+            document.body.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+            container.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+            shadow.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+        }
+    });
+    container.addEventListener('mouseenter', () => {
+        if (hasLightCursor && !hasTransitioned) {
+            document.body.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+            container.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+        }
+    });
+
+    // Debug: Check if cursor image is accessible
+    const testImg = new window.Image();
+    testImg.src = '../assets/ShadowAlbum/light.png';
+    testImg.onerror = () => { console.warn('Light cursor image failed to load: ../assets/ShadowAlbum/light.png'); };
+
 });

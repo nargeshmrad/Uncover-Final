@@ -12,6 +12,30 @@
       cursor: auto;
     }
 
+    /* Smooth fadeout for custom light cursor */
+    body.light-cursor-fadeout::after {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      z-index: 99999;
+      background: none;
+      opacity: 1;
+      transition: opacity 0.6s;
+      /* Use the light icon as a cursor overlay */
+      mask-image: url('../assets/ShadowAlbum/light.png');
+      -webkit-mask-image: url('../assets/ShadowAlbum/light.png');
+      background-image: url('../assets/ShadowAlbum/light.png');
+      background-repeat: no-repeat;
+      background-position: var(--cursor-x, 50%) var(--cursor-y, 50%);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+    body.light-cursor-fadeout.fading::after {
+      opacity: 0;
+      transition: opacity 0.6s;
+    }
+
     .light-cursor {
       cursor: url('../assets/ShadowAlbum/light.png'), auto;
     }
