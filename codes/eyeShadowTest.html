@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Eye Shadow Scene</title>
+  <style>
+    /* Hide default cursor */
+    * {
+      cursor: none !important;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+
+    canvas {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      pointer-events: none !important;
+      z-index: 9999 !important;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Hotspots - invisible but active */
+    .hotspot {
+      position: absolute;
+      border: 2px dashed #00ff00;
+      background: rgba(0,255,0,0.15);
+      cursor: pointer;
+      user-select: none;
+      z-index: 99;
+    }
+
+    .hotspot.red {
+      top: 65%;
+      left: 45%;
+      width: 150px;
+      height: 150px;
+      z-index: 20;
+    }
+
+    .hotspot.green {
+      top: 70%;
+      left: 25%;
+      width: 200px;
+      height: 200px;
+      z-index: 20;
+    }
+
+    .hotspot.white {
+      top: 39%;
+      left: 40%;
+      width: 200px;
+      height: 200px;
+      z-index: 20;
+    }
+
+    /* Eyeshadow images */
+    .eyeshadow {
+      position: absolute;
+      opacity: 1 !important;
+      outline: 2px solid red;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      user-select: none;
+      z-index: 100;
+    }
+
+    #pinkEyeshadow {
+      width: 23%;
+      top: 24.5%;
+      left: 37.5%;
+    }
+
+    #yellowEyeshadow {
+      width: 22%;
+      top: 27%;
+      left: 39%;
+    }
+
+    #greenEyeshadow {
+      width: 23%;
+      top: 27%;
+      left: 38%;
+    }
+
+    /* Palette wrapper */
+    #colorPaletteWrapper {
+      position: fixed;
+      bottom:50px;
+      right: 635px;
+      width: 650px;
+      height: 300px;
+      pointer-events: all; /* Enable mouse events */
+      z-index: 5;
+    }
+
+    #colorPalette {
+      width: 100%;
+      height: 100%;
+      user-select: none;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img class="background" src="../assets/EyeShadowScene/EyeShadowScene.png" alt="Background" />
+
+    <div class="hotspot red" id="hotspotRed"></div>
+    <div class="hotspot green" id="hotspotGreen"></div>
+    <div class="hotspot white" id="hotspotWhite"></div>
+
+    <img class="eyeshadow" id="pinkEyeshadow" src="../assets/EyeShadowScene/PinkRedGreenEyeShadow.png" alt="Pink Eye Shadow" />
+    <img class="eyeshadow" id="yellowEyeshadow" src="../assets/EyeShadowScene/YellowOrange.png" alt="Yellow Eye Shadow" />
+    <img class="eyeshadow" id="greenEyeshadow" src="../assets/EyeShadowScene/GreenOrange.png" alt="Green Eye Shadow" />
+
+
+  </div>
+
+  <audio id="eyeShadowAudio" src="../assets/EyeShadowScene/EyeShadow.mp3"></audio>
+
+  <!-- p5.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <!-- Your custom script -->
+  <script src="eyeShadowTest.js"></script>
+</body>
+</html>

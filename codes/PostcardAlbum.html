@@ -66,23 +66,36 @@
     .flip-card-back {
       transform: rotateY(180deg);
       position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .flip-card.hovered .flip-card-inner {
       transform: rotateY(180deg);
     }
 
-    .postcard-text {
+    .text-container {
       position: absolute;
-      top: 28%;     /* 85 / 300 */
-      left: 51.25%; /* 205 / 400 */
-      width: 5%;   /* 180 / 400 */
-      max-width: 90%; /* 250 / 400 */
-      height: auto;
-      pointer-events: auto;
-      transition: opacity 0.3s ease;
+      left: 44%;
+      top: 60%;
+      transform: translateY(-50%);
+      width: 60%;
+      height: 60%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
       z-index: 4;
-      display: block;
+    }
+
+    .postcard-text {
+      max-width: 80%;
+      max-height: 85%;
+      width: var(--text-size, 100%);
+      height: auto;
+      object-fit: contain;
+      transition: all 0.3s ease;
     }
 
     .hotspot-top {
@@ -123,7 +136,9 @@
       </div>
       <div class="flip-card-back">
         <img src="../assets/postcardAlbum/PostCardBack.png" alt="Postcard Back">
-        <img id="postcardText" class="postcard-text" src="../assets/postcardAlbum/PostcardJapaneseText.png" alt="Japanese Text">
+        <div class="text-container">
+          <img id="postcardText" class="postcard-text" src="../assets/postcardAlbum/PostcardJapaneseText.png" alt="Japanese Text">
+        </div>
       </div>
     </div>
   </div>
@@ -181,6 +196,19 @@
     shadowAudio.pause();
     shadowAudio.currentTime = 0;
     shadowText.style.opacity = 0;
+  });
+
+  // Text resize functionality
+  let currentSize = 100;
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp' && currentSize < 100) {
+      currentSize += 5;
+      postcardText.style.setProperty('--text-size', currentSize + '%');
+    } else if (e.key === 'ArrowDown' && currentSize > 20) {
+      currentSize -= 5;
+      postcardText.style.setProperty('--text-size', currentSize + '%');
+    }
   });
 </script>
 

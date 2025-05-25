@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ripple Scene</title>
+  <link rel="stylesheet" href="HimOnWater.css" />
+</head>
+<body>
+
+  <div class="container">
+    <!-- Ripple background image (applies ripple inside this div)-->
+    <div id="ripple-bg"></div>
+
+    <!-- Floating HimOnWater image (between ripple and UI) -->
+    <img src="../assets/HimOnWater/HimOnWater.png" class="floating-him" alt="Him on Water" />
+
+    <!-- UI content on top of ripple -->
+    <div id="floating-paper-container">
+      <div id="paper-menu">
+        <button class="menu-btn">Start</button>
+        <button class="menu-btn">Options</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.ripples/0.5.3/jquery.ripples.min.js"></script>
+  <script src="HimOnWater.js"></script>
+
+</body>
+</html>
