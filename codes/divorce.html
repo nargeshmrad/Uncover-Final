@@ -71,55 +71,7 @@
 
   <audio id="divorceAudio" src="../assets/DivorceAlbum/DivorceSad.mp3" preload="auto"></audio>
 
-  <script>
-    const tears = document.querySelectorAll('.tear');
-    const tear1 = document.getElementById('tear1');
-    const tear2 = document.getElementById('tear2');
-    const divorceAudio = document.getElementById('divorceAudio');
-    let tearsHaveMoved = false;
-
-    function handleTearHover() {
-      if (!tearsHaveMoved) {
-        tear1.classList.add('moved-right');
-        tear2.classList.add('moved-left');
-        tearsHaveMoved = true;
-
-        // Play audio
-        divorceAudio.currentTime = 0; // Reset to start
-        divorceAudio.play();
-      }
-    }
-
-    tear1.addEventListener('mouseenter', handleTearHover);
-    tear2.addEventListener('mouseenter', handleTearHover);
-
-    // Dragging functionality
-    tears.forEach(tear => {
-      let isDragging = false;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      tear.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        offsetX = e.offsetX;
-        offsetY = e.offsetY;
-        tear.style.cursor = 'grabbing';
-      });
-
-      document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-          const rect = tear.parentElement.getBoundingClientRect();
-          tear.style.left = `${e.clientX - rect.left - offsetX}px`;
-          tear.style.top = `${e.clientY - rect.top - offsetY}px`;
-        }
-      });
-
-      window.addEventListener('mouseup', () => {
-        isDragging = false;
-        tear.style.cursor = 'grab';
-      });
-    });
-  </script>
+  <script src="divorce.js"></script>
 
 </body>
 </html>

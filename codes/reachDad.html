@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reach Dad Interaction</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      position: relative;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+      outline: 2px solid rgb(165, 219, 50); /* Debug border for dev, remove if not needed */
+      background: url('../assets/reachDad/reachDad.png') no-repeat center/cover;
+      cursor: pointer;
+    }
+    .floating-image {
+      position: absolute;
+      width: 15%;
+      height: auto;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 1s ease;
+      user-select: none;
+      will-change: transform;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <img src="../assets/reachDad/money1.png" alt="Money 1" id="money1" class="floating-image" />
+    <img src="../assets/reachDad/money2.png" alt="Money 2" id="money2" class="floating-image" />
+    <img src="../assets/reachDad/flightTicket1.png" alt="Flight Ticket" id="flightTicket" class="floating-image" />
+    <img src="../assets/reachDad/cake.png" alt="Cake" id="cake" class="floating-image" />
+  </div>
+
+  <script src="reachDad.js"></script>
+</body>
+</html>

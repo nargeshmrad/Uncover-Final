@@ -71,7 +71,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       width: 50%;  /* Increased from 40.7% */
-      height: 50%;   /* Increased from 40% */
+      height: 30%;  /* Increased from 40% */
       border: 2px dashed red;
       z-index: 3;
     }
@@ -88,67 +88,13 @@
   </div>
 
   <script>
-    const workClothes = document.getElementById('workClothes');
-    const dropzone = document.getElementById('dropzone');
-
-    function makeDraggable(item, replacementImage) {
-      let isDragging = false;
-      let startX, startY;
-
-      item.addEventListener('mousedown', dragStart);
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', dragEnd);
-
-      function dragStart(e) {
-        if (e.target === item) {
-          isDragging = true;
-          item.style.cursor = 'grabbing';
-          const rect = item.getBoundingClientRect();
-          startX = e.clientX - rect.left;
-          startY = e.clientY - rect.top;
-        }
-      }
-
-      function drag(e) {
-        if (isDragging) {
-          e.preventDefault();
-          const container = item.parentElement;
-          const containerRect = container.getBoundingClientRect();
-          const newX = e.clientX - containerRect.left - startX;
-          const newY = e.clientY - containerRect.top - startY;
-
-          // Update position with percentage values for responsiveness
-          item.style.left = `${(newX / containerRect.width) * 100}%`;
-          item.style.top = `${(newY / containerRect.height) * 100}%`;
-        }
-      }
-
-      function dragEnd() {
-        if (isDragging) {
-          isDragging = false;
-          item.style.cursor = 'grab';
-
-          const itemRect = item.getBoundingClientRect();
-          const dropzoneRect = dropzone.getBoundingClientRect();
-
-          const isDroppedInside = !(
-            itemRect.right < dropzoneRect.left ||
-            itemRect.left > dropzoneRect.right ||
-            itemRect.bottom < dropzoneRect.top ||
-            itemRect.top > dropzoneRect.bottom
-          );
-
-          if (isDroppedInside) {
-            workClothes.src = replacementImage;
-            item.classList.add('faded');
-          }
-        }
-      }
-    }
-
-    makeDraggable(document.getElementById('kimono'), "../assets/workClothes/WorkClothes2.png");
-    makeDraggable(document.getElementById('coat'), "../assets/workClothes/WorkClothes3.png");
+    // Only setup/init here, logic is in workClothes.js
+    // DOMContentLoaded ensures elements exist before JS runs
+    document.addEventListener('DOMContentLoaded', function() {
+      window.initWorkClothesDrag && window.initWorkClothesDrag();
+    });
   </script>
+  <script src="workClothes.js"></script>
 
 </body>
 </html>
