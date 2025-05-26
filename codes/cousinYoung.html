@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cousin Young Scene</title>
+<style>
+  body, html {
+    margin: 0; padding: 0;
+    height: 100%;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .scene-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: none; 
+  }
+  .bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    transition: opacity 1.5s ease;
+    z-index: 0;
+  }
+  #bg2 {
+    opacity: 0;
+  }
+  .textbox {
+    position: absolute;
+    width: 80%;
+    max-width: 400px;
+    height: auto;
+    left: 30%;
+    top: 10%;
+    transform: translateX(-50%);
+    user-select: none;
+  }
+
+  .choice {
+    height: auto;
+    cursor: pointer;
+    user-select: none;
+    display: block;
+  }
+  .textbox {
+    bottom: 10%;
+    left: 30%;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 1.5s ease;
+  }
+  #choices {
+    position: absolute;
+    left: 65%;
+    bottom: 10%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 1.5s ease;
+  }
+  .choice {
+    width: 30%;
+    max-width: 300px;
+    height: auto;
+    cursor: pointer;
+    user-select: none;
+    display: block;
+  }
+
+  @media (max-width: 900px) {
+    #choices img {
+      max-width: 40vw;
+    }
+  }
+
+  @media (max-width: 600px) {
+    #choices img {
+      max-width: 60vw;
+    }
+  }
+  #choices img:hover {
+    filter: brightness(1.1) drop-shadow(0 0 10px #fff);
+  }
+  #choices.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <img id="bg1" class="bg" src="../assets/cousinYoung/Cousin1.png" />
+  <img id="bg2" class="bg" src="../assets/cousinYoung/Cousin2.png" />
+
+  <img id="text1" class="textbox" src="../assets/cousinYoung/CousinTextBox.png" />
+  <img id="text2" class="textbox" src="../assets/cousinYoung/CousinTextBox2.png" style="display:none;" />
+  <img id="text3" class="textbox" src="../assets/cousinYoung/CousinTextBox3.png" style="display:none;" />
+
+  <div id="choices">
+    <img id="choice1" class="choice" src="../assets/cousinYoung/Choice1.png" />
+    <img id="choice2" class="choice" src="../assets/cousinYoung/Choice2.png" />
+  </div>
+</div>
+
+<script>
+  // Load audio
+  const cousin1 = new Audio("../assets/cousinYoung/Cousin1.mp3");
+  const cousin2 = new Audio("../assets/cousinYoung/Cousin2.mp3");
+  const cousin3 = new Audio("../assets/cousinYoung/Cousin3.mp3");
+
+  const choice1Audio = new Audio("../assets/cousinYoung/Choice1.mp3");
+  const choice2Audio = new Audio("../assets/cousinYoung/Choice2.mp3");
+
+  // DOM elements
+  const text1 = document.getElementById("text1");
+  const text2 = document.getElementById("text2");
+  const text3 = document.getElementById("text3");
+
+  const choicesDiv = document.getElementById("choices");
+  const choice1 = document.getElementById("choice1");
+  const choice2 = document.getElementById("choice2");
+
+  const bg1 = document.getElementById("bg1");
+  const bg2 = document.getElementById("bg2");
+
+  // Start scene
+  window.onload = () => {
+    cousin1.play();
+    cousin1.onended = () => {
+      fadeOut(text1, 1500).then(() => {
+        text1.style.display = "none";
+        choicesDiv.classList.add("visible");
+      });
+    };
+  };
+
+  // Fade helpers
+  function fadeOut(el, duration) {
+    return new Promise(res => {
+      el.style.transition = `opacity ${duration}ms ease`;
+      el.style.opacity = 0;
+      setTimeout(res, duration);
+    });
+  }
+
+  function fadeIn(el, duration) {
+    return new Promise(res => {
+      el.style.display = "";
+      el.style.transition = `opacity ${duration}ms ease`;
+      el.style.opacity = 1;
+      setTimeout(res, duration);
+    });
+  }
+
+  // Hover audio
+  choice1.addEventListener("mouseenter", () => {
+    choice1Audio.currentTime = 0;
+    choice1Audio.play();
+  });
+  choice1.addEventListener("mouseleave", () => {
+    choice1Audio.pause();
+  });
+
+  choice2.addEventListener("mouseenter", () => {
+    choice2Audio.currentTime = 0;
+    choice2Audio.play();
+  });
+  choice2.addEventListener("mouseleave", () => {
+    choice2Audio.pause();
+  });
+
+  // Click choice 1
+  choice1.addEventListener("click", async () => {
+    choicesDiv.classList.remove("visible");
+    await fadeIn(text2, 1500);
+    cousin2.play();
+  });
+
+  // Click choice 2
+  choice2.addEventListener("click", async () => {
+    choicesDiv.classList.remove("visible");
+    await fadeIn(text3, 1500);
+    cousin3.play();
+
+    // Fade in background 2
+    bg2.style.transition = "opacity 2s ease";
+    bg2.style.opacity = 1;
+  });
+</script>
+
+</body>
+</html>

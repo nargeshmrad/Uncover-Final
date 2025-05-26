@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>6policeRasor Scene</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; background: black;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .scene-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: none; 
+  }
+  img.background {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    opacity: 1;
+    transition: opacity 1.5s ease;
+    z-index: 0;
+  }
+  #background2 {
+    opacity: 0;
+    z-index: 0;
+  }
+  #textBox {
+    position: absolute;
+    bottom: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    max-width: 400px;
+    height: auto;
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 1.5s ease;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <img id="background1" class="background" src="../assets/6policeRasor/Police-Rasor.png" alt="Background 1" />
+  <img id="background2" class="background" src="../assets/6policeRasor/Police-Rasor2.png" alt="Background 2" />
+  <img id="textBox" src="../assets/6policeRasor/HimTextBox.png" alt="Him Text Box" />
+</div>
+
+<script>
+  const himVoice = new Audio("../assets/6policeRasor/HimVoice.mp3");
+  const rasorAudio = new Audio("../assets/6policeRasor/Rasor.mp3");
+
+  const textBox = document.getElementById("textBox");
+  const bg1 = document.getElementById("background1");
+  const bg2 = document.getElementById("background2");
+
+  window.onload = () => {
+    // Play HimVoice and show textbox
+    himVoice.play().catch(() => console.log("Autoplay blocked"));
+
+    // When HimVoice ends, fade out text box and start next phase
+    himVoice.onended = () => {
+      fadeOut(textBox, 1500).then(() => {
+        textBox.style.display = "none";
+        startRasorPhase();
+      });
+    };
+  };
+
+  function fadeOut(element, duration) {
+    return new Promise(resolve => {
+      element.style.transition = `opacity ${duration}ms ease`;
+      element.style.opacity = 0;
+      setTimeout(() => resolve(), duration);
+    });
+  }
+
+  function fadeIn(element, duration) {
+    return new Promise(resolve => {
+      element.style.display = "";
+      element.style.transition = `opacity ${duration}ms ease`;
+      element.style.opacity = 1;
+      setTimeout(() => resolve(), duration);
+    });
+  }
+
+  async function startRasorPhase() {
+    // Start playing Rasor.mp3
+    rasorAudio.play().catch(() => console.log("Autoplay blocked"));
+
+    // Fade in background2 over background1
+    await fadeIn(bg2, 1500);
+    // Fade out background1 simultaneously
+    bg1.style.transition = `opacity 1500ms ease`;
+    bg1.style.opacity = 0;
+
+    // Now background2 is visible and rasorAudio plays
+  }
+</script>
+
+</body>
+</html>

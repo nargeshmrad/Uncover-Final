@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Classroom Faces Interaction</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    cursor: url('../assets/classroomFaces/earCursor.png'), auto;
+    background: url('../assets/classroomFaces/ClassroomFaces.png') no-repeat center center;
+    background-size: contain;
+    position: relative;
+  }
+
+  #container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* Hotspot style */
+  .hotspot {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid red;                 /* visible stroke */
+    background-color: rgba(255, 0, 0, 0.2); /* semi-transparent fill */
+    cursor: inherit;                       /* keep custom earCursor */
+  }
+
+  /* Textbox style */
+  .textbox {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+    user-select: none;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div id="container">
+  <img id="textbox1" class="textbox" src="../assets/classroomFaces/classroomTextbox1.png" alt="Textbox 1" />
+  <img id="textbox2" class="textbox" src="../assets/classroomFaces/classroomTextbox2.png" alt="Textbox 2" />
+  <img id="textbox3" class="textbox" src="../assets/classroomFaces/classroomTextbox3.png" alt="Textbox 3" />
+  <img id="textbox4" class="textbox" src="../assets/classroomFaces/classroomTextbox4.png" alt="Textbox 4" />
+  <img id="textbox5" class="textbox" src="../assets/classroomFaces/classroomTextbox5.png" alt="Textbox 5" />
+  <img id="textbox6" class="textbox" src="../assets/classroomFaces/classroomTextbox6.png" alt="Textbox 6" />
+</div>
+
+<script src="classroomFaces.js"></script>
+</body>
+</html>

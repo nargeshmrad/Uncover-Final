@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Police Hat Choice</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      overflow: hidden;
+      background: url('../assets/2policeHatChoice/Police-ChooseHat.png') no-repeat center center;
+      background-size: cover;
+      position: relative;
+      cursor: default;
+      font-family: sans-serif;
+    }
+    #textbox {
+  position: absolute;
+  bottom: 3%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 350px;
+  min-width: 120px;
+  padding: 8px 12px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 1s ease;
+  user-select: none;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+    #choices {
+      position: absolute;
+      bottom: 3%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 50px;
+      opacity: 0;
+      transition: opacity 1s ease;
+      pointer-events: none;
+    }
+    .choice {
+  width: 18vw;         /* 18% of the viewport width */
+  max-width: 120px;    /* but never larger than 120px */
+  min-width: 60px;     /* and never smaller than 60px */
+  height: auto;
+  cursor: pointer;
+  user-select: none;
+}
+  </style>
+</head>
+<body>
+
+<img id="textbox" src="" alt="Textbox">
+<div id="choices" >
+  <img id="choice1" class="choice" src="../assets/2policeHatChoice/choice1.png" alt="Choice 1" />
+  <img id="choice2" class="choice" src="../assets/2policeHatChoice/choice2.png" alt="Choice 2" />
+</div>
+
+<script>
+  const himVoice = new Audio('../assets/2policeHatChoice/HimVoice.mp3');
+  const himChoice1Voice = new Audio('../assets/2policeHatChoice/HimChoice1.mp3');
+  const himChoice2Voice = new Audio('../assets/2policeHatChoice/HimChoice2.mp3');
+
+  const textbox = document.getElementById('textbox');
+  const choicesContainer = document.getElementById('choices');
+  const choice1 = document.getElementById('choice1');
+  const choice2 = document.getElementById('choice2');
+
+  // Show textbox with fade in
+  function showTextbox(src) {
+    textbox.src = src;
+    textbox.style.opacity = '0';
+    textbox.style.display = 'block';
+    setTimeout(() => {
+      textbox.style.opacity = '1';
+    }, 50);
+  }
+
+  // Hide textbox with fade out (returns a Promise)
+  function hideTextbox() {
+    return new Promise(resolve => {
+      textbox.style.opacity = '0';
+      setTimeout(() => {
+        textbox.style.display = 'none';
+        resolve();
+      }, 1000);
+    });
+  }
+
+  // Show choices container with fade in
+  function showChoices() {
+    choicesContainer.style.pointerEvents = 'auto';
+    choicesContainer.style.opacity = '1';
+  }
+
+  // Hide choices container
+  function hideChoices() {
+    choicesContainer.style.pointerEvents = 'none';
+    choicesContainer.style.opacity = '0';
+  }
+
+  // Start by showing HimTextbox1 and playing HimVoice
+  showTextbox('../assets/2policeHatChoice/HimTextbox1.png');
+  himVoice.play();
+
+  himVoice.onended = async () => {
+    await hideTextbox();
+    showChoices();
+  };
+
+  // Play choice audio on hover, stop when hover ends
+  choice1.addEventListener('mouseenter', () => {
+    himChoice2Voice.pause();
+    himChoice2Voice.currentTime = 0;
+    himChoice1Voice.play();
+  });
+  choice1.addEventListener('mouseleave', () => {
+    himChoice1Voice.pause();
+    himChoice1Voice.currentTime = 0;
+  });
+
+  choice2.addEventListener('mouseenter', () => {
+    himChoice1Voice.pause();
+    himChoice1Voice.currentTime = 0;
+    himChoice2Voice.play();
+  });
+  choice2.addEventListener('mouseleave', () => {
+    himChoice2Voice.pause();
+    himChoice2Voice.currentTime = 0;
+  });
+
+  // Click navigations
+  choice1.addEventListener('click', () => {
+    window.location.href = '202policeTalk.html';
+  });
+
+  choice2.addEventListener('click', () => {
+    window.location.href = '201policeWalkCHill.html';
+  });
+</script>
+
+</body>
+</html>

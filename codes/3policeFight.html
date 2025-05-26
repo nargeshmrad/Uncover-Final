@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Police Fight Scene</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #f0f0f0;
+  }
+  .scene-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: none;
+  }
+  img.bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+  img.bg.visible {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+  <div class="scene-container">
+    <img id="bg1" class="bg" src="../assets/3policeFight/Police-Fight1.png" alt="Background 1" />
+    <img id="bg2" class="bg" src="../assets/3policeFight/Police-Fight2.png" alt="Background 2" />
+    <img id="bg3" class="bg" src="../assets/3policeFight/Police-Fight3.png" alt="Background 3" />
+  </div>
+
+<script>
+  // Audio files - make sure the paths are correct
+  const policeVoice = new Audio("../assets/3policeFight/PoliceVoice.mp3");
+  const sadStranger = new Audio("../assets/3policeFight/sadStranger.mp3");
+  const adStranger = new Audio("../assets/3policeFight/adStranger.mp3");
+
+  // Elements
+  const bg1 = document.getElementById("bg1");
+  const bg2 = document.getElementById("bg2");
+  const bg3 = document.getElementById("bg3");
+
+  // Durations (ms)
+  const policeVoiceDuration = 8000; // example duration of first audio/scene
+  const bg2Duration = 7000;          // duration for bg2 + sadStranger audio
+  const bg3Duration = 10000;         // duration to keep bg3 before redirect
+
+  // Utility function to fade images
+  function showBg(bgToShow, bgToHide) {
+    if (bgToHide) bgToHide.classList.remove("visible");
+    bgToShow.classList.add("visible");
+  }
+
+  async function playSequence() {
+    // Show first background and play PoliceVoice
+    showBg(bg1);
+    policeVoice.play();
+
+    // Wait policeVoiceDuration ms
+    await new Promise(r => setTimeout(r, policeVoiceDuration));
+
+    // Fade to bg2 and play sadStranger
+    showBg(bg2, bg1);
+    sadStranger.play();
+
+    await new Promise(r => setTimeout(r, bg2Duration));
+
+    // Fade to bg3 and play adStranger (sadStranger continues playing)
+    showBg(bg3, bg2);
+    // sadStranger.pause(); // Do not pause, let it continue
+    adStranger.play();
+
+    await new Promise(r => setTimeout(r, bg3Duration));
+
+    // Redirect to next page
+    window.location.href = "5policewalk.html";
+  }
+
+  // Start sequence after window loads
+  window.onload = () => {
+    playSequence();
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Police Arrest Dialogue</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    overflow: hidden;
+    background: url('../assets/1policeArrest/Police-Arrest.png') no-repeat center center;
+    background-size: cover;
+    position: relative;
+  }
+  #textbox {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 1s ease;
+    user-select: none;
+  }
+</style>
+</head>
+<body>
+
+<img id="textbox" src="" alt="Textbox">
+
+<script>
+  const himVoice = new Audio('../assets/1policeArrest/HimVoice.mp3');
+  const policeVoice = new Audio('../assets/1policeArrest/policeVoice.mp3');
+  const textbox = document.getElementById('textbox');
+
+  // Configuration for each textbox: position & size
+  const textboxConfig = {
+    him: {
+      top: '20%',   // Adjust these values as you want
+      left: '25%',
+      width: '400px',
+      height: 'auto'
+    },
+    police: {
+      top: '80%',
+      left: '15%',
+      width: '350px',
+      height: 'auto'
+    }
+  };
+
+  function applyTextboxStyle(config) {
+    textbox.style.top = config.top;
+    textbox.style.left = config.left;
+    textbox.style.width = config.width;
+    textbox.style.height = config.height;
+    // Optional: add transform to center horizontally if you want
+    // textbox.style.transform = 'translateX(-50%)';
+  }
+
+  // Show textbox image with fade in and style
+  function showTextbox(src, config) {
+    textbox.src = src;
+    applyTextboxStyle(config);
+    textbox.style.opacity = '0';
+    textbox.style.display = 'block';
+    setTimeout(() => {
+      textbox.style.opacity = '1';
+    }, 50);
+  }
+
+  // Hide textbox with fade out (returns Promise)
+  function hideTextbox() {
+    return new Promise(resolve => {
+      textbox.style.opacity = '0';
+      setTimeout(() => {
+        textbox.style.display = 'none';
+        resolve();
+      }, 1000);
+    });
+  }
+
+  // Sequence
+  showTextbox('../assets/1policeArrest/HimTextbox.png', textboxConfig.him);
+  himVoice.play();
+
+  himVoice.onended = async () => {
+    await hideTextbox();
+
+    showTextbox('../assets/1policeArrest/Police.png', textboxConfig.police);
+    policeVoice.play();
+
+    policeVoice.onended = async () => {
+      await hideTextbox();
+      window.location.href = '2policeHatChoice.html';
+    };
+  };
+</script>
+
+</body>
+</html>

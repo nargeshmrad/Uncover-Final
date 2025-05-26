@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>4policeAnt Scene</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; background: black;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .scene-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: none;
+  }
+  img.background {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0; left: 0;
+    z-index: 0;
+  }
+  #textBox {
+    position: absolute;
+    bottom: 80%;  /* example position */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    max-width: 400px;
+    height: auto;
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 1.5s ease;
+  }
+  #choices {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease;
+    z-index: 2;
+  }
+  #choices img {
+    max-width: 10vw;
+    height: auto;
+    cursor: pointer;
+    user-select: none;
+    transition: filter 0.3s;
+  }
+
+  @media (max-width: 900px) {
+    #choices img {
+      max-width: 40vw;
+    }
+  }
+
+  @media (max-width: 600px) {
+    #choices img {
+      max-width: 60vw;
+    }
+  }
+  #choices img:hover {
+    filter: brightness(1.1) drop-shadow(0 0 10px #fff);
+  }
+  #choices.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <img class="background" src="../assets/4policeAnt/Police-AntView.png" alt="Background" />
+  <img id="textBox" src="../assets/4policeAnt/policeTextBox.png" alt="Police Text Box" />
+  
+  <div id="choices">
+    <img id="choice1" src="../assets/4policeAnt/himTextBox1.png" alt="Choice 1" />
+    <img id="choice2" src="../assets/4policeAnt/himTextBox2.png" alt="Choice 2" />
+  </div>
+</div>
+
+<script>
+  const policeVoice = new Audio("../assets/4policeAnt/PoliceVoice.mp3");
+  const choice1Sound = new Audio("../assets/4policeAnt/Choice1.mp3");
+  const choice2Sound = new Audio("../assets/4policeAnt/Choice2.mp3");
+
+  const textBox = document.getElementById("textBox");
+  const choices = document.getElementById("choices");
+  const choice1 = document.getElementById("choice1");
+  const choice2 = document.getElementById("choice2");
+
+  // Play police voice on load
+  window.onload = () => {
+    policeVoice.play().catch(() => {
+      // Autoplay might be blocked, handle user interaction if needed
+      console.log("Autoplay prevented, wait for user interaction.");
+    });
+
+    // After policeVoice ends, fade out text box and show choices
+    policeVoice.onended = () => {
+      fadeOutTextBoxThenShowChoices();
+    };
+  };
+
+  function fadeOutTextBoxThenShowChoices() {
+    textBox.style.opacity = 0;
+    setTimeout(() => {
+      textBox.style.display = "none";
+      choices.classList.add("visible");
+    }, 1500); // match CSS transition duration
+  }
+
+  // Hover sound effects for choices
+  choice1.addEventListener("mouseenter", () => {
+    choice1Sound.currentTime = 0;
+    choice1Sound.play();
+  });
+  choice1.addEventListener("mouseleave", () => {
+    choice1Sound.pause();
+  });
+
+  choice2.addEventListener("mouseenter", () => {
+    choice2Sound.currentTime = 0;
+    choice2Sound.play();
+  });
+  choice2.addEventListener("mouseleave", () => {
+    choice2Sound.pause();
+  });
+
+  // Click handlers for redirecting
+  choice1.addEventListener("click", () => {
+    window.location.href = "6policeRasor.html";
+  });
+  choice2.addEventListener("click", () => {
+    window.location.href = "3policeFight.html";
+  });
+</script>
+
+</body>
+</html>
