@@ -14,8 +14,10 @@ let unfoldedYellow, unfoldedYellowImg; //unfolded yellow
 let noSleeveShirt, noSleeveShirtImg; //nosleeve shirt
 let unfoldednoSleeve, unfoldedNoSleeveImg; //unfolded no sleeve shirt
 
-let foldedJean, foldedJeanImg; //folded skirt
-let unfoldedJean, unfoldedJeanImg; //unfolded skirt
+let foldedJean, foldedJeanImg; //folded jean
+let unfoldedJean, unfoldedJeanImg; //unfolded jean
+let foldedShortPant, foldedShortPantImg; //folded short pant
+let unfoldedShortPant, unfoldedShortPantImg; //unfolded short pant
 
 let displayTextImg; // Variable for the image
 let showKimonoText = false; // Initially, the text should not be visible
@@ -54,12 +56,14 @@ function preload() {
   unfoldedNoSleeveImg = loadImage("../assets/luggageScene/TopUnfolded.png");
   foldedYellowImg = loadImage("../assets/luggageScene/ShortSleeveShirt.png");
   unfoldedYellowImg = loadImage("../assets/luggageScene/ShortSleeveShirtUnfolded.png");
-  foldedJeanImg = loadImage("assets/luggageScene/Jean.png");
-  unfoldedJeanImg = loadImage("assets/luggageScene/JeanUnfolded.png");
-  displayTextImg = loadImage("assets/luggageScene/kimonoTextBox.png"); // Load the image
-  skirtTextImg = loadImage("assets/luggageScene/SkirtTextBox.png");
-  kimonoSound = loadSound("assets/luggageScene/kimono.mp3");
-  clothesMovementSound = loadSound("assets/luggageScene/clothesMovement.mp3"); // Load clothes movement sound
+  foldedJeanImg = loadImage("../assets/luggageScene/Jean.png");
+  unfoldedJeanImg = loadImage("../assets/luggageScene/JeanUnfolded.png");
+  displayTextImg = loadImage("../assets/luggageScene/kimonoTextBox.png"); // Load the image
+  skirtTextImg = loadImage("../assets/luggageScene/SkirtTextBox.png");
+  kimonoSound = loadSound("../assets/luggageScene/kimono.mp3");
+  clothesMovementSound = loadSound("../assets/luggageScene/clothesMovement.mp3"); // Load clothes movement sound
+  foldedShortPantImg = loadImage("../assets/luggageScene/ShortPant.png");
+  unfoldedShortPantImg = loadImage("../assets/luggageScene/ShortPantUnfolded.png");
   foldedSkirtImg = loadImage("../assets/luggageScene/Skirt.png");
   unfoldedSkirtImg = loadImage("../assets/luggageScene/SkirtUnfolded.png");
   noSleeveShirtImg = loadImage("../assets/luggageScene/Top.png");
@@ -104,7 +108,7 @@ function setup() {
   shirt.img = shirtImg; // add an image to a sprite
   shirt.image.scale = coef;
   console.log(shirt);
-  shirt.position = createVector(460, 360);
+  shirt.position = createVector(480, 500);
   shirt.removeColliders();
   shirt.isDraggable = false;
 
@@ -112,33 +116,43 @@ function setup() {
   kimono.removeColliders();
   kimono.img = kimonoImg; // add an image to a sprite
   kimono.image.scale = coef;
-  kimono.position = createVector(300,450);
+  kimono.position = createVector(493,600);
 
   foldedSkirt = new Sprite(0, 0, 80, 80);
   foldedSkirt.removeColliders();
   foldedSkirt.img = foldedSkirtImg; // add an image to a sprite
   foldedSkirt.image.scale = coef;
-  foldedSkirt.position = createVector(400, 455);
+  foldedSkirt.position = createVector(630, 605);
 
   jean = new Sprite(0, 0, 80, 80);
   jean.removeColliders();
   jean.img = foldedJeanImg; // add an image to a sprite
   jean.image.scale = coef;
-  jean.position = createVector(490, 455);
+  jean.position = createVector(730, 605);
 
   // No Sleeve Purple
   noSleeveShirt = new Sprite(0, 0, 60, 95);
   noSleeveShirt.removeColliders();
   noSleeveShirt.img =noSleeveShirtImg; // add an image to a sprite
   noSleeveShirt.image.scale = coef;
-  noSleeveShirt.position = createVector(275, 350);
+  noSleeveShirt.position = createVector(565, 500);
 
   // No Sleeve Purple
   foldedYellow = new Sprite(0, 0, 50, 100);
   foldedYellow.removeColliders();
   foldedYellow.img =foldedYellowImg; // add an image to a sprite
   foldedYellow.image.scale = coef;
-  foldedYellow.position = createVector(340, 355);
+  foldedYellow.position = createVector(730, 500);
+
+  foldedShortPant = new Sprite(0, 0, 70, 70);
+  foldedShortPant.removeColliders();
+  if (foldedShortPantImg) {
+    foldedShortPant.img = foldedShortPantImg;
+    foldedShortPant.image.scale = coef;
+  } else {
+    console.error("foldedShortPantImg did not load");
+  }
+  foldedShortPant.position = createVector(640, 500); // Adjust as needed
 
   mouseSprite = new Sprite(0, 0, 10, 10);
   mouseSprite.removeColliders();
@@ -193,18 +207,24 @@ function draw() {
     foldedYellow.isDraggable = false;
   }
 
+  if (foldedShortPant.overlapping(mouseSprite)) {
+    foldedShortPant.isDraggable = true;
+  } else {
+    foldedShortPant.isDraggable = false;
+  }
+
   // Draw the kimono text if sound is playing
   if (showKimonoText && isKimonoSoundPlaying) {
     let scaledWidth = displayTextImg.width * coef;
     let scaledHeight = displayTextImg.height * coef;
-    image(displayTextImg, (windowWidth / 2) - (scaledWidth / 2), 550, scaledWidth, scaledHeight);
+    image(displayTextImg, (windowWidth / 2) - (scaledWidth / 2), 700, scaledWidth, scaledHeight);
   }
 
   // Draw the skirt text if sound is playing
   if (showSkirtText && isSkirtSoundPlaying) {
     let scaledWidth = skirtTextImg.width * coef;
     let scaledHeight = skirtTextImg.height * coef;
-    image(skirtTextImg, (windowWidth / 2) - (scaledWidth / 2), 550, scaledWidth, scaledHeight);
+    image(skirtTextImg, (windowWidth / 2) - (scaledWidth / 2), 700, scaledWidth, scaledHeight);
   }
 }
 
@@ -277,6 +297,11 @@ function mousePressed() {
       foldedYellow.isDraggable = true;
       foldedYellow.img = unfoldedYellowImg;
       foldedYellow.img.scale = coef;
+    } else if (foldedShortPant.overlapping(mouseSprite)) {
+      currentlyDraggedSprite = foldedShortPant;
+      foldedShortPant.isDraggable = true;
+      foldedShortPant.img = unfoldedShortPantImg;
+      foldedShortPant.img.scale = coef;
     }
   }
 }
@@ -317,11 +342,11 @@ function mouseReleased() {
       shirt.img = shirtImg;
     } else if (currentlyDraggedSprite === kimono) {
       kimono.img = kimonoImg;
-      kimono.position = createVector(300,450);
+      kimono.position = createVector(493,600);
       // Text visibility is now controlled by the sound state
     } else if (currentlyDraggedSprite === foldedSkirt) {
       foldedSkirt.img = foldedSkirtImg;
-      foldedSkirt.position = createVector(400, 455);
+      foldedSkirt.position = createVector(630, 605);
       // Don't stop the skirt sound - let it play to completion
       // The isSkirtSoundPlaying flag will be reset when the sound ends naturally
     } else if (currentlyDraggedSprite === jean) {
@@ -330,6 +355,8 @@ function mouseReleased() {
       noSleeveShirt.img = noSleeveShirtImg;
     } else if (currentlyDraggedSprite === foldedYellow) {
       foldedYellow.img = foldedYellowImg;
+    } else if (currentlyDraggedSprite === foldedShortPant) {
+      foldedShortPant.img = foldedShortPantImg;
     }
     
     currentlyDraggedSprite.isDraggable = false;

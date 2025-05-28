@@ -45,6 +45,7 @@ body {
   justify-content: center;
   pointer-events: auto;
   font-family: 'Comic Sans MS', 'Comic Sans', 'Comic Neue', cursive, sans-serif;
+  font-size: 1.4em;
   background: transparent;
   z-index: 21;
 }
@@ -125,18 +126,20 @@ body {
 
 .menu-btn {
   font-family: inherit;
-  font-size: 1.3em;
+  font-size: 2.5em;
   margin: 0.5em 0;
-  padding: 0.5em 1.5em;
-  background: rgba(255, 255, 255, 0.7);
-  border: 2px solid rgb(255, 255, 255);
-  border-radius: 18px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-
+  transition: none;
+  outline: none;
 }
 .menu-btn:hover {
-  background: #fffbe6;
-  transform: scale(1.07);
+  color: rgb(77, 122, 168);
+  filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 24px rgb(255, 255, 255));
 }
 
