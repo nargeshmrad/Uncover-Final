@@ -1,55 +1,48 @@
-let backgroundImg;
-let background;
+// let backgroundImg;
+// let background;
 let shirtImg, unfoldedShirtImg;
-let shirt, unfoldedShirt;
-let mouseSprite;
+let shirt;
+// let mouseSprite; // No longer needed
 let kimonoImg, unfoldedKimonoImg;
-let kimono, unfoldedKimono;
-let foldedSkirt, foldedSkirtImg; //folded skirt
-let unfoldedSkirt, unfoldedSkirtImg; //unfolded skirt
+let kimono;
+let foldedSkirtImg, unfoldedSkirtImg;
+let foldedSkirt;
 
-let foldedYellow, foldedYellowImg; //folded yellow
-let unfoldedYellow, unfoldedYellowImg; //unfolded yellow
+let foldedYellowImg, unfoldedYellowImg;
+let foldedYellow;
 
-let noSleeveShirt, noSleeveShirtImg; //nosleeve shirt
-let unfoldednoSleeve, unfoldedNoSleeveImg; //unfolded no sleeve shirt
+let noSleeveShirtImg, unfoldedNoSleeveImg;
+let noSleeveShirt;
 
-let foldedJean, foldedJeanImg; //folded jean
-let unfoldedJean, unfoldedJeanImg; //unfolded jean
-let foldedShortPant, foldedShortPantImg; //folded short pant
-let unfoldedShortPant, unfoldedShortPantImg; //unfolded short pant
+let foldedJeanImg, unfoldedJeanImg;
+let jean;
 
-let displayTextImg; // Variable for the image
-let showKimonoText = false; // Initially, the text should not be visible
+let foldedShortPantImg, unfoldedShortPantImg;
+let foldedShortPant;
+
+let displayTextImg;
+let showKimonoText = false;
 let skirtTextImg;
 let showSkirtText = false;
 
-// Audio elements
 let kimonoSound, skirtSound, clothesMovementSound;
 let isKimonoSoundPlaying = false;
 let isSkirtSoundPlaying = false;
 let isClothesMovementPlaying = false;
 
-let iMacWidth = 1920;
-let iMacHeight = 1080;
-let coef = 0.6;
+const DESIGN_WIDTH = 1920;
+const DESIGN_HEIGHT = 1080;
+const BASE_IMAGE_VISUAL_SCALE = 0.70; // Using the larger scale from previous adjustment
+let currentScale = 1;
+let actualCanvasWidth, actualCanvasHeight;
 
 let currentlyDraggedSprite = null;
 
-//let kimonoSound; // Variable for the sound
-//let displayTextImg; // Variable for the image
-
 function preload() {
-  backgroundImg = loadImage("../assets/luggageScene/LuggageScene.png");
   shirtImg = loadImage("../assets/luggageScene/Tshirt.png");
   unfoldedShirtImg = loadImage("../assets/luggageScene/TshirtUnfolded.png");
   kimonoImg = loadImage("../assets/luggageScene/Kimono.png");
   unfoldedKimonoImg = loadImage("../assets/luggageScene/KimonoUnfolded.png");
-  // Get references to audio elements
-  kimonoSound = document.getElementById('kimonoAudio');
-  skirtSound = document.getElementById('skirtAudio');
-  clothesMovementSound = document.getElementById('clothesAudio');
-  
   foldedSkirtImg = loadImage("../assets/luggageScene/Skirt.png");
   unfoldedSkirtImg = loadImage("../assets/luggageScene/SkirtUnfolded.png");
   noSleeveShirtImg = loadImage("../assets/luggageScene/Top.png");
@@ -58,341 +51,385 @@ function preload() {
   unfoldedYellowImg = loadImage("../assets/luggageScene/ShortSleeveShirtUnfolded.png");
   foldedJeanImg = loadImage("../assets/luggageScene/Jean.png");
   unfoldedJeanImg = loadImage("../assets/luggageScene/JeanUnfolded.png");
-  displayTextImg = loadImage("../assets/luggageScene/kimonoTextBox.png"); // Load the image
-  skirtTextImg = loadImage("../assets/luggageScene/SkirtTextBox.png");
-  kimonoSound = loadSound("../assets/luggageScene/kimono.mp3");
-  clothesMovementSound = loadSound("../assets/luggageScene/clothesMovement.mp3"); // Load clothes movement sound
   foldedShortPantImg = loadImage("../assets/luggageScene/ShortPant.png");
   unfoldedShortPantImg = loadImage("../assets/luggageScene/ShortPantUnfolded.png");
-  foldedSkirtImg = loadImage("../assets/luggageScene/Skirt.png");
-  unfoldedSkirtImg = loadImage("../assets/luggageScene/SkirtUnfolded.png");
-  noSleeveShirtImg = loadImage("../assets/luggageScene/Top.png");
-  unfoldedNoSleeveImg = loadImage("../assets/luggageScene/TopUnfolded.png");
-  foldedYellowImg = loadImage("../assets/luggageScene/ShortSleeveShirt.png");
-  unfoldedYellowImg = loadImage("../assets/luggageScene/ShortSleeveShirtUnfolded.png");
-  foldedJeanImg = loadImage("../assets/luggageScene/Jean.png");
-  unfoldedJeanImg = loadImage("../assets/luggageScene/JeanUnfolded.png");
-  displayTextImg = loadImage("../assets/luggageScene/kimonoTextBox.png"); // Load the image
+  displayTextImg = loadImage("../assets/luggageScene/kimonoTextBox.png");
   skirtTextImg = loadImage("../assets/luggageScene/SkirtTextBox.png");
   kimonoSound = loadSound("../assets/luggageScene/kimono.mp3");
-  clothesMovementSound = loadSound("../assets/luggageScene/clothesMovement.mp3"); // Load clothes movement sound
-  
-  // Try to load the skirt sound from either location
+  clothesMovementSound = loadSound("../assets/luggageScene/clothesMovement.mp3");
   try {
     skirtSound = loadSound("../assets/luggageScene/Skirt.m4a");
-  } catch(e) {
-    console.log("Trying alternate path for skirt sound");
-    skirtSound = loadSound("../assets/luggageScene/Skirt.m4a");
+  } catch (e) {
+    console.warn("Skirt sound not loaded, check path: ../assets/luggageScene/Skirt.m4a");
+    // Fallback or error handling for sound
   }
 }
 
 function setup() {
-  // Create canvas that fills the window
-  let canvas = createCanvas(windowWidth, windowHeight);
-  canvas.parent("sketch-holder");
-  allSprites.drag = 10;
-  
-  // Set initial canvas size
-  resizeCanvas(windowWidth, windowHeight);
+  let p5canvas = createCanvas(100, 100);
+  p5canvas.parent("sketch-holder");
+  //allSprites.drag = 10; // Might need to comment out if problems persist
 
-  targetSprite = new Sprite(0, 0 * coef, 200 * coef, 400 * coef);
-  targetSprite.position = createVector(
-    iMacWidth * coef * 0.7,
-    (iMacHeight * coef) / 2
-  );
-  targetSprite.removeColliders();
-  // targetSprite.visible = false;
+  //Top-Left Purple Tshirt
+  shirt = new Sprite();
+  shirt.img = shirtImg;
+  shirt.designX = 510; shirt.designY = 595; // (+105
+  shirt.designColliderWidth = 90 * 1.2; shirt.designColliderHeight = 100 * 1.2;
+  shirt.baseImageScale = BASE_IMAGE_VISUAL_SCALE;
+  shirt.collider = 'kinematic';
+  shirt.isDraggable = false; // This will be set by mouse.hovering()
+  shirt.isPlaced = false;
+  shirt.placedDesignX = 0; 
+  shirt.placedDesignY = 0; 
 
-  // Its a class so we should add new before
-  shirt = new Sprite(0, 0, 160, 100);
-  shirt.img = shirtImg; // add an image to a sprite
-  shirt.image.scale = coef;
-  console.log(shirt);
-  shirt.position = createVector(480, 500);
-  shirt.removeColliders();
-  shirt.isDraggable = false;
+  //Bottom-Left Kimono
+  kimono = new Sprite();
+  kimono.img = kimonoImg;
+  kimono.designX = 530; kimono.designY = 720; //+ 100
+  kimono.designColliderWidth = 110 * 1.25; kimono.designColliderHeight = 80 * 1.25;
+  kimono.baseImageScale = BASE_IMAGE_VISUAL_SCALE;
+  kimono.collider = 'kinematic';
+  kimono.isDraggable = false;
 
-  kimono = new Sprite(0, 0, 110, 80);
-  kimono.removeColliders();
-  kimono.img = kimonoImg; // add an image to a sprite
-  kimono.image.scale = coef;
-  kimono.position = createVector(493,600);
+  //Bottom-Middle Skirt
+  foldedSkirt = new Sprite();
+  foldedSkirt.img = foldedSkirtImg;
+  foldedSkirt.designX = 680; foldedSkirt.designY = 725;
+  foldedSkirt.designColliderWidth = 80 * 1.25; foldedSkirt.designColliderHeight = 80 * 1.25;
+  foldedSkirt.baseImageScale = BASE_IMAGE_VISUAL_SCALE;
+  foldedSkirt.collider = 'kinematic';
+  foldedSkirt.isDraggable = false;
 
-  foldedSkirt = new Sprite(0, 0, 80, 80);
-  foldedSkirt.removeColliders();
-  foldedSkirt.img = foldedSkirtImg; // add an image to a sprite
-  foldedSkirt.image.scale = coef;
-  foldedSkirt.position = createVector(630, 605);
+  //Bottom-Right Jean
+  jean = new Sprite();
+  jean.img = foldedJeanImg;
+  jean.designX = 810; jean.designY = 725;
+  jean.designColliderWidth = 80 * 1.25; jean.designColliderHeight = 80 * 1.25;
+  jean.baseImageScale = BASE_IMAGE_VISUAL_SCALE;
+  jean.collider = 'kinematic';
+  jean.isDraggable = false;
+  jean.isPlaced = false;
+  jean.placedDesignX = 0; 
+  jean.placedDesignY = 0;
 
-  jean = new Sprite(0, 0, 80, 80);
-  jean.removeColliders();
-  jean.img = foldedJeanImg; // add an image to a sprite
-  jean.image.scale = coef;
-  jean.position = createVector(730, 605);
+  //Top-Middle Pinnk No Sleeve
+  noSleeveShirt = new Sprite();
+  noSleeveShirt.img = noSleeveShirtImg;
+  noSleeveShirt.designX = 620; noSleeveShirt.designY = 595;
+  noSleeveShirt.designColliderWidth = 60 * 1.25; noSleeveShirt.designColliderHeight = 95 * 1.25;
+  noSleeveShirt.baseImageScale = BASE_IMAGE_VISUAL_SCALE;
+  noSleeveShirt.collider = 'kinematic';
+  noSleeveShirt.isDraggable = false;
+  noSleeveShirt.isPlaced = false;
+  noSleeveShirt.placedDesignX = 0; 
+  noSleeveShirt.placedDesignY = 0;
 
-  // No Sleeve Purple
-  noSleeveShirt = new Sprite(0, 0, 60, 95);
-  noSleeveShirt.removeColliders();
-  noSleeveShirt.img =noSleeveShirtImg; // add an image to a sprite
-  noSleeveShirt.image.scale = coef;
-  noSleeveShirt.position = createVector(565, 500);
+  //Top-Right Yellow Shirt
+  foldedYellow = new Sprite();
+  foldedYellow.img = foldedYellowImg;
+  foldedYellow.designX = 820; foldedYellow.designY = 595;
+  foldedYellow.designColliderWidth = 100 * 1.25; foldedYellow.designColliderHeight = 85 * 1.25;
+  foldedYellow.baseImageScale = BASE_IMAGE_VISUAL_SCALE;
+  foldedYellow.collider = 'kinematic';
+  foldedYellow.isDraggable = false;
+  foldedYellow.isPlaced = false;
+  foldedYellow.placedDesignX = 0; 
+  foldedYellow.placedDesignY = 0;
 
-  // No Sleeve Purple
-  foldedYellow = new Sprite(0, 0, 50, 100);
-  foldedYellow.removeColliders();
-  foldedYellow.img =foldedYellowImg; // add an image to a sprite
-  foldedYellow.image.scale = coef;
-  foldedYellow.position = createVector(730, 500);
+  //Top-Middle Short Pant
+  foldedShortPant = new Sprite();
+  if (foldedShortPantImg) foldedShortPant.img = foldedShortPantImg; else console.error("foldedShortPantImg did not load");
+  foldedShortPant.designX = 710; foldedShortPant.designY = 595;
+  foldedShortPant.designColliderWidth = 60 * 1.2; foldedShortPant.designColliderHeight = 60 * 1.2;
+  foldedShortPant.baseImageScale = BASE_IMAGE_VISUAL_SCALE;
+  foldedShortPant.collider = 'kinematic';
+  foldedShortPant.isDraggable = false;
+  foldedShortPant.isPlaced = false;
+  foldedShortPant.placedDesignX = 0; 
+  foldedShortPant.placedDesignY = 0;
 
-  foldedShortPant = new Sprite(0, 0, 70, 70);
-  foldedShortPant.removeColliders();
-  if (foldedShortPantImg) {
-    foldedShortPant.img = foldedShortPantImg;
-    foldedShortPant.image.scale = coef;
-  } else {
-    console.error("foldedShortPantImg did not load");
-  }
-  foldedShortPant.position = createVector(640, 500); // Adjust as needed
+  targetSprite = new Sprite();
+  targetSprite.designX = 1315 ; targetSprite.designY = 500 ;
+  targetSprite.designColliderWidth = 590; targetSprite.designColliderHeight = 950; // Scaled target too
+  //targetSprite.baseImageScale = 1.0;
+  targetSprite.collider = 'kinematic';
+  targetSprite.visible = false; // Optional: make target visible for debugging
+  targetSprite.color = color(0,255,0,100); // Semi-transparent green
 
-  mouseSprite = new Sprite(0, 0, 10, 10);
-  mouseSprite.removeColliders();
-  mouseSprite.visible = false;
+  handleResize();
+  //allSprites.debug = true;
 }
 
+function handleResize() {
+  const mainContainer = document.getElementById('main-container');
+  const bgImageEl = document.getElementById('bg-image');
+  const sketchHolderEl = document.getElementById('sketch-holder');
+  if (!mainContainer || !bgImageEl || !sketchHolderEl) {
+    actualCanvasWidth = windowWidth; actualCanvasHeight = windowHeight;
+    if (sketchHolderEl) {
+        sketchHolderEl.style.left = '0px'; sketchHolderEl.style.top = '0px';
+        sketchHolderEl.style.width = windowWidth + 'px'; sketchHolderEl.style.height = windowHeight + 'px';
+    }
+  } else {
+    actualCanvasWidth = bgImageEl.offsetWidth; actualCanvasHeight = bgImageEl.offsetHeight;
+    const mainRect = mainContainer.getBoundingClientRect(); const bgRect = bgImageEl.getBoundingClientRect();
+    sketchHolderEl.style.width = actualCanvasWidth + 'px'; sketchHolderEl.style.height = actualCanvasHeight + 'px';
+    sketchHolderEl.style.left = (bgRect.left - mainRect.left) + 'px'; sketchHolderEl.style.top = (bgRect.top - mainRect.top) + 'px';
+  }
+  resizeCanvas(actualCanvasWidth, actualCanvasHeight);
+  currentScale = actualCanvasWidth / DESIGN_WIDTH;
+  if (isNaN(currentScale) || currentScale === 0) currentScale = actualCanvasHeight / DESIGN_HEIGHT;
+  if (isNaN(currentScale) || currentScale === 0) currentScale = 1;
+  updateAllSpriteProperties();
+}
+
+function updateAllSpriteProperties() {
+  if (currentScale === 0 || isNaN(currentScale)) return;
+  const sprites = [shirt, kimono, foldedSkirt, jean, noSleeveShirt, foldedYellow, foldedShortPant, targetSprite];
+
+  sprites.forEach(s => {
+    if (s && typeof s.designX === 'number') { // designX check implies it's one of our main sprites
+      // --- POSITIONING LOGIC ---
+      if (s !== currentlyDraggedSprite) {
+        if (s === targetSprite) {
+          s.x = s.designX * currentScale;
+          s.y = s.designY * currentScale;
+        } else if (s === kimono || s === foldedSkirt) {
+          s.x = s.designX * currentScale;
+          s.y = s.designY * currentScale;
+        } else if (typeof s.isPlaced === 'boolean') { // For placeable clothes
+          if (s.isPlaced) {
+            // If placed, use its stored placedDesignX/Y
+            s.x = s.placedDesignX * currentScale;
+            s.y = s.placedDesignY * currentScale;
+          } else {
+            // Not placed, so use its initial designX/Y
+            s.x = s.designX * currentScale;
+            s.y = s.designY * currentScale;
+          }
+        }
+      }
+
+      // --- DIMENSIONS AND IMAGE SCALE (Always update for all sprites) ---
+      if (typeof s.designColliderWidth === 'number') {
+        s.width = s.designColliderWidth * currentScale;
+        s.height = s.designColliderHeight * currentScale;
+      }
+      if (s.img && typeof s.baseImageScale === 'number') {
+        s.image.scale = s.baseImageScale * currentScale;
+      }
+    }
+  });
+}
+
+
+function windowResized() { handleResize(); }
+
 function draw() {
-  clear(); // Clear the canvas each frame
-  
-  mouseSprite.x = mouseX;
-  mouseSprite.y = mouseY;
+  clear();
+  // mouseSprite.x = mouseX; mouseSprite.y = mouseY; // REMOVED
 
-  // Check sound states
-  resetKimonoSound();
-  resetSkirtSound();
+  resetKimonoSound(); resetSkirtSound();
 
-  // image(backgroundImg, 0, 0, iMacWidth*coef, iMacHeight* coef);
-  if (shirt.overlapping(mouseSprite)) {
-    shirt.isDraggable = true;
+  const allClothingSprites = [shirt, kimono, foldedSkirt, jean, noSleeveShirt, foldedYellow, foldedShortPant];
+
+  if (!currentlyDraggedSprite) {
+    allClothingSprites.forEach(s => {
+        s.isDraggable = s.mouse.hovering(); // Use p5.play's mouse detection
+    });
   } else {
-    shirt.isDraggable = false;
+    allClothingSprites.forEach(s => {
+        if (s !== currentlyDraggedSprite) s.isDraggable = false;
+    });
   }
 
-  if (kimono.overlapping(mouseSprite)) {
-    kimono.isDraggable = true;
-    
-  } else {
-    kimono.isDraggable = false;
+  const textBoxBaseScale = BASE_IMAGE_VISUAL_SCALE;
+  if (showKimonoText && isKimonoSoundPlaying && displayTextImg) {
+    let scaledWidth = displayTextImg.width * textBoxBaseScale * currentScale;
+    let scaledHeight = displayTextImg.height * textBoxBaseScale * currentScale;
+    image(displayTextImg, (actualCanvasWidth - scaledWidth) / 2, actualCanvasHeight - scaledHeight - (20 * currentScale), scaledWidth, scaledHeight);
   }
-
-  if (foldedSkirt.overlapping(mouseSprite)) {
-    foldedSkirt.isDraggable = true;
-  } else {
-    foldedSkirt.isDraggable = false;
-  }
-
-  if (jean.overlapping(mouseSprite)) {
-    jean.isDraggable = true;
-  } else {
-    jean.isDraggable = false;
-  }
-
-  if (noSleeveShirt.overlapping(mouseSprite)) {
-    noSleeveShirt.isDraggable = true;
-  } else {
-    noSleeveShirt.isDraggable = false;
-  }
-
-  if (foldedYellow.overlapping(mouseSprite)) {
-    foldedYellow.isDraggable = true;
-  } else {
-    foldedYellow.isDraggable = false;
-  }
-
-  if (foldedShortPant.overlapping(mouseSprite)) {
-    foldedShortPant.isDraggable = true;
-  } else {
-    foldedShortPant.isDraggable = false;
-  }
-
-  // Draw the kimono text if sound is playing
-  if (showKimonoText && isKimonoSoundPlaying) {
-    let scaledWidth = displayTextImg.width * coef;
-    let scaledHeight = displayTextImg.height * coef;
-    image(displayTextImg, (windowWidth / 2) - (scaledWidth / 2), 700, scaledWidth, scaledHeight);
-  }
-
-  // Draw the skirt text if sound is playing
-  if (showSkirtText && isSkirtSoundPlaying) {
-    let scaledWidth = skirtTextImg.width * coef;
-    let scaledHeight = skirtTextImg.height * coef;
-    image(skirtTextImg, (windowWidth / 2) - (scaledWidth / 2), 700, scaledWidth, scaledHeight);
+  if (showSkirtText && isSkirtSoundPlaying && skirtTextImg) {
+    let scaledWidth = skirtTextImg.width * textBoxBaseScale * currentScale;
+    let scaledHeight = skirtTextImg.height * textBoxBaseScale * currentScale;
+    image(skirtTextImg, (actualCanvasWidth - scaledWidth) / 2, actualCanvasHeight - scaledHeight - (20 * currentScale), scaledWidth, scaledHeight);
   }
 }
 
 function mousePressed() {
-  // Only check for new dragging if nothing is currently being dragged
   if (!currentlyDraggedSprite) {
-    if (shirt.overlapping(mouseSprite)) {
-      currentlyDraggedSprite = shirt;
-      shirt.isDraggable = true;
-      shirt.img = unfoldedShirtImg;
-      shirt.img.scale = coef;
-    } else if (kimono.overlapping(mouseSprite)) {
-      currentlyDraggedSprite = kimono;
-      kimono.isDraggable = true;
-      kimono.img = unfoldedKimonoImg;
-      kimono.img.scale = coef;
-      
-      // If skirt sound is playing, stop it and its text
-      if (isSkirtSoundPlaying) {
-        skirtSound.stop();
-        isSkirtSoundPlaying = false;
-        showSkirtText = false;
+    let pickedSprite = null;
+    // Check in reverse order of typical drawing or based on Z-index if they overlap significantly.
+    // This order ensures that if sprites are stacked, the "topmost" one under the mouse is picked.
+    const allClothingSprites = [shirt, kimono, foldedSkirt, jean, noSleeveShirt, foldedYellow, foldedShortPant];
+
+    for (let i = allClothingSprites.length - 1; i >= 0; i--) {
+        const s = allClothingSprites[i];
+        if (s.mouse.pressing()) { // Key change: use sprite.mouse.pressing()
+            pickedSprite = s;
+            break; // Found the sprite, stop checking
+        }
+    }
+
+    if (pickedSprite) {
+      currentlyDraggedSprite = pickedSprite;
+      // Apply unfolded image and sound logic
+      if (pickedSprite === shirt) pickedSprite.img = unfoldedShirtImg;
+      else if (pickedSprite === kimono) {
+        pickedSprite.img = unfoldedKimonoImg;
+        if (isSkirtSoundPlaying && skirtSound) skirtSound.stop(); isSkirtSoundPlaying = false; showSkirtText = false;
+        if (!isKimonoSoundPlaying && kimonoSound) {
+          kimonoSound.play(); isKimonoSoundPlaying = true; showKimonoText = true;
+          kimonoSound.onended(() => { isKimonoSoundPlaying = false; showKimonoText = false; });
+        }
+      } else if (pickedSprite === foldedSkirt) {
+        pickedSprite.img = unfoldedSkirtImg;
+        if (isKimonoSoundPlaying && kimonoSound) kimonoSound.stop(); isKimonoSoundPlaying = false; showKimonoText = false;
+        if (!isSkirtSoundPlaying && skirtSound) {
+          skirtSound.play(); isSkirtSoundPlaying = true; showSkirtText = true;
+          skirtSound.onended(() => { isSkirtSoundPlaying = false; showSkirtText = false; });
+        }
+      } else if (pickedSprite === jean) pickedSprite.img = unfoldedJeanImg;
+      else if (pickedSprite === noSleeveShirt) pickedSprite.img = unfoldedNoSleeveImg;
+      else if (pickedSprite === foldedYellow) pickedSprite.img = unfoldedYellowImg;
+      else if (pickedSprite === foldedShortPant) pickedSprite.img = unfoldedShortPantImg;
+
+      if (pickedSprite.img && typeof pickedSprite.baseImageScale === 'number') {
+        pickedSprite.image.scale = pickedSprite.baseImageScale * currentScale;
       }
-      
-      // Play kimono sound and show text
-      if (!isKimonoSoundPlaying) {
-        kimonoSound.play();
-        isKimonoSoundPlaying = true;
-        showKimonoText = true;
-        kimonoSound.onended(() => {
-          isKimonoSoundPlaying = false;
-          showKimonoText = false;
-        });
-      }
-    } else if (foldedSkirt.overlapping(mouseSprite)) {
-      currentlyDraggedSprite = foldedSkirt;
-      foldedSkirt.isDraggable = true;
-      foldedSkirt.img = unfoldedSkirtImg;
-      foldedSkirt.img.scale = coef;
-      
-      // If kimono sound is playing, stop it and its text
-      if (isKimonoSoundPlaying) {
-        kimonoSound.stop();
-        isKimonoSoundPlaying = false;
-        showKimonoText = false;
-      }
-      
-      // Play skirt sound and show text
-      if (!isSkirtSoundPlaying) {
-        skirtSound.play();
-        isSkirtSoundPlaying = true;
-        showSkirtText = true;
-        skirtSound.onended(() => {
-          isSkirtSoundPlaying = false;
-          showSkirtText = false;
-        });
-      }
-    } else if (jean.overlapping(mouseSprite)) {
-      currentlyDraggedSprite = jean;
-      jean.isDraggable = true;
-      jean.img = unfoldedJeanImg;
-      jean.img.scale = coef;
-    } else if (noSleeveShirt.overlapping(mouseSprite)) {
-      currentlyDraggedSprite = noSleeveShirt;
-      noSleeveShirt.isDraggable = true;
-      noSleeveShirt.img = unfoldedNoSleeveImg;
-      noSleeveShirt.img.scale = coef;
-    } else if (foldedYellow.overlapping(mouseSprite)) {
-      currentlyDraggedSprite = foldedYellow;
-      foldedYellow.isDraggable = true;
-      foldedYellow.img = unfoldedYellowImg;
-      foldedYellow.img.scale = coef;
-    } else if (foldedShortPant.overlapping(mouseSprite)) {
-      currentlyDraggedSprite = foldedShortPant;
-      foldedShortPant.isDraggable = true;
-      foldedShortPant.img = unfoldedShortPantImg;
-      foldedShortPant.img.scale = coef;
     }
   }
 }
 
 function mouseDragged() {
-  // Only move the currently dragged sprite
-  if (currentlyDraggedSprite && currentlyDraggedSprite.isDraggable) {
+  if (currentlyDraggedSprite) {
     currentlyDraggedSprite.x = mouseX;
     currentlyDraggedSprite.y = mouseY;
-    
-    // Play clothes movement sound if not already playing
-    if (!isClothesMovementPlaying) {
+    if (!isClothesMovementPlaying && clothesMovementSound) {
       clothesMovementSound.play();
       isClothesMovementPlaying = true;
-    }
-    
-    // Special handling for kimono text
-    if (currentlyDraggedSprite === kimono && isKimonoSoundPlaying) {
-      image(displayTextImg, 486, 917);
-    }
-    // Special handling for skirt text
-    if (currentlyDraggedSprite === foldedSkirt) {
-      image(skirtTextImg, 486, 917);
+      // REMOVED: clothesMovementSound.onended(() => { isClothesMovementPlaying = false; });
     }
   }
 }
 
 function mouseReleased() {
   if (currentlyDraggedSprite) {
-    // Stop clothes movement sound
-    if (isClothesMovementPlaying) {
-      clothesMovementSound.stop();
-      isClothesMovementPlaying = false;
+    const releasedSprite = currentlyDraggedSprite; // Cache before nulling
+
+    // --- STOP CLOTHES MOVEMENT SOUND ---
+    if (isClothesMovementPlaying && clothesMovementSound) {
+      clothesMovementSound.stop(); // Explicitly stop the sound
+      isClothesMovementPlaying = false; // Reset the flag
     }
-    
-    // Reset the currently dragged sprite
-    if (currentlyDraggedSprite === shirt) {
+    // --- END OF SOUND STOP ---
+
+    // --- RESET IMAGE TO FOLDED ---
+    if (releasedSprite === shirt) {
       shirt.img = shirtImg;
-    } else if (currentlyDraggedSprite === kimono) {
+    } else if (releasedSprite === kimono) {
       kimono.img = kimonoImg;
-      kimono.position = createVector(493,600);
-      // Text visibility is now controlled by the sound state
-    } else if (currentlyDraggedSprite === foldedSkirt) {
+    } else if (releasedSprite === foldedSkirt) {
       foldedSkirt.img = foldedSkirtImg;
-      foldedSkirt.position = createVector(630, 605);
-      // Don't stop the skirt sound - let it play to completion
-      // The isSkirtSoundPlaying flag will be reset when the sound ends naturally
-    } else if (currentlyDraggedSprite === jean) {
+    } else if (releasedSprite === jean) {
       jean.img = foldedJeanImg;
-    } else if (currentlyDraggedSprite === noSleeveShirt) {
+    } else if (releasedSprite === noSleeveShirt) {
       noSleeveShirt.img = noSleeveShirtImg;
-    } else if (currentlyDraggedSprite === foldedYellow) {
+    } else if (releasedSprite === foldedYellow) {
       foldedYellow.img = foldedYellowImg;
-    } else if (currentlyDraggedSprite === foldedShortPant) {
+    } else if (releasedSprite === foldedShortPant) {
       foldedShortPant.img = foldedShortPantImg;
     }
-    
-    currentlyDraggedSprite.isDraggable = false;
+    if (releasedSprite.img && typeof releasedSprite.baseImageScale === 'number') {
+      releasedSprite.image.scale = releasedSprite.baseImageScale * currentScale;
+    }
+    // --- END OF IMAGE RESET ---
+
+    let shouldSnapBackToDesign = false;
+    let wasSuccessfullyPlaced = false;
+    let isOverlappingTarget = false; // Initialize to false
+
+    if (releasedSprite === kimono || releasedSprite === foldedSkirt) {
+      shouldSnapBackToDesign = true;
+      if (typeof releasedSprite.isPlaced === 'boolean') releasedSprite.isPlaced = false;
+      // For kimono/skirt, overlap status for 'Done' check will be evaluated later if needed
+    } else {
+      // This is for shirt, jean, noSleeveShirt, foldedYellow, foldedShortPant
+      if (targetSprite) {
+        // --- MANUAL AABB OVERLAP CHECK ---
+        let r1 = releasedSprite;
+        let r2 = targetSprite;
+
+        let r1L = r1.x - r1.width / 2;
+        let r1R = r1.x + r1.width / 2;
+        let r1T = r1.y - r1.height / 2;
+        let r1B = r1.y + r1.height / 2;
+
+        let r2L = r2.x - r2.width / 2;
+        let r2R = r2.x + r2.width / 2;
+        let r2T = r2.y - r2.height / 2;
+        let r2B = r2.y + r2.height / 2;
+
+        isOverlappingTarget = !(r1R < r2L || r1L > r2R || r1B < r2T || r1T > r2B); // Assign to the main variable
+        // --- END OF MANUAL AABB OVERLAP CHECK ---
+
+        let isOverlappingTarget_p5play = releasedSprite.overlapping(targetSprite); // Keep for comparison log
+
+        if (isOverlappingTarget) { // Now using the result of the manual check
+          shouldSnapBackToDesign = false; // Stay in place
+          if (typeof releasedSprite.isPlaced === 'boolean') {
+            releasedSprite.isPlaced = true; // Mark as placed
+            // STORE THE PLACED POSITION RELATIVE TO DESIGN RESOLUTION
+            releasedSprite.placedDesignX = releasedSprite.x / currentScale;
+            releasedSprite.placedDesignY = releasedSprite.y / currentScale;
+            wasSuccessfullyPlaced = true;
+          } else {
+          }
+        } else {
+          // Not overlapping target (according to manual check), so snap back
+          shouldSnapBackToDesign = true;
+          if (typeof releasedSprite.isPlaced === 'boolean') {
+            releasedSprite.isPlaced = false; // Reset placed status
+          }
+        }
+      } else {
+        shouldSnapBackToDesign = true; // Default to snapping back if target is missing
+      }
+    }
+
+    if (shouldSnapBackToDesign) {
+      releasedSprite.x = releasedSprite.designX * currentScale;
+      releasedSprite.y = releasedSprite.designY * currentScale;
+      if (typeof releasedSprite.isPlaced === 'boolean') {
+        if (releasedSprite.isPlaced) { console.log(releasedSprite.constructor.name, "isPlaced reset to false due to snap back"); }
+        releasedSprite.isPlaced = false;
+        releasedSprite.placedDesignX = 0; // Reset these too
+        releasedSprite.placedDesignY = 0;
+      }
+    } else if (wasSuccessfullyPlaced) { // Changed from else to else if (wasSuccessfullyPlaced)
+    }
+
     currentlyDraggedSprite = null;
   }
 
-  if (shirt.overlapping(targetSprite) &&
-      kimono.overlapping(targetSprite) &&
-      foldedSkirt.overlapping(targetSprite) &&
-      foldedJean.overlapping(targetSprite)) {
-    console.log("Done");
+  // Game completion check (using p5play's overlapping for kimono/skirt as their behavior was fine)
+  if (targetSprite &&
+      shirt.isPlaced &&
+      //(kimono.overlapping(targetSprite)) &&
+      //(foldedSkirt.overlapping(targetSprite)) &&
+      jean.isPlaced &&
+      noSleeveShirt.isPlaced &&
+      foldedYellow.isPlaced &&
+      foldedShortPant.isPlaced) {
+    console.log("Done - All items in target (or placed)!");
+    const backButton = document.getElementById('back_to_flipbook_button');
+    if (backButton) {
+        backButton.style.display = 'block'; // Or 'inline-block'
+    }
   }
 }
 
-function windowResized() {
-  // Resize canvas to match window size
-  resizeCanvas(windowWidth, windowHeight);
-  
-  // Update sprite positions relative to new window size if needed
-  const centerX = windowWidth / 2;
-  const centerY = windowHeight / 2;
-  
-  // Update positions of sprites relative to new center if needed
-  if (shirt) shirt.position = createVector(centerX - 100, centerY - 50);
-  if (kimono) kimono.position = createVector(centerX - 200, centerY + 50);
-  // ... update other sprite positions as needed
-}
 
-function resetKimonoSound() {
-  if (!kimonoSound.isPlaying()) {
-    isKimonoSoundPlaying = false;
-  }
-}
+function resetKimonoSound() { if (kimonoSound && !kimonoSound.isPlaying()) isKimonoSoundPlaying = false; }
+function resetSkirtSound() { if (skirtSound && !skirtSound.isPlaying()) isSkirtSoundPlaying = false; }
 
-function resetSkirtSound() {
-  if (!skirtSound.isPlaying()) {
-    isSkirtSoundPlaying = false;
-  }
-}

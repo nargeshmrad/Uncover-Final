@@ -6,71 +6,82 @@
   <style>
     html, body {
       margin: 0;
-      height: 100%;
-      background: #f0f0f0;
+      padding: 0; /* Added padding:0 for consistency */
+      width: 100%; /* Ensure body takes full width */
+      height: 100%; /* Ensure body takes full height */
+      overflow: hidden; /* Prevent scrollbars on body */
+      /*background: #000; /* Background for letterbox/pillarbox areas */
     }
 
     .container {
-      position: relative;
-      width: 100%;
+      position: relative; /* For absolute positioning of sketch-holder */
+      width: 100vw;
       height: 100vh;
-      overflow: hidden;
+      display: flex; /* Helps center the image if it's smaller than container */
+      justify-content: center;
+      align-items: center;
+      overflow: hidden; /* Clip anything outside */
+      /* outline: 2px solid rgb(165, 219, 50); */ /* Debug border */
     }
 
     .container img.background {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
+      max-width: 100%; /* Fit width */
+      max-height: 100%; /* Fit height */
+      object-fit: contain; /* Crucial for aspect ratio */
+      display: block; /* Removes extra space below image */
+    }
+
+    #sketch-holder {
+      position: absolute; /* To overlay the background image precisely */
+      /* top, left, width, height will be set by JavaScript */
+      /* outline: 2px solid blue; */ /* Debug: shows sketch-holder bounds */
     }
 
     canvas {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      z-index: 2 !important;
+      display: block; /* p5.js default, good */
+      /* outline: 2px solid red; */ /* Debug: shows canvas bounds */
     }
 
-    #button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      background: white;
-      text-decoration: none;
-      color: black;
-      border-radius: 5px;
-      display: none;
-      z-index: 3;
+    .responsive-image-button {
+      position: absolute; /* !!! CHANGED: Now relative to #sketch-holder !!! */
+      bottom: 15px;       /* Example: 15px from the bottom of the image area */
+      right: 15px;        /* Example: 15px from the right of the image area */
+      z-index: 100;       /* Ensure it's above the canvas (p5.js canvas defaults to z-index auto or 0) */
+      display: none;      /* Start hidden, will be shown by JS when game is 'Done' */
+                          /* If you want it always visible, change to 'block' or 'inline-block' */
     }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <img class="background" src="../assets/luggageScene/LuggageScene.png" alt="Background">
-      <div id="sketch-holder"></div>
-    </div>
-    <a href="" id="button">next</a>
-    <!-- Use p5.js (friendly errors) OR q5.js (faster) -->
 
-    <!-- ONLINE LINKS -->
-    <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/addons/p5.sound.min.js"></script>
-    <!-- <script src="https://q5js.org/q5.js"></script> -->
-    <script src="https://p5play.org/v3/planck.min.js"></script>
-    <script src="https://p5play.org/v3/p5play.js"></script>
+    .responsive-image-button img {
+      display: block;
+      width: 7vw;         /* Your preferred responsive width based on viewport */
+      max-width: 70px;    /* Optional: Cap max size */
+      min-width: 20px;    /* Optional: Ensure minimum size */
+      height: auto;       /* Maintain aspect ratio */
+      transition: transform 0.2s ease-out;
+    }
 
-    <!-- OFFLINE LINKS -->
-    <!--
-	<script src="node_modules/p5/lib/p5.js"></script>
-	<script src="node_modules/p5/lib/addons/p5.sound.min.js"></script>
-	<script src="node_modules/q5/q5.js"></script>
-	<script src="node_modules/p5play/planck.min.js"></script>
-	<script src="node_modules/p5play/p5play.js"></script>
-	-->
+    .responsive-image-button:hover img {
+      transform: scale(1.1);
+    }
 
-    <!-- YOUR SKETCH -->
-    <script src="luggageScene.js"></script>
-  </body>
+  </style>
+</head>
+<body>
+  <div class="container" id="main-container"> <!-- Added ID for easier JS selection -->
+    <img class="background" id="bg-image" src="../assets/luggageScene/LuggageScene.png" alt="Background">
+    <div id="sketch-holder">
+      <a href="../../game.html" id="back_to_flipbook_button" class="responsive-image-button">
+        <img src="../assets/luggageScene/icon_flipbook.png" alt="Back to Flipbook">
+      </a>
+    </div> <!-- p5.js canvas will be parented here -->
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/p5@1/lib/addons/p5.sound.min.js"></script> --> <!-- Duplicate -->
+  <script src="https://p5play.org/v3/planck.min.js"></script>
+  <script src="https://p5play.org/v3/p5play.js"></script>
+  <script src="luggageScene.js"></script>
+</body>
 </html>
