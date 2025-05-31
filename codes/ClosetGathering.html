@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="favicon.png" />
     <title>p5play</title>
     <style>
       html,
@@ -70,14 +69,27 @@
         top: 0;
         left: 0;
       } */
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
     </style>
   </head>
 
   <body>
     <div id="dialogueText"></div>
-    <main>
+    <div class="container">
+      <img class="background" src="../assets/ClosetGathering/ClosetGathering.png" alt="Background">
       <div id="sketch-holder"></div>
-    </main>
+    </div>
     <a href="cousinYoung.html" class="nav-square cousin-square"></a>
     <!-- Use p5.js (friendly errors) OR q5.js (faster) -->
 

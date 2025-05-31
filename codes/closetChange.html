@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Closet Change</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        width: 100vw;
+        overscroll-behavior: none;
+      }
+      #sketch-holder {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <div id="sketch-holder"></div>
+    </main>
+    
+    <script src="lib/p5.min.js"></script>
+    <script src="lib/p5.sound.min.js"></script>
+    <script src="lib/planck.min.js"></script>
+    <script src="lib/p5play.js"></script>
+
+    <script src="closetChange.js"></script>
+  </body>
+</html>
