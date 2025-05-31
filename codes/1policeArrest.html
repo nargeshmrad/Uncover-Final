@@ -6,91 +6,105 @@
 <title>Police Arrest Dialogue</title>
 <style>
   html, body {
-    margin: 0; padding: 0; height: 100%;
-    overflow: hidden;
-    background: url('../assets/1policeArrest/Police-Arrest.png') no-repeat center center;
-    background-size: cover;
-    position: relative;
+    margin: 0;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fffceb;
   }
-  #textbox {
+  .container {
+    position: relative;
+    width: 100vw;
+    height: 100dvh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: #fffceb;
+  } /* position: relative ensures absolutely positioned children (textbox) are relative to this container */
+
+  .container img.background {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0;
+  }
+  /* ------------- generic look ------------- */
+  .textbox {
     position: absolute;
     opacity: 0;
     transition: opacity 1s ease;
     user-select: none;
+    width: 20%; /* Responsive: 20% of parent width */
+    max-width: 1000px;
+    min-width: 10px;
+    max-height: 20%; /* Responsive: up to 20% of parent height */
+    min-height: 10px;
+    transform: translateX(-50%);
+    z-index: 2;
+    box-sizing: border-box;
   }
+  .textbox--him {
+    left: 50%;
+    top: 12%;
+  }
+  .textbox--police {
+    left: 40%;
+    top: 60%;
+  }
+
 </style>
 </head>
 <body>
 
-<img id="textbox" src="" alt="Textbox">
+<div class="container">
+  <img class="background" src="../assets/1policeArrest/Police-Arrest.png" alt="Background">
+  <img id="textbox-him" class="textbox textbox--him" src="../assets/1policeArrest/HimTextbox.png" alt="Textbox Him">
+  <img id="textbox-police" class="textbox textbox--police" src="../assets/1policeArrest/Police.png" alt="Textbox Police">
+</div>
 
 <script>
   const himVoice = new Audio('../assets/1policeArrest/HimVoice.mp3');
   const policeVoice = new Audio('../assets/1policeArrest/policeVoice.mp3');
   const textbox = document.getElementById('textbox');
 
-  // Configuration for each textbox: position & size
-  const textboxConfig = {
-    him: {
-      top: '20%',   // Adjust these values as you want
-      left: '25%',
-      width: '400px',
-      height: 'auto'
-    },
-    police: {
-      top: '80%',
-      left: '15%',
-      width: '350px',
-      height: 'auto'
-    }
-  };
-
-  function applyTextboxStyle(config) {
-    textbox.style.top = config.top;
-    textbox.style.left = config.left;
-    textbox.style.width = config.width;
-    textbox.style.height = config.height;
-    // Optional: add transform to center horizontally if you want
-    // textbox.style.transform = 'translateX(-50%)';
+  // Utility to show/hide a textbox by id
+  function showTextbox(id) {
+    const el = document.getElementById(id);
+    el.style.opacity = '0';
+    el.style.display = 'block';
+    requestAnimationFrame(() => el.style.opacity = '1');
   }
-
-  // Show textbox image with fade in and style
-  function showTextbox(src, config) {
-    textbox.src = src;
-    applyTextboxStyle(config);
-    textbox.style.opacity = '0';
-    textbox.style.display = 'block';
-    setTimeout(() => {
-      textbox.style.opacity = '1';
-    }, 50);
-  }
-
-  // Hide textbox with fade out (returns Promise)
-  function hideTextbox() {
+  function hideTextbox(id) {
     return new Promise(resolve => {
-      textbox.style.opacity = '0';
+      const el = document.getElementById(id);
+      el.style.opacity = '0';
       setTimeout(() => {
-        textbox.style.display = 'none';
+        el.style.display = 'none';
         resolve();
       }, 1000);
     });
   }
 
   // Sequence
-  showTextbox('../assets/1policeArrest/HimTextbox.png', textboxConfig.him);
+  showTextbox('textbox-him');
   himVoice.play();
 
   himVoice.onended = async () => {
-    await hideTextbox();
-
-    showTextbox('../assets/1policeArrest/Police.png', textboxConfig.police);
+    await hideTextbox('textbox-him');
+    showTextbox('textbox-police');
     policeVoice.play();
 
     policeVoice.onended = async () => {
-      await hideTextbox();
-      window.location.href = '2policeHatChoice.html';
+      await hideTextbox('textbox-police');
+      //window.location.href = '2policeHatChoice.html';
     };
   };
+
 </script>
 
 </body>
