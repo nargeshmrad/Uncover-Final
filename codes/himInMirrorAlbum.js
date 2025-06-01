@@ -157,7 +157,18 @@ document.addEventListener('mousemove', (e) => {
       if (isCanvasEmpty()) {
         hotspot.classList.add('dirt-erased');
         sponge.style.display = 'none'; // Hide sponge when done
+        // Change cursor to eyeCursor.png
+        hotspot.style.cursor = "url('../assets/HimInMirrorAlbum/eyeCursor.png') 35 35, auto";
+        document.body.style.cursor = "url('../assets/HimInMirrorAlbum/eyeCursor.png') 35 35, auto";
+        // Add click-to-navigate
+        hotspot.addEventListener('click', goToClosetChange);
       }
+
+// Navigation function
+function goToClosetChange() {
+  window.location.href = 'closetChange.html';
+}
+
     }
   }
 });
