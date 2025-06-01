@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const shadow = document.getElementById('shadow');
     const textbox = document.getElementById('textbox');
+    const textbox2 = document.getElementById('textbox2');
     const light = document.getElementById('light');
     const shadowMusic = document.getElementById('shadowMusic');
     const shadowVoice = document.getElementById('shadowVoice');
@@ -38,23 +39,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Only play voice and show textbox if they haven't played yet
             if (!hasPlayedVoice) {
-                // After 2 seconds, play voice and show textbox
+                // After 2 seconds, play voice and show textbox1 for 6s, then textbox2 for rest of voice
                 voiceTimer = setTimeout(async () => {
                     try {
                         shadowVoice.currentTime = 0;
                         await shadowVoice.play();
                         textbox.style.opacity = '1';
+                        textbox2.style.opacity = '0';
                         hasPlayedVoice = true;
 
-                        // After voice ends, enable light cursor
-                        resetTimer = setTimeout(() => {
+                        // Hide textbox1 after 6s, show textbox2 for remainder of voice
+                        setTimeout(() => {
                             textbox.style.opacity = '0';
-                            //light.style.opacity = '1';
+                            textbox2.style.opacity = '1';
+                        }, 7000);
+
+                        // After voice ends, hide textbox2 and enable light cursor
+                        resetTimer = setTimeout(() => {
+                            textbox2.style.opacity = '0';
                             hasLightCursor = true;
                             fadingShadow = false;
                             document.body.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
                             container.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
                             shadow.style.cursor = "url('../assets/ShadowAlbum/light.png'), auto";
+                            // Fade in the light image (cursor)
+                            light.classList.add('visible');
                             isPlaying = false; // Reset playing state when everything is done
                         }, shadowVoice.duration * 1000);
                     } catch (error) {
@@ -81,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fadingShadow = true;
         function fade() {
             if (!hasLightCursor || hasTransitioned) { fadingShadow = false; return; }
-            shadowOpacity = Math.max(0, shadowOpacity - 0.002);
+            shadowOpacity = Math.max(0, shadowOpacity - 0.001);
             shadow.style.opacity = shadowOpacity;
             if (shadowOpacity === 0 && !hasTransitioned) {
                 hasTransitioned = true;
@@ -98,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.body.classList.remove('light-cursor-fadeout');
                     document.body.classList.remove('fading');
                     document.body.style.cursor = 'default';
-                }, 600); // Duration matches CSS transition
+                }, 1000); // Duration matches CSS transition
                 return;
             }
             if (hasLightCursor && !hasTransitioned) {

@@ -33,7 +33,7 @@
       position: absolute;
       top: 13%;
       left: 31.9%;
-      width: 18.5%;  /* 142 / 1070 */
+      width: 20.5%;  /* 142 / 1070 */
       height: 45%; /* 410 / 1176 */
       z-index: 2;
     }
@@ -71,8 +71,12 @@
       width: 6.5%; /* 70 / 1070 */
       height: auto;
       z-index: 4;
-      display: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
       cursor: grab;
+    }
+    .sponge.visible {
+      opacity: 1;
     }
   </style>
 </head>

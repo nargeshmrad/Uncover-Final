@@ -105,9 +105,12 @@
       opacity: 0;
       cursor: grab;
       user-select: none;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.8s ease;
       z-index: 4;
       transform: translateX(-50%);
+    }
+    .light.visible {
+      opacity: 1;
     }
 
     .light.dragging {
@@ -124,11 +127,12 @@
     </div>
     <img class="shadow" id="shadow" src="../assets/ShadowAlbum/shadow.png" alt="Shadow">
     <img class="textbox" id="textbox" src="../assets/ShadowAlbum/TexBoxShadow.png" alt="Textbox">
+    <img class="textbox" id="textbox2" src="../assets/ShadowAlbum/TexBoxShadow2.png" alt="Textbox2" style="opacity:0;">
     <img class="light" id="light" src="../assets/ShadowAlbum/light.png" alt="Light">
   </div>
 
   <audio id="shadowMusic" src="../assets/ShadowAlbum/shadowMusic.mp3"></audio>
-  <audio id="shadowVoice" src="../assets/ShadowAlbum/shadowVoice.mp3"></audio>
+  <audio id="shadowVoice" src="../assets/ShadowAlbum/rahaClearShadow1.mp3"></audio>
 
   <script src="shadowOnHim.js"></script>
 
