@@ -22,13 +22,19 @@
       display: block;
       user-select: none;
       pointer-events: none;
+      position: absolute;
+      top: 0; left: 0;
+      transition: opacity 6s ease;
+    }
+    .fade-bg {
+      z-index: 1;
     }
 
     .textbox {
       position: absolute;
-      bottom: 3%;   /* adjust as needed */
-      left: 40%;     /* adjust as needed */
-      width: 20%;    /* responsive width */
+      bottom: 65%;   /* adjust as needed */
+      left: 60%;     /* adjust as needed */
+      width: 15%;    /* responsive width */
       height: auto;
       opacity: 0;
       pointer-events: none;
@@ -44,9 +50,11 @@
 </head>
 <body>
   <div class="scene-container">
-    <img src="../assets/201policeWalkCHill/Police-WallChill.png" alt="Background" class="background" />
+    <img src="../assets/201policeWalkCHill/Police-WallChill.png" alt="Background" class="background" id="bg1" />
+    <img src="../assets/201policeWalkCHill/Police-WallChill2.png" alt="Background 2" class="background fade-bg" id="bg2" style="opacity:0; pointer-events:none;" />
     <img src="../assets/201policeWalkCHill/HimTextBox.png" alt="Textbox" class="textbox" id="himTextbox" />
-    <audio id="himAudio" src="../assets/201policeWalkCHill/HimVoice.mp3"></audio>
+    <audio id="himAudio" src="../assets/201policeWalkCHill/raha-walk-police.wav"></audio>
+    <audio id="sadWalkAudio" src="../assets/201policeWalkCHill/SadWalk.mp3"></audio>
   </div>
 
   <script>
@@ -57,9 +65,40 @@
       himTextbox.classList.add('visible');
       himAudio.play();
 
+      // Fade in SadWalk.mp3 at low volume under the dialogue
+      const sadWalkAudio = document.getElementById('sadWalkAudio');
+      sadWalkAudio.volume = 0.0;
+      sadWalkAudio.play();
+      // Fade in to low volume (0.15) over 1.5s
+      let fadeInStep = 0;
+      const fadeInInterval = setInterval(() => {
+        fadeInStep++;
+        sadWalkAudio.volume = Math.min(0.15, fadeInStep / 10 * 0.15);
+        if (sadWalkAudio.volume >= 0.15) clearInterval(fadeInInterval);
+      }, 150);
+
       himAudio.onended = () => {
         himTextbox.classList.remove('visible');
+        // Raise SadWalk.mp3 volume to 0.5 over 1.5s
+        let currentVol = sadWalkAudio.volume;
+        let targetVol = 0.5;
+        let steps = 15;
+        let step = 0;
+        const upInterval = setInterval(() => {
+          step++;
+          sadWalkAudio.volume = currentVol + (targetVol - currentVol) * (step / steps);
+          if (step >= steps) {
+            sadWalkAudio.volume = targetVol;
+            clearInterval(upInterval);
+          }
+        }, 100);
+        // Fade in new background after textbox fades out
+        setTimeout(() => {
+          document.getElementById('bg2').style.opacity = '1';
+          document.getElementById('bg1').style.opacity = '0';
+        }, 500); // wait for textbox fade-out
       };
+
     }
 
     // Automatically start when page loads (optional)

@@ -42,16 +42,17 @@
 
     .textbox {
       position: absolute;
-      bottom: 75%;
-      left: 30%;
-      width: 40%;
-      max-width: 400px;
+      top: var(--img-top, auto);
+      left: var(--img-left, 50%);
+      width: var(--img-width, 5%);
+      max-height: var(--img-max-height, none);
       height: auto;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.5s ease;
       user-select: none;
       z-index: 10;
+      transform: translate(-50%, 0);
     }
 
     .textbox.visible {
@@ -59,48 +60,30 @@
       pointer-events: auto;
     }
 
-    .choices-container {
+    .choice {
       position: absolute;
-      bottom: 9%;
-      left: 55%;
-      transform: translateX(-50%);
-      width: 40%;
-      max-width: 300px;
-      display: flex;
-      justify-content: space-around;
+      top: var(--img-top, auto);
+      left: var(--img-left, 50%);
+      width: var(--img-width, 18%);
+      max-height: var(--img-max-height, none);
+      cursor: pointer;
+      user-select: none;
       opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.5s, filter 0.3s, transform 0.2s;
+      display: none;
       z-index: 20;
+      transform: translate(-50%, 0);
     }
-
-    .choices-container.visible {
+    .choice.visible {
       opacity: 1;
+      display: block;
       pointer-events: auto;
     }
 
-    .choice {
-      width: 45%;
-      max-width: 450px;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.2s ease;
-    }
-
     .choice:hover {
-      transform: scale(1.05);
+      filter: brightness(1.1) drop-shadow(0 0 10px #fff);
     }
-    @media (max-width: 900px) {
-    #choices img {
-      max-width: 40vw;
-    }
-  }
 
-  @media (max-width: 600px) {
-    #choices img {
-      max-width: 60vw;
-    }
-  }
   .choice {
     transition: filter 0.3s;
   }
@@ -125,14 +108,12 @@
 
     <img src="../assets/202policeTalk/PoliceTextBox.png" alt="Police Text Box" class="textbox" id="policeTextbox" />
 
-    <div class="choices-container" id="choicesContainer">
-      <img src="../assets/202policeTalk/HimChoice1.png" alt="Choice 1" class="choice" id="choice1" />
-      <img src="../assets/202policeTalk/HimChoice2.png" alt="Choice 2" class="choice" id="choice2" />
-    </div>
+    <img src="../assets/202policeTalk/HimChoice1.png" alt="Choice 1" class="choice" id="choice1" />
+    <img src="../assets/202policeTalk/HimChoice2.png" alt="Choice 2" class="choice" id="choice2" />
 
-    <audio id="policeVoice" src="../assets/202policeTalk/PoliceVoice.mp3"></audio>
-    <audio id="choice1Audio" src="../assets/202policeTalk/Choice1.mp3"></audio>
-    <audio id="choice2Audio" src="../assets/202policeTalk/Choice2.mp3"></audio>
+    <audio id="policeVoice" src="../assets/202policeTalk/policeAskRaha.wav"></audio>
+    <audio id="choice1Audio" src="../assets/202policeTalk/rahaChoice1Police.wav"></audio>
+    <audio id="choice2Audio" src="../assets/202policeTalk/rahaChoice2Police.wav"></audio>
   </div>
 
   <script>
@@ -146,17 +127,55 @@
     const choice1Audio = document.getElementById('choice1Audio');
     const choice2Audio = document.getElementById('choice2Audio');
 
+    // Position textbox relative to visible background image area
+    function positionTextboxOnImage(el, img, topPercent, leftPercent, widthPercent = 40, maxHeightPercent = 20) {
+      const imgRect = img.getBoundingClientRect();
+      const containerRect = img.parentElement.getBoundingClientRect();
+      const imgTop = imgRect.top - containerRect.top;
+      const imgLeft = imgRect.left - containerRect.left;
+      const top = imgTop + imgRect.height * (topPercent / 100);
+      const left = imgLeft + imgRect.width * (leftPercent / 100);
+      const width = imgRect.width * (widthPercent / 100);
+      const maxHeight = imgRect.height * (maxHeightPercent / 100);
+      el.style.setProperty('--img-top', `${top}px`);
+      el.style.setProperty('--img-left', `${left}px`);
+      el.style.setProperty('--img-width', `${width}px`);
+      el.style.setProperty('--img-max-height', `${maxHeight}px`);
+    }
+
+    function positionAllTextboxes() {
+      const img = document.getElementById('mainBackground');
+      positionTextboxOnImage(document.getElementById('policeTextbox'), img, 75, 50, 40, 20);
+      // Choices: 85% from top, 40% and 60% from left, 18% width, 20% max-height
+      positionTextboxOnImage(document.getElementById('choice1'), img, 85, 43, 18, 20);
+      positionTextboxOnImage(document.getElementById('choice2'), img, 85, 57, 18, 20);
+    }
+
+    window.addEventListener('resize', positionAllTextboxes);
+    window.addEventListener('DOMContentLoaded', () => {
+      const img = document.getElementById('mainBackground');
+      if (img.complete) {
+        positionAllTextboxes();
+      } else {
+        img.onload = positionAllTextboxes;
+      }
+    });
+
     // Show textbox and play police voice on page load
     window.onload = () => {
       policeTextbox.classList.add('visible');
       policeVoice.play();
     };
 
-    // When police voice ends, hide textbox and show choices
+
+    // When police voice ends, hide textbox and fade in choices
     policeVoice.onended = () => {
       policeTextbox.classList.remove('visible');
-      choicesContainer.classList.add('visible');
+      [choice1, choice2].forEach(choice => {
+        choice.classList.add('visible');
+      });
     };
+
 
     // Play choice audio on hover and pause others
     choice1.addEventListener('mouseenter', () => {
