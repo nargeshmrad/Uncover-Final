@@ -62,81 +62,81 @@ let sneakersSound;  // Add sneakers sound variable
 
 function preload() {
     // Load sounds
-    cropTopSound = loadSound("assets/ClosetFirst/CropTop.m4a");
-    shortPantSound = loadSound("assets/ClosetFirst/ShortPant.m4a");
-    sneakersSound = loadSound("assets/ClosetFirst/Sneakers.m4a");
+    cropTopSound = loadSound("../assets/ClosetFirst/CropTop.m4a");
+    shortPantSound = loadSound("../assets/ClosetFirst/ShortPant.m4a");
+    sneakersSound = loadSound("../assets/ClosetFirst/Sneakers.m4a");
     
     // Load images
-    ClosetImg = loadImage("assets/ClosetFirst/Closet.png");
-    socksInFeetImg = loadImage("assets/ClosetFirst/socksInFeet.png");
+    ClosetImg = loadImage("../assets/ClosetFirst/Closet.png");
+    socksInFeetImg = loadImage("../assets/ClosetFirst/socksInFeet.png");
    
     // Load shoes image
-    shoesImg = loadImage("assets/ClosetFirst/shoes.png", img => {
+    shoesImg = loadImage("../assets/ClosetFirst/shoes.png", img => {
         shoesWidth = img.width * coef;
         shoesHeight = img.height * coef;
     });
 
 
     // Load top images
-    topHangedImg = loadImage("assets/ClosetFirst/topHanged.png", img => {
+    topHangedImg = loadImage("../assets/ClosetFirst/topHanged.png", img => {
         topWidth = img.width * coef;
         topHeight = img.height * coef;
     });
-    TopOnBodyImg = loadImage("assets/ClosetFirst/TopOnBody.png");
+    TopOnBodyImg = loadImage("../assets/ClosetFirst/TopOnBody.png");
 
 
     // Load short pants images
-    foldedShortPantImg = loadImage("assets/ClosetFirst/foldedShortPant.png", img => {
+    foldedShortPantImg = loadImage("../assets/ClosetFirst/foldedShortPant.png", img => {
         shortPantWidth = img.width * coef;
         shortPantHeight = img.height * coef;
     });
-    shortPantOnBodyImg = loadImage("assets/ClosetFirst/shortPantOnBody.png");
-    shirtBodyImg = loadImage("assets/ClosetFirst/shirtBody.png");
-    shortPantOnBodyImg = loadImage("assets/ClosetFirst/shortPantOnBody.png");
-    OverallSelectedImg = loadImage("assets/ClosetFirst/OverallSelected.png");
-    socksSelectedImg = loadImage("assets/ClosetFirst/socksSelected.png");
-    SocksClosetImg = loadImage("assets/ClosetFirst/SocksCloset.png", img => {
+    shortPantOnBodyImg = loadImage("../assets/ClosetFirst/shortPantOnBody.png");
+    shirtBodyImg = loadImage("../assets/ClosetFirst/shirtBody.png");
+    shortPantOnBodyImg = loadImage("../assets/ClosetFirst/shortPantOnBody.png");
+    OverallSelectedImg = loadImage("../assets/ClosetFirst/OverallSelected.png");
+    socksSelectedImg = loadImage("../assets/ClosetFirst/socksSelected.png");
+    SocksClosetImg = loadImage("../assets/ClosetFirst/SocksCloset.png", img => {
         socksWidth = img.width * coef;
         socksHeight = img.height * coef;
     });
-    foldedLongPantImg = loadImage("assets/ClosetFirst/foldedLongPant.png", img => {
+    foldedLongPantImg = loadImage("../assets/ClosetFirst/foldedLongPant.png", img => {
         foldedPantWidth = img.width * coef;
         foldedPantHeight = img.height * coef;
     });
-    ShirtHangedImg = loadImage("assets/ClosetFirst/ShirtHanged.png");
-    topHangedImg = loadImage("assets/ClosetFirst/topHanged.png");
-    OverallInClosetImg = loadImage("assets/ClosetFirst/OverallInCloset.png", img => {
+    ShirtHangedImg = loadImage("../assets/ClosetFirst/ShirtHanged.png");
+    topHangedImg = loadImage("../assets/ClosetFirst/topHanged.png");
+    OverallInClosetImg = loadImage("../assets/ClosetFirst/OverallInCloset.png", img => {
         overallWidth = img.width * coef;
         overallHeight = img.height * coef;
     });
-    longPantImg = loadImage("assets/ClosetFirst/long Pant.png", img => {
+    longPantImg = loadImage("../assets/ClosetFirst/long Pant.png", img => {
         pantWidth = img.width * coef;
         pantHeight = img.height * coef;
     });
    
     // Load new images with size calculations
-    foldedShortPantImg = loadImage("assets/ClosetFirst/foldedShortPant.png", img => {
+    foldedShortPantImg = loadImage("../assets/ClosetFirst/foldedShortPant.png", img => {
         shortPantWidth = img.width * coef;
         shortPantHeight = img.height * coef;
     });
    
-    shoesImg = loadImage("assets/ClosetFirst/shoes.png", img => {
+    shoesImg = loadImage("../assets/ClosetFirst/shoes.png", img => {
         shoesWidth = img.width * coef;
         shoesHeight = img.height * coef;
     });
    
-    topHangedImg = loadImage("assets/ClosetFirst/topHanged.png", img => {
+    topHangedImg = loadImage("../assets/ClosetFirst/topHanged.png", img => {
         topWidth = img.width * coef;
         topHeight = img.height * coef;
     });
 
 
     // Load background music
-    bgMusic = loadSound("assets/ClosetFirst/ClosetAmbience.mp3");
+    bgMusic = loadSound("../assets/ClosetFirst/ClosetAmbience.mp3");
     // Load clothes movement sound
-    clothesSound = loadSound("assets/ClosetFirst/clothesMovement.mp3");
+    clothesSound = loadSound("../assets/ClosetFirst/clothesMovement.mp3");
     // Load clothes drop sound
-    clothesDropSound = loadSound("assets/ClosetFirst/clothesDrop.mp3");
+    clothesDropSound = loadSound("../assets/ClosetFirst/clothesDrop.mp3");
 }
 
 

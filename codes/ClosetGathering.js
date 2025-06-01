@@ -1,1057 +1,543 @@
+/******************************************************************************
+ *  ClosetGathering – responsive edition (same logic, responsive coordinates) *
+ *  identical scaling model to luggageScene.js                                *
+ ******************************************************************************/
+
+// ────────────────────────────────────────────────────────────────────────────
+// 1.  CONSTANTS & GLOBAL SCALERS
+// ────────────────────────────────────────────────────────────────────────────
+const DESIGN_W  = 1920;            // design resolution used when coordinates
+const DESIGN_H  = 1080;            // were pixel-perfected in Photoshop
+const BASE_IMG_SCALE = 0.76;       // = previous “coef” in the fixed version
+
+const DEBUG_MODE   = false;         // set to false for production
+
+let currentScale = 1;              // run-time multiplier (DESIGN->SCREEN)
+let canvasW      = DESIGN_W;       // updated every window resize
+let canvasH      = DESIGN_H;
+
+let currentlyDragged = null;       // sprite that is being dragged right now
+
+// convenience helpers
+const sc = v => v * currentScale;
+const pos = (x, y) => ({ x: sc(x), y: sc(y) });
+
+// ────────────────────────────────────────────────────────────────────────────
+// 2.  ASSET VARIABLES  (unchanged – only regrouped)
+// ────────────────────────────────────────────────────────────────────────────
 let ClosetImg;
 let socksInFeetImg, shirtBodyImg, shortPantOnBodyImg, OverallSelectedImg;
 let socksSelectedImg, SocksClosetImg, shoesImg, foldedShortPantImg;
 let foldedLongPantImg, ShirtHangedImg, topHangedImg, OverallInClosetImg;
-let longPantImg;
-let shirt, shirtWearZone;  
-let originalShirtX = 360;  
-let originalShirtY = 209;  
-let isShirtWorn = false;
+let longPantImg, TopOnBodyImg;
 
+// SOUND
+let bgMusic, clothesSound, clothesDropSound,
+    cropTopSound, shortPantSound, sneakersSound;
 
-let iMacWidth = 1920;
-let iMacHeight = 1080;
-let coef = 0.6;
-let longPants, targetSprite, mouseSprite, socks, socksWearZone, overall, overallWearZone, shortPants, shortPantsWearZone, shoes, shoesWearZone, topClothing, topWearZone;
-let dropZone, foldedDropZone;
-let isPantInDropZone = false;
-let isSocksWorn = false;
+// SPRITES
+let overall, longPants, socks, shortPants, shoes,
+    shirt, topClothing;
+let dropZone, foldedDropZone, socksWearZone, shirtWearZone,
+    overallWearZone, shortPantsWearZone, shoesWearZone, topWearZone;
 
-// Track what's being worn
-let topWornItem = null;  // Can be 'shirt', 'top', or 'overall'
-let bottomWornItem = null;  // Can be 'longPants', 'shortPants', or 'overall'
+// STATE FLAGS
+let isPantInDropZone = false,
+    isSocksWorn      = false,
+    isShirtWorn      = false;
 
-let pantWidth, pantHeight;
-let originalPantX = 545;
-let originalPantY = 450;
-let foldedPantWidth, foldedPantHeight;
-let originalSocksX = 369;
-let originalSocksY = 503;
-let socksWidth, socksHeight;
+let topWornItem    = null;   // 'shirt' | 'top'   | 'overall' | null
+let bottomWornItem = null;   // 'longPants' | 'shortPants' | 'overall' | null
 
+const LAYOUT_SHIFT_X = 240;   // px to push everything right  (- value = left)
+const LAYOUT_SHIFT_Y = 137;   // px to push everything down   (- value = up)
+const LAYOUT_SCALE   = 1.25;   // 1 = original, 1.2 = 20% bigger, 0.8 = smaller
 
-// Add new position and size variables
-let originalOverallX = 535;
-let originalOverallY = 210;
-let overallWidth, overallHeight;
+// ────────────────────────────────────────────────────────────────────────────
+// 3.  DESIGN-SPACE POSITIONS & DIMENSIONS – NOTHING inside this block scales
+// ────────────────────────────────────────────────────────────────────────────
+const D = {                   // (D = design)
+  /* originals (taken from old code) */
+  shirt:          { x: 318, y: 218,  w: 50, h: 150 },
+  longPantsFolded:{ x: 500, y: 435,  w: 70, h: 50 },
+  socks:          { x: 319, y: 478,  w:  80, h:  60 },
+  overall:        { x: 497, y: 247,  w: 90, h: 180 },
+  shortPant:      { x: 505, y: 490,  w: 70, h: 50 },
+  shoes:          { x: 319, y: 560,  w: 80, h: 60 },
+  top:            { x: 372, y: 211,  w: 50, h: 150 },
 
+  /* WEAR / DROP zones (exact pixels on 1920 × 1080 PSD) */
+  dropZone:           { x: 747, y: 411, w: 144, h: 297 },
+  foldedDropZone:     { x: 500, y: 435, w: 144, h: 297 },
+  socksWearZone:      { x: 747, y: 515, w: 100, h:  50 },
+  shirtWearZone:      { x: 748, y: 293, w: 100, h: 150 },
+  overallWearZone:    { x: 748, y: 307, w: 100, h: 200 },
+  shortPantsWearZone: { x: 749, y: 359, w: 100, h: 150 },
+  shoesWearZone:      { x: 749, y: 514, w: 100, h:  50 },
+  topWearZone:        { x: 748, y: 264, w: 100, h: 150 }
+};
 
-let originalShortPantX = 555;
-let originalShortPantY = 515;
-let shortPantWidth, shortPantHeight;
+for (const key in D) {
+    const r = D[key];
+    r.x = r.x * LAYOUT_SCALE + LAYOUT_SHIFT_X;
+    r.y = r.y * LAYOUT_SCALE + LAYOUT_SHIFT_Y;
+    r.w = r.w * LAYOUT_SCALE;
+    r.h = r.h * LAYOUT_SCALE;
+}
 
+// distance thresholds in DESIGN space
+const TH = {
+  closeWear    : 50,
+  closeSocks   : 30,
+  magnetPants  : 100
+};
 
-let originalShoesX = 369;
-let originalShoesY = 570;
-let shoesWidth, shoesHeight;
-
-
-let originalTopX = 360;
-let originalTopY = 290;
-let topWidth, topHeight;
-
-
-// Add background music variable
-let bgMusic;
-let clothesSound;  // Add clothes movement sound variable
-let clothesDropSound;  // Add clothes drop sound variable
-let cropTopSound;  // Add crop top sound variable
-let shortPantSound;  // Add short pants sound variable
-let sneakersSound;  // Add sneakers sound variable
-
-
+// ────────────────────────────────────────────────────────────────────────────
+// 4.  PRELOAD  (unchanged except removal of *coef* multiplication;
+//               we keep BASE_IMG_SCALE as design-space constant)
+// ────────────────────────────────────────────────────────────────────────────
 function preload() {
-    // Load sounds
-    cropTopSound = loadSound("../assets/ClosetGatheringScene/CropTop.m4a");
-    shortPantSound = loadSound("../assets/ClosetGatheringScene/ShortPant.m4a");
-    sneakersSound = loadSound("../assets/ClosetGatheringScene/Sneakers.m4a");
-    
-    // Load images
-    ClosetImg = loadImage("../assets/ClosetGatheringScene/Closet.png");
-    socksInFeetImg = loadImage("../assets/ClosetGatheringScene/socksInFeet.png");
-   
-    // Load shoes image
-    shoesImg = loadImage("../assets/ClosetGatheringScene/shoes.png", img => {
-        shoesWidth = img.width * coef;
-        shoesHeight = img.height * coef;
-    });
+  //  █  sounds
+  cropTopSound     = loadSound('../assets/ClosetGatheringScene/CropTop.m4a');
+  shortPantSound   = loadSound('../assets/ClosetGatheringScene/ShortPant.m4a');
+  sneakersSound    = loadSound('../assets/ClosetGatheringScene/Sneakers.m4a');
+  clothesSound     = loadSound('../assets/ClosetGatheringScene/clothesMovement.mp3');
+  clothesDropSound = loadSound('../assets/ClosetGatheringScene/clothesDrop.mp3');
+  bgMusic          = loadSound('../assets/ClosetGatheringScene/ClosetAmbience.mp3');
 
-
-    // Load top images
-    topHangedImg = loadImage("../assets/ClosetGatheringScene/topHanged.png", img => {
-        topWidth = img.width * coef;
-        topHeight = img.height * coef;
-    });
-    TopOnBodyImg = loadImage("../assets/ClosetGatheringScene/TopOnBody.png");
-
-
-    // Load short pants images
-    foldedShortPantImg = loadImage("../assets/ClosetGatheringScene/foldedShortPant.png", img => {
-        shortPantWidth = img.width * coef;
-        shortPantHeight = img.height * coef;
-    });
-    shortPantOnBodyImg = loadImage("../assets/ClosetGatheringScene/shortPantOnBody.png");
-    shirtBodyImg = loadImage("../assets/ClosetGatheringScene/shirtBody.png");
-    shortPantOnBodyImg = loadImage("../assets/ClosetGatheringScene/shortPantOnBody.png");
-    OverallSelectedImg = loadImage("../assets/ClosetGatheringScene/OverallSelected.png");
-    socksSelectedImg = loadImage("../assets/ClosetGatheringScene/socksSelected.png");
-    SocksClosetImg = loadImage("../assets/ClosetGatheringScene/SocksCloset.png", img => {
-        socksWidth = img.width * coef;
-        socksHeight = img.height * coef;
-    });
-    foldedLongPantImg = loadImage("../assets/ClosetGatheringScene/foldedLongPant.png", img => {
-        foldedPantWidth = img.width * coef;
-        foldedPantHeight = img.height * coef;
-    });
-    ShirtHangedImg = loadImage("../assets/ClosetGatheringScene/ShirtHanged.png");
-    topHangedImg = loadImage("../assets/ClosetGatheringScene/topHanged.png");
-    OverallInClosetImg = loadImage("../assets/ClosetGatheringScene/OverallInCloset.png", img => {
-        overallWidth = img.width * coef;
-        overallHeight = img.height * coef;
-    });
-    longPantImg = loadImage("../assets/ClosetGatheringScene/long Pant.png", img => {
-        pantWidth = img.width * coef;
-        pantHeight = img.height * coef;
-    });
-   
-    // Load new images with size calculations
-    foldedShortPantImg = loadImage("../assets/ClosetGatheringScene/foldedShortPant.png", img => {
-        shortPantWidth = img.width * coef;
-        shortPantHeight = img.height * coef;
-    });
-   
-    shoesImg = loadImage("../assets/ClosetGatheringScene/shoes.png", img => {
-        shoesWidth = img.width * coef;
-        shoesHeight = img.height * coef;
-    });
-   
-    topHangedImg = loadImage("../assets/ClosetGatheringScene/topHanged.png", img => {
-        topWidth = img.width * coef;
-        topHeight = img.height * coef;
-    });
-
-
-    // Load background music
-    bgMusic = loadSound("../assets/ClosetGatheringScene/ClosetAmbience.mp3");
-    // Load clothes movement sound
-    clothesSound = loadSound("../assets/ClosetGatheringScene/clothesMovement.mp3");
-    // Load clothes drop sound
-    clothesDropSound = loadSound("../assets/ClosetGatheringScene/clothesDrop.mp3");
+  //  █  visuals – identical list as original file
+  ClosetImg            = loadImage('../assets/ClosetGatheringScene/Closet.png');
+  socksInFeetImg       = loadImage('../assets/ClosetGatheringScene/socksInFeet.png');
+  shoesImg             = loadImage('../assets/ClosetGatheringScene/shoes.png');
+  topHangedImg         = loadImage('../assets/ClosetGatheringScene/topHanged.png');
+  TopOnBodyImg         = loadImage('../assets/ClosetGatheringScene/TopOnBody.png');
+  foldedShortPantImg   = loadImage('../assets/ClosetGatheringScene/foldedShortPant.png');
+  shortPantOnBodyImg   = loadImage('../assets/ClosetGatheringScene/shortPantOnBody.png');
+  shirtBodyImg         = loadImage('../assets/ClosetGatheringScene/shirtBody.png');
+  OverallSelectedImg   = loadImage('../assets/ClosetGatheringScene/OverallSelected.png');
+  socksSelectedImg     = loadImage('../assets/ClosetGatheringScene/socksSelected.png');
+  SocksClosetImg       = loadImage('../assets/ClosetGatheringScene/SocksCloset.png');
+  foldedLongPantImg    = loadImage('../assets/ClosetGatheringScene/foldedLongPant.png');
+  ShirtHangedImg       = loadImage('../assets/ClosetGatheringScene/ShirtHanged.png');
+  OverallInClosetImg   = loadImage('../assets/ClosetGatheringScene/OverallInCloset.png');
+  longPantImg          = loadImage('../assets/ClosetGatheringScene/long Pant.png');
 }
 
-
+// ────────────────────────────────────────────────────────────────────────────
+// 5.  SETUP  – build every sprite once at DESIGN-space sizes
+// ────────────────────────────────────────────────────────────────────────────
 function setup() {
-    let canvas = createCanvas(iMacWidth * coef, iMacHeight * coef);
-    canvas.parent("sketch-holder");
-    allSprites.drag = 10;
+  const c = createCanvas(100, 100);    // size corrected in handleResize()
+  c.parent('sketch-holder');
+  allSprites.drag = 10;
 
+  // helper to make a sprite from design record
+  const make = (rec, isStatic=false) => {
+    const s = new Sprite(rec.x, rec.y,
+                         rec.w ?? 50,
+                         rec.h ?? 50,
+                         isStatic ? 'static' : 'none');
+    s.designX = rec.x;                     // store design coords & dims
+    s.designY = rec.y;
+    s.designW = rec.w;
+    s.designH = rec.h;
+    s.designColliderWidth  = rec.w;
+    s.designColliderHeight = rec.h;
+    s.baseImageScale = BASE_IMG_SCALE;
+    s.rotationLock = true;
+    return s;
+  };
 
-    // Create overall sprite
-    overall = new Sprite(originalOverallX, originalOverallY, 200, 300);
-    overall.img = OverallInClosetImg;
-    overall.scale = coef;
-    overall.collider = 'none';
-    overall.rotationLock = true;
-    overall.isDraggable = true;
-    overall.isDragging = false;
-    overall.debug = true;
+  //  █ CLOTHING
+  overall     = make(D.overall);      overall.img     = OverallInClosetImg;
+  longPants   = make(D.longPantsFolded);
+  longPants.img = foldedLongPantImg;  // folded start
 
+  socks       = make(D.socks);
+  socks.img   = SocksClosetImg;
 
+  shortPants  = make(D.shortPant);    shortPants.img  = foldedShortPantImg;
+  shoes       = make(D.shoes);        shoes.img       = shoesImg;
+  shirt       = make(D.shirt);        shirt.img       = ShirtHangedImg;
+  topClothing = make(D.top);          topClothing.img = topHangedImg;
 
+  // flags for drag
+  [overall,longPants,socks,shortPants,shoes,shirt,topClothing].forEach(s=>{
+      s.isDraggable = true;
+  });
 
-    // Start playing background music
-    bgMusic.loop();
-    bgMusic.setVolume(0.5);  // Set volume to 50%
+  //  █ WEAR / DROP ZONES  (invisible but scalable)
+  dropZone           = make(D.dropZone,         true); dropZone.visible = false;
+  foldedDropZone     = make(D.foldedDropZone,   true); foldedDropZone.visible = false;
+  socksWearZone      = make(D.socksWearZone,    true); socksWearZone.visible = false;
+  shirtWearZone      = make(D.shirtWearZone,    true); shirtWearZone.visible = false;
+  overallWearZone    = make(D.overallWearZone,  true); overallWearZone.visible = false;
+  shortPantsWearZone = make(D.shortPantsWearZone,true); shortPantsWearZone.visible = false;
+  shoesWearZone      = make(D.shoesWearZone,    true); shoesWearZone.visible = false;
+  topWearZone        = make(D.topWearZone,      true); topWearZone.visible = false;
 
+  //  █ MUSIC
+  bgMusic.loop();  bgMusic.setVolume(0.5);
 
-    // Create drop zone sprite for wearing the pants
-    dropZone = new Sprite(768, 450, pantWidth || 144, pantHeight || 297, 'static');
-    dropZone.visible = false;
-    dropZone.collider = 'static';
+  if (DEBUG_MODE) {
+    allSprites.debug = true;          // green collider rectangles
+    const zones = [dropZone, foldedDropZone, socksWearZone, shirtWearZone,
+                   overallWearZone, shortPantsWearZone, shoesWearZone, topWearZone];
+    zones.forEach(z => { z.visible = true; z.color = color(255,0,0,80); });
+  }
 
+  socks.layer = 1;
+  shoes.layer = 2;
+  longPants.layer = 3;
 
-    // Create drop zone for folded pants position
-    foldedDropZone = new Sprite(originalPantX, originalPantY, foldedPantWidth || 100, foldedPantHeight || 100, 'static');
-    foldedDropZone.visible = false;
-    foldedDropZone.collider = 'static';
-
-
-    // Create wear zone for socks - adjusted position and size
-    socksWearZone = new Sprite(768, 570, 100, 50, 'static');
-    socksWearZone.visible = false;
-
-
-    // Create wear zone for shirt
-    shirtWearZone = new Sprite(768, 335, 100, 150, 'static');
-    shirtWearZone.visible = false;
-
-
-    // Create socks sprite
-    socks = new Sprite(originalSocksX, originalSocksY, 80, 40);
-    if (SocksClosetImg) {
-        socks.img = SocksClosetImg;
-        socks.scale = coef;
-    }
-    socks.collider = 'none';
-    socks.rotationLock = true;
-
-
-    // Create long pants sprite
-    longPants = new Sprite(originalPantX, originalPantY, foldedPantWidth || 100, foldedPantHeight || 100);
-    if (foldedLongPantImg) {
-        longPants.img = foldedLongPantImg;
-        longPants.scale = coef;
-    }
-    longPants.collider = 'none';
-    longPants.rotationLock = true;
-    longPants.isDraggable = false;
-    longPants.isDragging = false;
-
-
-    // Create overall wear zone
-    overallWearZone = new Sprite(768, 355, 100, 200, 'static');
-    overallWearZone.visible = false;
-
-
-    // Create short pants wear zone
-    shortPantsWearZone = new Sprite(768, 415, 100, 150, 'static');
-    shortPantsWearZone.visible = false;
-
-
-    // Create short pants sprite
-    shortPants = new Sprite(originalShortPantX, originalShortPantY, 150, 200);
-    if (foldedShortPantImg) {
-        shortPants.img = foldedShortPantImg;
-        shortPants.scale = coef;
-    }
-    shortPants.collider = 'none';
-    shortPants.rotationLock = true;
-    shortPants.isDraggable = true;
-    shortPants.isDragging = false;
-
-
-    // Create shoes wear zone
-    shoesWearZone = new Sprite(768, 570, 100, 50, 'static');
-    shoesWearZone.visible = false;
-
-
-    // Create shoes sprite
-    shoes = new Sprite(originalShoesX, originalShoesY, 100, 50);
-    if (shoesImg) {
-        shoes.img = shoesImg;
-        shoes.scale = coef;
-    }
-    shoes.collider = 'none';
-    shoes.rotationLock = true;
-    shoes.isDraggable = true;
-    shoes.isDragging = false;
-
-
-    // Create shirt sprite
-    shirt = new Sprite(originalShirtX, originalShirtY, 100, 150);
-    if (ShirtHangedImg) {
-        shirt.img = ShirtHangedImg;
-        shirt.scale = coef;
-    }
-    shirt.collider = 'none';
-    shirt.rotationLock = true;
-    shirt.isDraggable = true;
-    shirt.isDragging = false;
-
-
-    // Create top wear zone
-    topWearZone = new Sprite(768, 315, 100, 150, 'static');
-    topWearZone.visible = false;
-
-
-    // Create top sprite
-    topClothing = new Sprite(originalTopX, originalTopY, 100, 150);
-    if (topHangedImg) {
-        topClothing.img = topHangedImg;
-        topClothing.scale = coef;
-    }
-    topClothing.collider = 'none';
-    topClothing.rotationLock = true;
-    topClothing.isDraggable = true;
-    topClothing.isDragging = false;
-
-
-    // Create mouse sprite
-    mouseSprite = new Sprite(0, 0, 10, 10);
-    mouseSprite.visible = false;
-    mouseSprite.collider = 'none';
+  handleResize();            // initial geometry
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+// 6.  RESPONSIVE CORE  (identical logic to luggageScene.js)
+// ────────────────────────────────────────────────────────────────────────────
+function handleResize() {
+  const main   = document.getElementById('main-container');
+  const bgImg  = document.getElementById('bg-image');
+  const holder = document.getElementById('sketch-holder');
 
+  if (!main || !bgImg || !holder) {   // should never happen
+    canvasW = windowWidth;
+    canvasH = windowHeight;
+    holder.style.left = '0px';
+    holder.style.top  = '0px';
+    holder.style.width  = canvasW + 'px';
+    holder.style.height = canvasH + 'px';
+  } else {
+    canvasW = bgImg.offsetWidth;
+    canvasH = bgImg.offsetHeight;
+
+    const mainRect = main.getBoundingClientRect();
+    const bgRect   = bgImg.getBoundingClientRect();
+    holder.style.width  = canvasW + 'px';
+    holder.style.height = canvasH + 'px';
+    holder.style.left = (bgRect.left - mainRect.left) + 'px';
+    holder.style.top  = (bgRect.top  - mainRect.top ) + 'px';
+  }
+
+  resizeCanvas(canvasW, canvasH);
+  currentScale = Math.min(canvasW / DESIGN_W, canvasH / DESIGN_H);
+  if (!currentScale || isNaN(currentScale) || currentScale === 0) currentScale = 1;
+  updateAllSpriteGeometry();
+}
+
+function updateAllSpriteGeometry() {
+  const all = allSprites;   // p5play helper list of all created sprites
+  all.forEach(s => {
+    // skip sprite while user is dragging it
+    if (s.isDragging) return;
+
+    if (s.designX !== undefined) {
+      s.x = sc(s.designX);
+      s.y = sc(s.designY);
+    }
+    if (s.designColliderWidth !== undefined) {
+      s.width  = sc(s.designColliderWidth);
+      s.height = sc(s.designColliderHeight);
+    }
+    if (s.img && s.baseImageScale !== undefined) {
+      s.image.scale = s.baseImageScale * currentScale;
+    }
+  });
+}
+
+function windowResized() { handleResize(); }
+
+/* ═════════════════ 7 ░░░ RESPONSIVE GAME-LOGIC ░░░══════════════════ */
+
+/* ─── little helpers ────────────────────────────────────────────── */
+function applyImage(sprite, img) {
+  if (img) sprite.img = img;
+  if (sprite.img) sprite.image.scale = sprite.baseImageScale * currentScale;
+}
+
+function moveToRack(sprite, designRec, img) {
+  sprite.designX = designRec.x;
+  sprite.designY = designRec.y;
+  applyImage(sprite, img);
+  updateAllSpriteGeometry();        // <─ moves it visually
+}
+
+function showDialogue(txt, snd, msFallback = 0) {
+  const box = document.getElementById('dialogueText');
+  box.textContent = txt;
+  box.style.display = 'block';
+  if (snd) {
+    snd.play();
+    snd.onended(() => (box.style.display = 'none'));
+  } else if (msFallback > 0) {
+    setTimeout(() => (box.style.display = 'none'), msFallback);
+  }
+}
+
+/* ─── draw ───────────────────────────────────────────────────────── */
 function draw() {
-    clear();
-    background(255);
-   
-    // Draw the closet background
-    if (ClosetImg) {
-        image(ClosetImg, 0, 0, width, height);
+  clear();
+  updateAllSpriteGeometry();        // keep every sprite in sync with scale
+
+  /* DEBUG overlay – unchanged */
+  /*
+  fill(0);
+  textSize(18);
+  const dbg = [
+    ['Shirt', shirt], ['Overall', overall], ['Long Pants', longPants],
+    ['Short Pants', shortPants], ['Shoes', shoes], ['Socks', socks],
+    ['Top', topClothing]
+  ];
+  dbg.forEach((p, i) =>
+    text(`${p[0]}: x=${Math.round(p[1].x)}, y=${Math.round(p[1].y)}`, 20, 30 + i * 20)
+  );*/
+
+  
+  /* Magnetic pull for long pants (same behaviour, scaled) */
+  /*
+  if (longPants?.isDragging) {
+    const d = dist(longPants.x, longPants.y, dropZone.x, dropZone.y);
+    if (d < sc(100)) {
+      const pull = map(d, 0, sc(100), 0.3, 0);
+      longPants.x = lerp(longPants.x, dropZone.x, pull);
+      longPants.y = lerp(longPants.y, dropZone.y, pull);
     }
-
-
-    mouseSprite.x = mouseX;
-    mouseSprite.y = mouseY;
-
-
-    let imageSize = iMacWidth * coef;
-    if (iMacHeight * coef < iMacWidth * coef) {
-        imageSize = iMacWidth * coef;
-    } else {
-        imageSize = iMacHeight * coef;
-    }
-
-
-    imageMode(CENTER);
-    if (ClosetImg) {
-        image(
-            ClosetImg,
-            (iMacWidth * coef) / 2,
-            (iMacHeight * coef) / 2,
-            imageSize,
-            imageSize
-        );
-    }
-
-
-    // Check if mouse is over the pants
-    if (longPants) {
-        let mouseOverPants = dist(mouseX, mouseY, longPants.x, longPants.y) < longPants.width/2;
-        if (mouseOverPants || longPants.isDragging) {
-            longPants.isDraggable = true;
-        } else {
-            longPants.isDraggable = false;
-        }
-
-
-        // Check if pants are near either drop zone
-        let distToWearZone = dist(longPants.x, longPants.y, dropZone.x, dropZone.y);
-        let magneticRange = 100; // Adjust this value to change the magnetic range
-
-
-        if (longPants.isDragging) {
-            if (distToWearZone < magneticRange) {
-                // Create magnetic effect when near wear zone
-                let pullStrength = map(distToWearZone, 0, magneticRange, 0.3, 0);
-                longPants.x = lerp(longPants.x, dropZone.x, pullStrength);
-                longPants.y = lerp(longPants.y, dropZone.y, pullStrength);
-
-
-            } else if (longPants.overlaps(dropZone)) {
-            } else if (longPants.overlaps(foldedDropZone)) {
-            } else {
-            }
-        }
-    }
-
-
-    // Check if mouse is over the socks
-    if (socks) {  
-        let mouseOverSocks = dist(mouseX, mouseY, socks.x, socks.y) < socks.width/2;
-       
-        // Make socks draggable when mouse is over or already dragging
-        if (mouseOverSocks || socks.isDragging) {
-            socks.isDraggable = true;
-        } else if (!socks.isDragging) {
-            socks.isDraggable = false;
-        }
-
-
-        // Visual feedback for wear zone
-        if (socks.isDragging) {
-            let d = dist(socks.x, socks.y, socksWearZone.x, socksWearZone.y);
-        }
-    }
-
-
-    // Check if mouse is over the shirt
-    if (shirt) {
-        let mouseOverShirt = dist(mouseX, mouseY, shirt.x, shirt.y) < shirt.width/2;
-       
-        // Make shirt draggable when mouse is over or already dragging
-        if (mouseOverShirt || shirt.isDragging) {
-            shirt.isDraggable = true;
-        } else if (!shirt.isDragging) {
-            shirt.isDraggable = false;
-        }
-
-
-        // Visual feedback for shirt wear zone
-        if (shirt.isDragging) {
-            let d = dist(shirt.x, shirt.y, shirtWearZone.x, shirtWearZone.y);
-        }
-    }
-
-
-    if (isPantInDropZone) {
-        fill(0);
-        textSize(24);
-        text("Perfect! The pants are in place!", 700, 830);
-    }
+  }*/
 }
 
+function mouseInsideSprite(sp) {
+    // distance to sprite centre
+    const dx = Math.abs(mouseX - sp.x);
+    const dy = Math.abs(mouseY - sp.y);
+  
+    // ➊ inside rectangle?
+    const insideRect =
+          dx <= sp.width  / 2 &&
+          dy <= sp.height / 2;
+  
+    if (!insideRect) return false;
+  
+    // ➋ inside circle whose radius = max(width,height)/2 ?
+    const r = Math.max(sp.width, sp.height) / 2;
+    return dx * dx + dy * dy <= r * r;
+  }
 
 function mousePressed() {
-    // Check if mouse is over the top
-    if (topClothing && !topClothing.isDragging) {
-        let mouseOverTop = dist(mouseX, mouseY, topClothing.x, topClothing.y) < topClothing.width/2;
-        if (mouseOverTop) {
-            topClothing.isDragging = true;
-            // Change to body image when dragging starts
-            if (TopOnBodyImg) {
-                topClothing.img = TopOnBodyImg;
-                topClothing.scale = coef;
-            }
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.play();
-                clothesSound.setVolume(0.5);
-            }
-        }
+  const tryStartDrag = (sprite, newImg) => {
+    sprite.isDragging = true;
+    currentlyDragged = sprite;
+    applyImage(sprite, newImg);
+    if (!clothesSound.isPlaying()) {
+      clothesSound.play();
+      clothesSound.setVolume(0.5);
     }
+  };
 
-
-    // Check if mouse is over the shirt
-    if (shirt && !shirt.isDragging) {
-        let mouseOverShirt = dist(mouseX, mouseY, shirt.x, shirt.y) < shirt.width/2;
-        if (mouseOverShirt) {
-            shirt.isDragging = true;
-            // Change to body image when dragging starts
-            if (shirtBodyImg) {
-                shirt.img = shirtBodyImg;
-                shirt.scale = coef;
-            }
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.play();
-                clothesSound.setVolume(0.5);
-            }
-        }
+   // which sprite is under the cursor? 
+  const sprites = [overall, longPants, socks, shortPants, shoes, shirt, topClothing];
+  sprites.forEach(sp => {
+    if (!sp.isDragging && mouseInsideSprite(sp)) {
+       // sprite-specific start-drag actions 
+      if (sp === longPants) {
+        tryStartDrag(sp, longPantImg);
+        sp.width = sc(D.dropZone.w);
+        sp.height = sc(D.dropZone.h);
+      } else if (sp === shortPants) {
+        tryStartDrag(sp, shortPantOnBodyImg);
+      } else if (sp === shirt) {
+        tryStartDrag(sp, shirtBodyImg);
+      } else if (sp === topClothing) {
+        tryStartDrag(sp, TopOnBodyImg);
+      } else if (sp === socks && !isSocksWorn) {
+        tryStartDrag(sp, socksSelectedImg);
+      } else if (sp === overall) {
+        tryStartDrag(sp, OverallSelectedImg);
+      } else if (sp === shoes) {
+        tryStartDrag(sp, null);     // image unchanged
+      }
     }
-
-
-    // Check if mouse is over the shoes
-    if (shoes && !shoes.isDragging) {
-        let mouseOverShoes = dist(mouseX, mouseY, shoes.x, shoes.y) < shoes.width/2;
-        if (mouseOverShoes) {
-            shoes.isDragging = true;
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.play();
-                clothesSound.setVolume(0.5);
-            }
-        }
-    }
-
-
-    // Check if mouse is over the short pants
-    if (shortPants && !shortPants.isDragging) {
-        let mouseOverShortPants = dist(mouseX, mouseY, shortPants.x, shortPants.y) < shortPants.width/2;
-        if (mouseOverShortPants) {
-            shortPants.isDragging = true;
-            // Change to body image when dragging starts
-            if (shortPantOnBodyImg) {
-                shortPants.img = shortPantOnBodyImg;
-                shortPants.scale = coef;
-            }
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.play();
-                clothesSound.setVolume(0.5);
-            }
-        }
-    }
-
-
-    // Check if mouse is over the overall
-    if (overall && !overall.isDragging) {
-        let mouseOverOverall = dist(mouseX, mouseY, overall.x, overall.y) < overall.width/2;
-        if (mouseOverOverall) {
-            overall.isDragging = true;
-            // Change to selected image when dragging starts
-            if (OverallSelectedImg) {
-                overall.img = OverallSelectedImg;
-                overall.scale = coef;
-            }
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.play();
-                clothesSound.setVolume(0.5);
-            }
-        }
-    }
-
-
-    // Check if mouse is over the pants
-    if (longPants) {
-        let mouseOverPants = dist(mouseX, mouseY, longPants.x, longPants.y) < longPants.width/2;
-        if (mouseOverPants) {
-            longPants.isDragging = true;
-            longPants.isDraggable = true;
-
-
-            // Change to unfolded image immediately
-            if (longPantImg) {
-                longPants.img = longPantImg;
-                longPants.scale = coef;
-                longPants.width = pantWidth;
-                longPants.height = pantHeight;
-            }
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.loop();
-                clothesSound.setVolume(0.5);
-            }
-        }
-    }
-
-
-    // Check if mouse is over the socks
-    if (socks && !isSocksWorn) {
-        let mouseOverSocks = dist(mouseX, mouseY, socks.x, socks.y) < socks.width/2;
-        if (mouseOverSocks) {
-            socks.isDragging = true;
-            socks.isDraggable = true;
-            // Change to selected image when clicked
-            if (socksSelectedImg) {
-                socks.img = socksSelectedImg;
-                socks.scale = coef;
-            }
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.loop();
-                clothesSound.setVolume(0.5);
-            }
-        }
-    }
-
-
-    // Check if mouse is over the shirt
-    if (shirt && !isShirtWorn) {
-        let mouseOverShirt = dist(mouseX, mouseY, shirt.x, shirt.y) < shirt.width/2;
-        if (mouseOverShirt) {
-            shirt.isDragging = true;
-            shirt.isDraggable = true;
-           
-            // Change to body image immediately when dragging starts
-            if (shirtBodyImg) {
-                shirt.img = shirtBodyImg;
-                shirt.scale = coef;
-                shirt.width = shirtBodyImg.width * coef;
-                shirt.height = shirtBodyImg.height * coef;
-            }
-            // Play clothes sound when starting to drag
-            if (!clothesSound.isPlaying()) {
-                clothesSound.loop();
-                clothesSound.setVolume(0.5);
-            }
-        }
-    }
+  });
 }
 
 
+/* ─── mouseDragged ──────────────────────────────────────────────── */
 function mouseDragged() {
-    if (topClothing && topClothing.isDragging) {
-        topClothing.x = mouseX;
-        topClothing.y = mouseY;
-    }
-
-
-    if (shoes && shoes.isDragging) {
-        shoes.x = mouseX;
-        shoes.y = mouseY;
-    }
-
-
-    if (shortPants && shortPants.isDragging) {
-        shortPants.x = mouseX;
-        shortPants.y = mouseY;
-    }
-
-
-    if (overall && overall.isDragging) {
-        overall.x = mouseX;
-        overall.y = mouseY;
-    }
-
-
-    if (longPants && longPants.isDragging) {
-        longPants.x = mouseX;
-        longPants.y = mouseY;
-    }
-
-
-    if (socks && socks.isDragging) {  
-        socks.x = mouseX;
-        socks.y = mouseY;
-    }
-
-
-    if (shirt && shirt.isDragging) {
-        shirt.x = mouseX;
-        shirt.y = mouseY;
-    }
+  if (currentlyDragged) {
+    currentlyDragged.x = mouseX;
+    currentlyDragged.y = mouseY;
+  }
 }
 
-
+/* ─── mouseReleased ─────────────────────────────────────────────── */
 function mouseReleased() {
-    // Handle top release
-    if (topClothing && topClothing.isDragging) {
-        topClothing.isDragging = false;
+  if (!currentlyDragged) return;
+  const s = currentlyDragged;
+  currentlyDragged = null;
 
-        // Get distance to wear zone
-        let d = dist(topClothing.x, topClothing.y, topWearZone.x, topWearZone.y);
-       
-        // Check if close enough to wear zone
-        if (d < 50) {
-            // If something else from top category is worn, return it to original position
-            if (topWornItem === 'shirt') {
-                shirt.x = originalShirtX;
-                shirt.y = originalShirtY;
-                shirt.img = ShirtHangedImg;
-                shirt.scale = coef;
-                isShirtWorn = false;
-            } else if (topWornItem === 'overall') {
-                overall.x = originalOverallX;
-                overall.y = originalOverallY;
-                overall.img = OverallInClosetImg;
-                overall.scale = coef;
-                // If overall was worn, also clear bottom category
-                if (bottomWornItem === 'overall') {
-                    bottomWornItem = null;
-                }
-            }
+  s.isDragging = false;
 
-            // Place in wear zone
-            topClothing.x = topWearZone.x;
-            topClothing.y = topWearZone.y;
-            if (TopOnBodyImg) {
-                topClothing.img = TopOnBodyImg;
-                topClothing.scale = coef;
-            }
-            // Update what's being worn
-            topWornItem = 'top';
+  if (clothesSound.isPlaying()) clothesSound.stop();
 
-            if (!clothesDropSound.isPlaying()) {
-                clothesDropSound.play();
-            }
-
-            // Show dialogue text for crop top
-            const dialogueText = document.getElementById('dialogueText');
-            dialogueText.textContent = "Getting arrested in the street, a comment at a family gathering, someone calling my parents, then a fight at home.";
-            dialogueText.style.display = 'block';
-            
-            // Play crop top sound and hide dialogue when it ends
-            if (!cropTopSound.isPlaying()) {
-                cropTopSound.play();
-                // Add event listener for when sound ends
-                cropTopSound.onended(() => {
-                    dialogueText.style.display = 'none';
-                });
-            }
-        } else {
-            // Return to original position and image
-            topClothing.x = originalTopX;
-            topClothing.y = originalTopY;
-            topClothing.img = topHangedImg;
-            topClothing.scale = coef;
-            // Clear worn state if this top was worn
-            if (topWornItem === 'top') {
-                topWornItem = null;
-            }
-        }
+  /* =========== SOCKS ================================================== */
+  if (s === socks) {
+    if (dist(s.x, s.y, socksWearZone.x, socksWearZone.y) < sc(55)) {
+      s.designX = D.socksWearZone.x;
+      s.designY = D.socksWearZone.y - 13;
+      applyImage(s, socksInFeetImg);
+      isSocksWorn = true;
+      clothesDropSound.play();
+    } else {
+      moveToRack(s, D.socks, SocksClosetImg);
+      isSocksWorn = false;
     }
+    return;
+  }
 
+  /* =========== SHOES ================================================== */
+  if (s === shoes) {
+    if (dist(s.x, s.y, shoesWearZone.x, shoesWearZone.y) < sc(60)) {
+      s.designX = D.shoesWearZone.x;
+      s.designY = D.shoesWearZone.y;
+      updateAllSpriteGeometry();
+      clothesDropSound.play();
+      showDialogue(
+        "It's funny — I can wear these now, no problem. But that other time at school, they sent me home just because my shoes were 'too attention-grabbing'.",
+        sneakersSound
+      );
+    } else moveToRack(s, D.shoes, shoesImg);
+    return;
+  }
 
-    // Handle shoes release
-    if (shoes && shoes.isDragging) {
-        shoes.isDragging = false;
-
-
-        // Get distance to wear zone
-        let d = dist(shoes.x, shoes.y, shoesWearZone.x, shoesWearZone.y);
-       
-        // Check if close enough to wear zone
-        if (d < 50) {
-            // Place in wear zone
-            shoes.x = shoesWearZone.x;
-            shoes.y = shoesWearZone.y;
-            if (!clothesDropSound.isPlaying()) {
-                clothesDropSound.play();
-            }
-
-            // Show dialogue text for sneakers
-            const dialogueText = document.getElementById('dialogueText');
-            dialogueText.textContent = "It's funny — I can wear these now, no problem. But that other time at school, they sent me home just because my shoes were 'too attention-grabbing'.";
-            dialogueText.style.display = 'block';
-            
-            // Play sneakers sound and hide dialogue when it ends
-            if (!sneakersSound.isPlaying()) {
-                sneakersSound.play();
-                sneakersSound.onended(() => {
-                    dialogueText.style.display = 'none';
-                });
-            }
-        } else {
-            // Return to original position
-            shoes.x = originalShoesX;
-            shoes.y = originalShoesY;
-        }
+  /* helpers for conflict handling */
+  const putTopBack = () => {
+    if (topWornItem === 'shirt')    moveToRack(shirt, D.shirt, ShirtHangedImg);
+    if (topWornItem === 'top')      moveToRack(topClothing, D.top, topHangedImg);
+    if (topWornItem === 'overall') {
+      moveToRack(overall, D.overall, OverallInClosetImg);
+      bottomWornItem = null;
     }
-
-
-    // Handle short pants release
-    if (shortPants && shortPants.isDragging) {
-        shortPants.isDragging = false;
-
-        // Get distance to wear zone
-        let d = dist(shortPants.x, shortPants.y, shortPantsWearZone.x, shortPantsWearZone.y);
-       
-        // Check if close enough to wear zone
-        if (d < 50) {
-            // If something else from bottom category is worn, return it to original position
-            if (bottomWornItem === 'longPants') {
-                longPants.x = originalPantX;
-                longPants.y = originalPantY;
-                longPants.img = foldedLongPantImg;
-                longPants.scale = coef;
-            } else if (bottomWornItem === 'overall') {
-                overall.x = originalOverallX;
-                overall.y = originalOverallY;
-                overall.img = OverallInClosetImg;
-                overall.scale = coef;
-            }
-
-            // Place short pants in wear zone
-            shortPants.x = shortPantsWearZone.x;
-            shortPants.y = shortPantsWearZone.y;
-            if (shortPantOnBodyImg) {
-                shortPants.img = shortPantOnBodyImg;
-                shortPants.scale = coef;
-            }
-            // Update what's being worn
-            bottomWornItem = 'shortPants';
-
-            if (!clothesDropSound.isPlaying()) {
-                clothesDropSound.play();
-            }
-
-            // Show dialogue text for short pants
-            const dialogueText = document.getElementById('dialogueText');
-            dialogueText.textContent = "It's boiling out. I want to wear these so bad — but I can't in the street. One day they don't care, the next day they arrest you.";
-            dialogueText.style.display = 'block';
-            
-            // Play short pants sound and hide dialogue when it ends
-            if (!shortPantSound.isPlaying()) {
-                shortPantSound.play();
-                shortPantSound.onended(() => {
-                    dialogueText.style.display = 'none';
-                });
-            }
-        } else {
-            // Return to original position and image
-            shortPants.x = originalShortPantX;
-            shortPants.y = originalShortPantY;
-            shortPants.img = foldedShortPantImg;
-            shortPants.scale = coef;
-            if (bottomWornItem === 'shortPants') {
-                bottomWornItem = null;
-            }
-        }
+    topWornItem = null;
+  };
+  const putBottomBack = () => {
+    if (bottomWornItem === 'longPants')   moveToRack(longPants, D.longPantsFolded, foldedLongPantImg);
+    if (bottomWornItem === 'shortPants')  moveToRack(shortPants, D.shortPant, foldedShortPantImg);
+    if (bottomWornItem === 'overall') {
+      moveToRack(overall, D.overall, OverallInClosetImg);
+      topWornItem = null;
     }
+    bottomWornItem = null;
+  };
 
-
-    // Handle overall release
-    if (overall && overall.isDragging) {
-        overall.isDragging = false;
-        overall.isDraggable = false;
-
-
-        // Get distance to wear zone
-        let d = dist(overall.x, overall.y, overallWearZone.x, overallWearZone.y);
-       
-        // Check if close enough to wear zone
-        if (d < 50) {
-            // If something else is worn in either category, return it to original position
-            if (topWornItem === 'shirt') {
-                shirt.x = originalShirtX;
-                shirt.y = originalShirtY;
-                shirt.img = ShirtHangedImg;
-                shirt.scale = coef;
-                isShirtWorn = false;
-            } else if (topWornItem === 'top') {
-                topClothing.x = originalTopX;
-                topClothing.y = originalTopY;
-                topClothing.img = topHangedImg;
-                topClothing.scale = coef;
-            }
-
-            if (bottomWornItem === 'longPants') {
-                longPants.x = originalPantX;
-                longPants.y = originalPantY;
-                longPants.img = foldedLongPantImg;
-                longPants.scale = coef;
-                isPantInDropZone = false;
-            } else if (bottomWornItem === 'shortPants') {
-                shortPants.x = originalShortPantX;
-                shortPants.y = originalShortPantY;
-                shortPants.img = foldedShortPantImg;
-                shortPants.scale = coef;
-            }
-
-            // Place overall in wear zone
-            overall.x = overallWearZone.x;
-            overall.y = overallWearZone.y;
-            if (OverallSelectedImg) {
-                overall.img = OverallSelectedImg;
-                overall.scale = coef;
-            }
-            // Update what's being worn in both categories
-            topWornItem = 'overall';
-            bottomWornItem = 'overall';
-
-            if (!clothesDropSound.isPlaying()) {
-                clothesDropSound.play();
-            }
-
-            // Show dialogue text for overall
-            const dialogueText = document.getElementById('dialogueText');
-            dialogueText.textContent = "Last time I wore something this short, I didn't even make it to the door. Dad told me I'd get picked up by the police.";
-            dialogueText.style.display = 'block';
-            
-            // Hide dialogue after 5 seconds
-            setTimeout(() => {
-                dialogueText.style.display = 'none';
-            }, 5000);
-        } else {
-            // Return to original position and image
-            overall.x = originalOverallX;
-            overall.y = originalOverallY;
-            overall.img = OverallInClosetImg;
-            overall.scale = coef;
-            // Clear worn states if this overall was worn
-            if (topWornItem === 'overall') {
-                topWornItem = null;
-                bottomWornItem = null;
-            }
-        }
+  /* =========== SHIRT ================================================== */
+  if (s === shirt) {
+    if (dist(s.x, s.y, shirtWearZone.x, shirtWearZone.y) < sc(100)) {
+      putTopBack();
+      s.designX = D.shirtWearZone.x;
+      s.designY = D.shirtWearZone.y - 15;
+      applyImage(s, shirtBodyImg);
+      topWornItem = 'shirt';
+      isShirtWorn = true;
+      clothesDropSound.play();
+      showDialogue(
+        "If I wear this, no one's gonna say anything — and I still kind of feel like myself",
+        null,
+        5000
+      );
+    } else {
+      moveToRack(s, D.shirt, ShirtHangedImg);
+      isShirtWorn = false;
+      if (topWornItem === 'shirt') topWornItem = null;
     }
+    return;
+  }
 
-
-    if (longPants) {
-        longPants.isDragging = false;
-       
-        // Check for overlap with either zone
-        let distToWearZone = dist(longPants.x, longPants.y, dropZone.x, dropZone.y);
-        let magneticRange = 100; // Same range as in draw()
-        let inWearZone = longPants.overlaps(dropZone) || distToWearZone < magneticRange;
-       
-        if (longPants.isDraggable) {
-            if (inWearZone) {
-                // If something else from bottom category is worn, return it to original position
-                if (bottomWornItem === 'shortPants') {
-                    shortPants.x = originalShortPantX;
-                    shortPants.y = originalShortPantY;
-                    shortPants.img = foldedShortPantImg;
-                    shortPants.scale = coef;
-                } else if (bottomWornItem === 'overall') {
-                    overall.x = originalOverallX;
-                    overall.y = originalOverallY;
-                    overall.img = OverallInClosetImg;
-                    overall.scale = coef;
-                    // If overall was worn, also clear top category
-                    if (topWornItem === 'overall') {
-                        topWornItem = null;
-                    }
-                }
-
-                // Snap to wear zone
-                longPants.x = dropZone.x;
-                longPants.y = dropZone.y;
-                isPantInDropZone = true;
-                if (longPantImg) {
-                    longPants.img = longPantImg;
-                    longPants.scale = coef;
-                    longPants.width = pantWidth;
-                    longPants.height = pantHeight;
-                }
-                // Update what's being worn
-                bottomWornItem = 'longPants';
-
-                if (!clothesDropSound.isPlaying()) {
-                    clothesDropSound.play();
-                }
-
-                // Show dialogue text for long pants
-                const dialogueText = document.getElementById('dialogueText');
-                dialogueText.textContent = "It's kinda hot, but at least no one's gonna comment on my legs or anything.";
-                dialogueText.style.display = 'block';
-                
-                // Hide dialogue after 5 seconds
-                setTimeout(() => {
-                    dialogueText.style.display = 'none';
-                }, 5000);
-            } else {
-                // Return to storage zone
-                longPants.x = foldedDropZone.x;
-                longPants.y = foldedDropZone.y;
-                if (foldedLongPantImg) {
-                    longPants.img = foldedLongPantImg;
-                    longPants.scale = coef;
-                    longPants.width = foldedPantWidth;
-                    longPants.height = foldedPantHeight;
-                }
-                isPantInDropZone = false;
-                // Clear worn state if these pants were worn
-                if (bottomWornItem === 'longPants') {
-                    bottomWornItem = null;
-                }
-            }
-        }
+  /* =========== TOP  (Crop-top) ======================================= */
+  if (s === topClothing) {
+    if (dist(s.x, s.y, topWearZone.x, topWearZone.y) < sc(100)) {
+      putTopBack();
+      s.designX = D.topWearZone.x;
+      s.designY = D.topWearZone.y;
+      applyImage(s, TopOnBodyImg);
+      topWornItem = 'top';
+      clothesDropSound.play();
+      showDialogue(
+        "Getting arrested in the street, a comment at a family gathering, someone calling my parents, then a fight at home.",
+        cropTopSound
+      );
+    } else {
+      moveToRack(s, D.top, topHangedImg);
+      if (topWornItem === 'top') topWornItem = null;
     }
+    return;
+  }
 
-
-    if (shirt && shirt.isDragging) {
-        shirt.isDragging = false;
-
-        // Get distance to wear zone
-        let d = dist(shirt.x, shirt.y, shirtWearZone.x, shirtWearZone.y);
-       
-        // Check if close enough to wear zone
-        if (d < 50) {
-            // If something else from top category is worn, return it to original position
-            if (topWornItem === 'top') {
-                topClothing.x = originalTopX;
-                topClothing.y = originalTopY;
-                topClothing.img = topHangedImg;
-                topClothing.scale = coef;
-            } else if (topWornItem === 'overall') {
-                overall.x = originalOverallX;
-                overall.y = originalOverallY;
-                overall.img = OverallInClosetImg;
-                overall.scale = coef;
-                // If overall was worn, also clear bottom category
-                if (bottomWornItem === 'overall') {
-                    bottomWornItem = null;
-                }
-            }
-
-            // Place shirt in wear zone
-            shirt.x = shirtWearZone.x;
-            shirt.y = shirtWearZone.y;
-            if (shirtBodyImg) {
-                shirt.img = shirtBodyImg;
-                shirt.scale = coef;
-            }
-            // Update what's being worn
-            topWornItem = 'shirt';
-
-            if (!clothesDropSound.isPlaying()) {
-                clothesDropSound.play();
-            }
-            isShirtWorn = true;
-
-            // Show dialogue text
-            const dialogueText = document.getElementById('dialogueText');
-            dialogueText.textContent = "If I wear this, no one's gonna say anything — and I still kind of feel like myself";
-            dialogueText.style.display = 'block';
-            
-            // Hide dialogue after 5 seconds
-            setTimeout(() => {
-                dialogueText.style.display = 'none';
-            }, 5000);
-        } else {
-            // Return to original position and image
-            shirt.x = originalShirtX;
-            shirt.y = originalShirtY;
-            shirt.img = ShirtHangedImg;
-            shirt.scale = coef;
-            isShirtWorn = false;
-            // Clear worn state if this shirt was worn
-            if (topWornItem === 'shirt') {
-                topWornItem = null;
-            }
-        }
+  /* =========== LONG PANTS ============================================ */
+  if (s === longPants) {
+    const dWear = dist(s.x, s.y, dropZone.x, dropZone.y);
+    if (dWear < sc(100)) {
+      putBottomBack();
+      s.designX = D.dropZone.x;
+      s.designY = D.dropZone.y;
+      applyImage(s, longPantImg);
+      bottomWornItem = 'longPants';
+      isPantInDropZone = true;
+      clothesDropSound.play();
+      showDialogue(
+        "It's kinda hot, but at least no one's gonna comment on my legs or anything.",
+        null,
+        5000
+      );
+    } else {
+      moveToRack(s, D.longPantsFolded, foldedLongPantImg);
+      isPantInDropZone = false;
+      if (bottomWornItem === 'longPants') bottomWornItem = null;
     }
+    return;
+  }
 
-
-    if (socks && socks.isDragging) {  
-        socks.isDragging = false;
-       
-        // Get the distance between socks and wear zone centers
-        let d = dist(socks.x, socks.y, socksWearZone.x, socksWearZone.y);
-       
-        // Check if socks are close enough to the wear zone
-        if (d < 35) {  
-            // Place in feet zone
-            socks.x = socksWearZone.x;
-            socks.y = socksWearZone.y-13;  
-            if (socksInFeetImg) {
-                socks.img = socksInFeetImg;
-                socks.scale = coef;
-                socks.width = socksInFeetImg.width * coef;
-                socks.height = socksInFeetImg.height * coef;
-            }
-            isSocksWorn = true;
-            if (!isSocksWorn) {
-                clothesDropSound.play();
-            }
-        } else {
-            // Return to storage
-            socks.x = originalSocksX;
-            socks.y = originalSocksY;
-            socks.img = SocksClosetImg;
-            socks.scale = coef;
-            isSocksWorn = false;
-        }
+  /* =========== SHORT PANTS =========================================== */
+  if (s === shortPants) {
+    if (dist(s.x, s.y, shortPantsWearZone.x, shortPantsWearZone.y) < sc(100)) {
+      putBottomBack();
+      s.designX = D.shortPantsWearZone.x;
+      s.designY = D.shortPantsWearZone.y;
+      applyImage(s, shortPantOnBodyImg);
+      bottomWornItem = 'shortPants';
+      clothesDropSound.play();
+      showDialogue(
+        "It's boiling out. I want to wear these so bad — but I can't in the street. One day they don't care, the next day they arrest you.",
+        shortPantSound
+      );
+    } else {
+      moveToRack(s, D.shortPant, foldedShortPantImg);
+      if (bottomWornItem === 'shortPants') bottomWornItem = null;
     }
+    return;
+  }
 
-
-    // Handle shirt dropping
-    if (shirt && shirt.isDragging) {
-        shirt.isDragging = false;
-       
-        // Get distance to wear zone
-        let d = dist(shirt.x, shirt.y, shirtWearZone.x, shirtWearZone.y);
-       
-        // Check if close enough to wear zone
-        if (d < 35) {
-            // Place in shirt zone with offset
-            shirt.x = shirtWearZone.x;
-            shirt.y = shirtWearZone.y - 15;  // Move up by 50 pixels
-            if (shirtBodyImg) {
-                shirt.img = shirtBodyImg;
-                shirt.scale = coef;
-                shirt.width = shirtBodyImg.width * coef;
-                shirt.height = shirtBodyImg.height * coef;
-            }
-            isShirtWorn = true;
-            if (!isShirtWorn) {
-                clothesDropSound.play();
-            }
-        } else {
-            // Return to original position
-            shirt.x = originalShirtX;
-            shirt.y = originalShirtY;
-            shirt.img = ShirtHangedImg;
-            shirt.scale = coef;
-            isShirtWorn = false;
-        }
+  /* =========== OVERALL =============================================== */
+  if (s === overall) {
+    if (dist(s.x, s.y, overallWearZone.x, overallWearZone.y) < sc(100)) {
+      putTopBack();
+      putBottomBack();
+      s.designX = D.overallWearZone.x;
+      s.designY = D.overallWearZone.y;
+      applyImage(s, OverallSelectedImg);
+      topWornItem = bottomWornItem = 'overall';
+      clothesDropSound.play();
+      showDialogue(
+        "Last time I wore something this short, I didn't even make it to the door. Dad told me I'd get picked up by the police.",
+        null,
+        5000
+      );
+    } else {
+      moveToRack(s, D.overall, OverallInClosetImg);
+      if (topWornItem === 'overall') topWornItem = null;
+      if (bottomWornItem === 'overall') bottomWornItem = null;
     }
-
-
-    // Stop clothes movement sound when item is released
-    if (clothesSound.isPlaying()) {
-        clothesSound.stop();
-    }
+    return;
+  }
 }
 
-
-function windowResized() {
-    resizeCanvas(iMacWidth * coef, iMacHeight * coef);
-}
-
-
+/* ══════════════════════════════════════════════════════════════════ */
