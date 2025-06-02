@@ -99,9 +99,9 @@ const TH = {
 // ────────────────────────────────────────────────────────────────────────────
 function preload() {
   //  █  sounds
-  cropTopSound     = loadSound('assets/optimized/CropTop.m4a');
-  shortPantSound   = loadSound('assets/optimized/ShortPant.m4a');
-  sneakersSound    = loadSound('assets/optimized/Sneakers.m4a');
+  cropTopSound     = loadSound('assets/optimized/cropTop-raha.wav');
+  shortPantSound   = loadSound('assets/optimized/shortPant-raha.wav');
+  sneakersSound    = loadSound('assets/optimized/sneakers-raha.wav');
   clothesSound     = loadSound('assets/optimized/clothesMovement.mp3');
   clothesDropSound = loadSound('assets/optimized/clothesDrop.mp3');
   bgMusic          = loadSound('assets/optimized/ClosetAmbience.mp3');
