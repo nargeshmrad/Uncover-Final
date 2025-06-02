@@ -3,145 +3,194 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Police Fight Scene</title>
+<title>3 · Police Fight</title>
+
 <style>
-  body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #ebe4ce;
-  }
-  .scene-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    background: none;
-  }
-  img.bg {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    object-fit: contain;
-    opacity: 0;
-    transition: opacity 5.5s ease;
-  }
-  img.bg.visible {
-    opacity: 1;
-  }
-.textbox {
-  position: absolute;
-  left: 65%;
-  top: 10%;
-  width: 50%;
-  max-width: 400px;
-  height: auto;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.8s ease;
-  user-select: none;
-  z-index: 10;
-  transform: translate(-50%, 0);
+/* ---------- 1. RESET ------------------------------------------------ */
+html,body{
+  margin:0;
+  width:100vw;
+  height:100dvh;
 }
-.textbox.visible {
-  opacity: 1;
-  pointer-events: auto;
+
+/* ---------- 2. OUTER STAGE  ---------------------------------------- */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#ebe4ce;              /* colour of the outer letter-box     */
+  font-family:sans-serif;
+  cursor:default;
 }
+
+/* ---------- 3. PICTURE  -------------------------------------------- */
+/* biggest 16 : 9 rectangle that fits in the viewport                   */
+.picture{
+  width :min(100vw,calc(100vh*16/9));
+  height:min(100vh,calc(100vw*9/16));
+
+  position:relative;               /* positioning context for children   */
+  overflow:hidden;
+}
+
+/* four interchangeable background frames                               */
+.background{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  user-select:none;pointer-events:none;
+
+  opacity:0;
+  transition:opacity 5.5s ease;
+  z-index:1;
+}
+.visible{opacity:1;}               /* helper class used by the script    */
+
+#bg1{
+  transition:none;       /* ←  no fade-in / fade-out */
+}
+
+/* ---------- 4. SPEECH BALLOONS ------------------------------------- */
+.textbox{
+  position:absolute;
+  top:15%;left:65%;                /* measured in % of the picture       */
+  transform:translate(-50%,-50%);
+  width:25%;
+  height:auto;
+
+  opacity:0;
+  transition:opacity .8s ease;
+  pointer-events:none;
+  user-select:none;
+  z-index:2;
+}
+.textbox.visible{opacity:1;pointer-events:auto;}
+
+/* ---------- 5. RESPONSIVE “BACK” BUTTON ---------------------------- */
+.responsive-image-button{
+  position:absolute;
+  bottom:5%;right:3%;
+  display:none;                    /* revealed by JS                     */
+  z-index:3;
+}
+.responsive-image-button img{
+  width:clamp(20px,7vw,70px);
+  height:auto;
+  display:block;
+  transition:transform .2s ease-out;
+}
+.responsive-image-button:hover img{transform:scale(1.1);}
 </style>
 </head>
+
+
+
 <body>
-  <div class="scene-container">
-    <img id="bg1" class="bg" src="../assets/3policeFight/Police-Fight1.png" alt="Background 1" />
-    <img id="bg2" class="bg" src="../assets/3policeFight/Police-Fight2.png" alt="Background 2" />
-    <img id="bg3" class="bg" src="../assets/3policeFight/Police-Fight3.png" alt="Background 3" />
-    <img id="bg4" class="bg" src="../assets/3policeFight/Police-Fight4.png" alt="Background 4" />
-    <img id="strangerTextBox" class="textbox" src="../assets/3policeFight/strangerFightTextBox.png" alt="Stranger Textbox" style="display:none;" />
-    <img id="policeTextBox" class="textbox" src="../assets/3policeFight/policeFightTextBox.png" alt="Police Textbox" style="display:none;" />
-  </div>
+
+<div class="picture">
+
+  <!-- backgrounds ---------------------------------------------------- -->
+  <img id="bg1" class="background" src="../assets/3policeFight/Police-Fight1.png" alt="Frame 1">
+  <img id="bg2" class="background" src="../assets/3policeFight/Police-Fight2.png" alt="Frame 2">
+  <img id="bg3" class="background" src="../assets/3policeFight/Police-Fight3.png" alt="Frame 3">
+  <img id="bg4" class="background" src="../assets/3policeFight/Police-Fight4.png" alt="Frame 4">
+
+  <!-- speech balloons ------------------------------------------------ -->
+  <img id="strangerTextbox" class="textbox"
+       src="../assets/3policeFight/strangerFightTextBox.png"
+       alt="Stranger speech">
+
+  <img id="policeTextbox"   class="textbox"
+       src="../assets/3policeFight/policeFightTextBox.png"
+       alt="Police speech">
+
+  <!-- next page --------------------------------------------------- -->
+  <a id="next_button" class="responsive-image-button"
+     href="201policeWalkCHill.html">
+     <img src="../assets/3policeFight/nextIcon.png" alt="Next page">
+  </a>
+
+  <!-- audio ---------------------------------------------------------- -->
+  <audio id="policeVoice"  src="../assets/3policeFight/PoliceFightStranger.wav"></audio>
+  <audio id="strangerVoice"src="../assets/3policeFight/StrangerFightPolice.wav"></audio>
+  <audio id="sadWalk"      src="../assets/3policeFight/SadWalk.mp3"></audio>
+
+</div>
+
+
 
 <script>
-  // Audio files - make sure the paths are correct
-  const policeVoice = new Audio("../assets/3policeFight/PoliceFightStranger.wav");
-  const sadStranger = new Audio("../assets/3policeFight/StrangerFightPolice.wav");
-  const sadWalk = new Audio("../assets/3policeFight/SadWalk.mp3");
+/* ---------- ELEMENT SHORTCUTS -------------------------------------- */
+const bg1 = document.getElementById('bg1');
+const bg2 = document.getElementById('bg2');
+const bg3 = document.getElementById('bg3');
+const bg4 = document.getElementById('bg4');
 
-  // Elements
-  const bg1 = document.getElementById("bg1");
-  const bg2 = document.getElementById("bg2");
-  const bg3 = document.getElementById("bg3");
-  const bg4 = document.getElementById("bg4");
-  const strangerTextBox = document.getElementById("strangerTextBox");
-  const policeTextBox = document.getElementById("policeTextBox");
+const strangerBox = document.getElementById('strangerTextbox');
+const policeBox   = document.getElementById('policeTextbox');
 
-  // Utility functions for fade in/out
-  function fadeIn(el) {
-    el.style.display = '';
-    setTimeout(() => el.classList.add('visible'), 10);
-  }
-  function fadeOut(el) {
-    el.classList.remove('visible');
-    setTimeout(() => { el.style.display = 'none'; }, 800);
-  }
-  function fadeInMusic(audio, targetVol = 0.5, fadeMs = 2000) {
-    audio.volume = 0.0;
-    audio.play();
-    let step = 0;
-    const steps = 20;
-    const interval = fadeMs / steps;
-    const volStep = targetVol / steps;
-    const fade = setInterval(() => {
-      step++;
-      audio.volume = Math.min(targetVol, audio.volume + volStep);
-      if (step >= steps) clearInterval(fade);
-    }, interval);
-  }
+const strangerVoice = document.getElementById('strangerVoice');
+const policeVoice   = document.getElementById('policeVoice');
+const sadWalk       = document.getElementById('sadWalk');
 
-  function playSequence() {
-    // Start with bg1 and Stranger's textbox, play StrangerFightPolice.wav
-    bg1.classList.add('visible');
-    fadeIn(strangerTextBox);
-    sadStranger.currentTime = 0;
-    sadStranger.play();
-    sadStranger.onended = () => {
-      fadeOut(strangerTextBox);
-      // Next: police textbox and voice
-      setTimeout(() => {
-        fadeIn(policeTextBox);
-        policeVoice.currentTime = 0;
-        policeVoice.play();
-        policeVoice.onended = () => {
-          fadeOut(policeTextBox);
-          // Start music and background transitions together
-          setTimeout(() => {
-            fadeInMusic(sadWalk, 0.5, 2500);
-            // Chain background transitions
-            bg1.classList.remove('visible');
-            bg2.classList.add('visible');
-            setTimeout(() => {
-              bg2.classList.remove('visible');
-              bg4.classList.add('visible');
-              setTimeout(() => {
-                bg4.classList.remove('visible');
-                bg3.classList.add('visible');
-                setTimeout(() => {
-                  window.location.href = "5policewalk.html";
-                }, 6000);
-              }, 4000);
-            }, 4000);
-          }, 800); // wait for textbox fade
-        };
-      }, 800);
-    };
-  }
+const nextBtn       = document.getElementById('next_button');
 
-  window.onload = () => {
-    // Hide both textboxes initially
-    strangerTextBox.style.display = 'none';
-    policeTextBox.style.display = 'none';
-    playSequence();
+/* ---------- SMALL HELPERS ----------------------------------------- */
+function show(el){ el.classList.add('visible'); }
+function hide(el){ el.classList.remove('visible'); }
+
+function fadeInMusic(audio, target = 0.5, ms = 2000){
+  audio.volume = 0;
+  audio.play();
+  const steps = 20, stepVol = target/steps, stepMs = ms/steps;
+  let i=0;
+  const t = setInterval(()=>{
+    i++; audio.volume = Math.min(target, audio.volume + stepVol);
+    if(i>=steps) clearInterval(t);
+  }, stepMs);
+}
+
+/* ---------- MAIN SEQUENCE ----------------------------------------- */
+async function playScene(){
+  /* frame 1 + stranger speaks -------------------------------------- */
+  show(bg1); 
+  /* 1 s delay before anything happens ------------------------------ */
+  await new Promise(r=>setTimeout(r,1000));
+  show(strangerBox); strangerVoice.play();
+
+  /* when stranger finished … --------------------------------------- */
+  strangerVoice.onended = ()=>{
+    hide(strangerBox);
+
+    setTimeout(()=>{
+      /* police speaks ---------------------------------------------- */
+      show(policeBox); policeVoice.play();
+
+      policeVoice.onended = ()=>{
+        hide(policeBox);
+
+        /* start background score + frame animation ----------------- */
+        setTimeout(()=>{
+          fadeInMusic(sadWalk,0.5,2500);
+
+          show(bg2);                               // 1 → 2
+          setTimeout(()=>{
+            hide(bg1); hide(bg2); show(bg4);                             // 2 → 4
+            setTimeout(()=>{
+              hide(bg4); show(bg3);                           // 4 → 3
+              /* show next button after last frame has been seen ---- */
+              setTimeout(()=> nextBtn.style.display='block', 6000);
+            },4000);
+          },4000);
+        },800);                                               // small pause
+      };
+    },800);                                                   // pause after hide
   };
+}
+
+/* ---------- AUTO START -------------------------------------------- */
+window.onload = playScene;
 </script>
+
 </body>
 </html>

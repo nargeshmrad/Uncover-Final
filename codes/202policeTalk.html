@@ -1,211 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>202 Police Talk</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #f0f0f0;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Police · Talk to Officer</title>
 
-    .scene-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background: none;
-    }
+<style>
+/* ---------- 1. RESET ------------------------------------------------ */
+html,body{
+  margin:0;
+  width:100vw;
+  height:100dvh;
+}
 
-    .background {
-      width: 100%;
-      height: 100%;
-      object-fit: contain !important;
-      display: block;
-      user-select: none;
-      pointer-events: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 0;
-      border: none;
-      opacity: 1 !important;
-      background-position: center;
-      background-repeat: no-repeat;
-    }
+/* ---------- 2. OUTER STAGE  ---------------------------------------- */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f0f0f0;          /* colour of the outer letter-box bands */
+  font-family:sans-serif;
+  cursor:default;
+}
 
-    .textbox {
-      position: absolute;
-      top: var(--img-top, auto);
-      left: var(--img-left, 50%);
-      width: var(--img-width, 5%);
-      max-height: var(--img-max-height, none);
-      height: auto;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      user-select: none;
-      z-index: 10;
-      transform: translate(-50%, 0);
-    }
+/* ---------- 3. PICTURE  -------------------------------------------- */
+/* Size = largest 16 : 9 rectangle that fits in the viewport            */
+.picture{
+  width :min(100vw,calc(100vh*16/9));
+  height:min(100vh,calc(100vw*9/16));
 
-    .textbox.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
+  background:url("../assets/202policeTalk/Police-TalkToPolice.png")
+            center/contain
+            no-repeat;
 
-    .choice {
-      position: absolute;
-      top: var(--img-top, auto);
-      left: var(--img-left, 50%);
-      width: var(--img-width, 18%);
-      max-height: var(--img-max-height, none);
-      cursor: pointer;
-      user-select: none;
-      opacity: 0;
-      transition: opacity 0.5s, filter 0.3s, transform 0.2s;
-      display: none;
-      z-index: 20;
-      transform: translate(-50%, 0);
-    }
-    .choice.visible {
-      opacity: 1;
-      display: block;
-      pointer-events: auto;
-    }
+  position:relative;           /* ≙ positioning context for children   */
+  overflow:hidden;
+}
 
-    .choice:hover {
-      filter: brightness(1.1) drop-shadow(0 0 10px #fff);
-    }
+/* ---------- 4. TEXTBOX & CHOICES ----------------------------------- */
+#policeTextbox{
+  position:absolute;
+  bottom:3%;
+  left:50%;
+  transform:translateX(-50%);
 
-  .choice {
-    transition: filter 0.3s;
-  }
-  .choice:hover {
-    filter: brightness(1.1) drop-shadow(0 0 10px #fff);
-  }
-  #choices.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  </style>
+  width:25%;
+  height:auto;
+
+  opacity:0;
+  transition:opacity 1s ease;
+  pointer-events:none;
+  user-select:none;
+}
+
+/* clickable answers */
+.choice{
+  position:absolute;
+  bottom:5%;
+  width:12%;
+  transform:translateX(-50%);
+  cursor:pointer;
+  user-select:none;
+
+  opacity:0;
+  transition:opacity 1s ease, transform .2s ease;
+  display:none;
+}
+
+.choice:hover{
+  transform:translateX(-50%) scale(1.1);
+}
+
+/* symmetrical placement */
+#choice1{left:42%;}
+#choice2{left:58%;}
+</style>
 </head>
+
+
+
 <body>
-  <div class="scene-container">
+
+<div class="picture">
+
+  <!-- speech balloon -->
+  <img id="policeTextbox"
+       src="../assets/202policeTalk/PoliceTextBox.png"
+       alt="Police textbox">
+
+  <!-- choices -->
+  <img id="choice1" class="choice"
+       src="../assets/202policeTalk/HimChoice1.png"
+       alt="Choice 1">
+  <img id="choice2" class="choice"
+       src="../assets/202policeTalk/HimChoice2.png"
+       alt="Choice 2">
+
+  <!-- audio -->
+  <audio id="policeVoice" src="../assets/202policeTalk/policeAskRaha.wav"></audio>
+  <audio id="choice1Audio" src="../assets/202policeTalk/rahaChoice1Police.wav"></audio>
+  <audio id="choice2Audio" src="../assets/202policeTalk/rahaChoice2Police.wav"></audio>
+
+</div>
 
 
-    <img src="../assets/202policeTalk/Police-TalkToPolice.png" alt="Background" class="background" id="mainBackground"
-         onerror="document.getElementById('error-message').style.display='block'; this.style.display='none';" />
-    <div id="error-message" style="display:none;position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);color:#fff;background:rgba(0,0,0,0.8);padding:20px;border-radius:8px;z-index:100;">
-      Background image failed to load.<br>Please check the file path or serve the page via a web server.
-    </div>
 
-    <img src="../assets/202policeTalk/PoliceTextBox.png" alt="Police Text Box" class="textbox" id="policeTextbox" />
+<script>
+/* ---------- ELEMENTS ------------------------------------------------ */
+const policeTextbox = document.getElementById('policeTextbox');
+const policeVoice   = document.getElementById('policeVoice');
 
-    <img src="../assets/202policeTalk/HimChoice1.png" alt="Choice 1" class="choice" id="choice1" />
-    <img src="../assets/202policeTalk/HimChoice2.png" alt="Choice 2" class="choice" id="choice2" />
+const choice1       = document.getElementById('choice1');
+const choice2       = document.getElementById('choice2');
+const choice1Audio  = document.getElementById('choice1Audio');
+const choice2Audio  = document.getElementById('choice2Audio');
 
-    <audio id="policeVoice" src="../assets/202policeTalk/policeAskRaha.wav"></audio>
-    <audio id="choice1Audio" src="../assets/202policeTalk/rahaChoice1Police.wav"></audio>
-    <audio id="choice2Audio" src="../assets/202policeTalk/rahaChoice2Police.wav"></audio>
-  </div>
+/* ---------- HELPERS ------------------------------------------------ */
+function showTextbox(){
+  policeTextbox.style.display = 'block';
+  requestAnimationFrame(()=> policeTextbox.style.opacity = '1');
+}
 
-  <script>
-    const policeVoice = document.getElementById('policeVoice');
-    const policeTextbox = document.getElementById('policeTextbox');
-    const choicesContainer = document.getElementById('choicesContainer');
+function hideTextbox(){
+  return new Promise(r=>{
+    policeTextbox.style.opacity='0';
+    setTimeout(()=>{ policeTextbox.style.display='none'; r(); },1000);
+  });
+}
 
-    const choice1 = document.getElementById('choice1');
-    const choice2 = document.getElementById('choice2');
+function showChoices(){
+  [choice1,choice2].forEach(c=>{
+    c.style.display='block';
+    requestAnimationFrame(()=> c.style.opacity='1');
+  });
+}
 
-    const choice1Audio = document.getElementById('choice1Audio');
-    const choice2Audio = document.getElementById('choice2Audio');
+/* ---------- SCENE -------------------------------------------------- */
+(async ()=>{
+  /* small delay before anything happens ---------------------------- */
+  await new Promise(res=>setTimeout(res,1000));
 
-    // Position textbox relative to visible background image area
-    function positionTextboxOnImage(el, img, topPercent, leftPercent, widthPercent = 40, maxHeightPercent = 20) {
-      const imgRect = img.getBoundingClientRect();
-      const containerRect = img.parentElement.getBoundingClientRect();
-      const imgTop = imgRect.top - containerRect.top;
-      const imgLeft = imgRect.left - containerRect.left;
-      const top = imgTop + imgRect.height * (topPercent / 100);
-      const left = imgLeft + imgRect.width * (leftPercent / 100);
-      const width = imgRect.width * (widthPercent / 100);
-      const maxHeight = imgRect.height * (maxHeightPercent / 100);
-      el.style.setProperty('--img-top', `${top}px`);
-      el.style.setProperty('--img-left', `${left}px`);
-      el.style.setProperty('--img-width', `${width}px`);
-      el.style.setProperty('--img-max-height', `${maxHeight}px`);
-    }
+  showTextbox();
+  policeVoice.play();
+})();
 
-    function positionAllTextboxes() {
-      const img = document.getElementById('mainBackground');
-      positionTextboxOnImage(document.getElementById('policeTextbox'), img, 75, 50, 40, 20);
-      // Choices: 85% from top, 40% and 60% from left, 18% width, 20% max-height
-      positionTextboxOnImage(document.getElementById('choice1'), img, 85, 43, 18, 20);
-      positionTextboxOnImage(document.getElementById('choice2'), img, 85, 57, 18, 20);
-    }
+policeVoice.onended = async ()=>{
+  await hideTextbox();
+  showChoices();
+};
 
-    window.addEventListener('resize', positionAllTextboxes);
-    window.addEventListener('DOMContentLoaded', () => {
-      const img = document.getElementById('mainBackground');
-      if (img.complete) {
-        positionAllTextboxes();
-      } else {
-        img.onload = positionAllTextboxes;
-      }
-    });
+/* ---------- HOVER AUDIO ------------------------------------------- */
+choice1.addEventListener('mouseenter', ()=>{
+  choice2Audio.pause(); choice2Audio.currentTime=0;
+  choice1Audio.play();
+});
+choice1.addEventListener('mouseleave', ()=>{
+  choice1Audio.pause(); choice1Audio.currentTime=0;
+});
 
-    // Show textbox and play police voice on page load
-    window.onload = () => {
-      policeTextbox.classList.add('visible');
-      policeVoice.play();
-    };
+choice2.addEventListener('mouseenter', ()=>{
+  choice1Audio.pause(); choice1Audio.currentTime=0;
+  choice2Audio.play();
+});
+choice2.addEventListener('mouseleave', ()=>{
+  choice2Audio.pause(); choice2Audio.currentTime=0;
+});
 
+/* ---------- CLICK NAVIGATION -------------------------------------- */
+choice1.onclick = ()=> location.href = '3policeFight.html';
+choice2.onclick = ()=> location.href = '4policeAnt.html';
+</script>
 
-    // When police voice ends, hide textbox and fade in choices
-    policeVoice.onended = () => {
-      policeTextbox.classList.remove('visible');
-      [choice1, choice2].forEach(choice => {
-        choice.classList.add('visible');
-      });
-    };
-
-
-    // Play choice audio on hover and pause others
-    choice1.addEventListener('mouseenter', () => {
-      choice2Audio.pause();
-      choice1Audio.currentTime = 0;
-      choice1Audio.play();
-    });
-    choice1.addEventListener('mouseleave', () => {
-      choice1Audio.pause();
-      choice1Audio.currentTime = 0;
-    });
-
-    choice2.addEventListener('mouseenter', () => {
-      choice1Audio.pause();
-      choice2Audio.currentTime = 0;
-      choice2Audio.play();
-    });
-    choice2.addEventListener('mouseleave', () => {
-      choice2Audio.pause();
-      choice2Audio.currentTime = 0;
-    });
-
-    // Click choice to navigate
-    choice1.addEventListener('click', () => {
-      window.location.href = '3policeFight.html';
-    });
-
-    choice2.addEventListener('click', () => {
-      window.location.href = '4policeAnt.html';
-    });
-  </script>
 </body>
 </html>

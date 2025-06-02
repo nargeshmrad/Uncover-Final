@@ -3,105 +3,154 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>6policeRasor Scene</title>
+<title>6 · Police Razor</title>
+
 <style>
-  html, body {
-    margin: 0; padding: 0; height: 100%; background: black;
-    display: flex; justify-content: center; align-items: center;
-  }
-  .scene-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    background: none; 
-  }
-  img.background {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    object-fit: contain;
-    opacity: 1;
-    transition: opacity 1.5s ease;
-    z-index: 0;
-  }
-  #background2 {
-    opacity: 0;
-    z-index: 0;
-  }
-  #textBox {
-    position: absolute;
-    bottom: 60%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40%;
-    max-width: 400px;
-    height: auto;
-    z-index: 1;
-    opacity: 1;
-    transition: opacity 1.5s ease;
-    user-select: none;
-  }
+/* ---------- 1. RESET ------------------------------------------------ */
+html,body{
+  margin:0;
+  width:100vw;
+  height:100dvh;
+}
+
+/* ---------- 2. OUTER STAGE  ---------------------------------------- */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fffceb;                /* letter-box colour                */
+  font-family:sans-serif;
+  cursor:default;
+}
+
+/* ---------- 3. PICTURE  -------------------------------------------- */
+/* largest 16 : 9 rectangle that fits in the viewport                   */
+.picture{
+  width :min(100vw,calc(100vh*16/9));
+  height:min(100vh,calc(100vw*9/16));
+
+  position:relative;                /* positioning context              */
+  overflow:hidden;
+}
+
+/* two interchangeable background frames                               */
+.background{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  user-select:none;pointer-events:none;
+  transition:opacity 1.5s ease;
+  opacity:0;
+  z-index:1;
+}
+#bg1{opacity:1;}                   /* first frame visible on load      */
+
+/* ---------- 4. SPEECH BALLOON -------------------------------------- */
+#textBox{
+  position:absolute;
+  top:25%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:35%;
+  height:auto;
+
+  opacity:0;
+  transition:opacity 1.5s ease;
+  pointer-events:none;
+  user-select:none;
+  z-index:2;
+}
+#textBox.visible{opacity:1;pointer-events:auto;}
+
+/* ---------- 5. RESPONSIVE BACK BUTTON ------------------------------ */
+.responsive-image-button{
+  position:absolute;
+  top:5%;
+  right:3%;
+  display:none;                    /* shown later via JS               */
+  z-index:3;
+}
+.responsive-image-button img{
+  width:clamp(20px,7vw,70px);
+  height:auto;
+  display:block;
+  transition:transform .2s ease-out;
+}
+.responsive-image-button:hover img{transform:scale(1.1);}
 </style>
 </head>
+
+
+
 <body>
 
-<div id="container">
-  <img id="background1" class="background" src="../assets/6policeRasor/Police-Rasor.png" alt="Background 1" />
-  <img id="background2" class="background" src="../assets/6policeRasor/Police-Rasor2.png" alt="Background 2" />
-  <img id="textBox" src="../assets/6policeRasor/HimTextBox.png" alt="Him Text Box" />
+<div class="picture">
+
+  <!-- backgrounds -->
+  <img id="bg1" class="background"
+       src="../assets/6policeRasor/Police-Rasor.png"  alt="Frame 1">
+  <img id="bg2" class="background"
+       src="../assets/6policeRasor/Police-Rasor2.png" alt="Frame 2">
+
+  <!-- speech balloon -->
+  <img id="textBox"
+       src="../assets/6policeRasor/HimTextBox.png"
+       alt="Him speech">
+
+  <!-- back button -->
+  <a id="flipbook_back_button" class="responsive-image-button"
+     href="../../game.html">
+     <img src="../assets/6policeRasor/albumIcon.png" alt="Back to game">
+  </a>
+
+  <!-- audio -->
+  <audio id="himVoice"  src="../assets/6policeRasor/RahaRasor.wav"></audio>
+  <audio id="rasorSfx"  src="../assets/6policeRasor/Rasor.mp3"></audio>
+
 </div>
 
+
+
 <script>
-  const himVoice = new Audio("../assets/6policeRasor/RahaRasor.wav");
-  const rasorAudio = new Audio("../assets/6policeRasor/Rasor.mp3");
+/* ---------- ELEMENTS ------------------------------------------------ */
+const bg1       = document.getElementById('bg1');
+const bg2       = document.getElementById('bg2');
+const textBox   = document.getElementById('textBox');
+const himVoice  = document.getElementById('himVoice');
+const rasorSfx  = document.getElementById('rasorSfx');
+const backBtn   = document.getElementById('flipbook_back_button');
 
-  const textBox = document.getElementById("textBox");
-  const bg1 = document.getElementById("background1");
-  const bg2 = document.getElementById("background2");
+/* ---------- HELPERS ------------------------------------------------ */
+function show(el){ el.classList.add('visible'); }
+function hide(el){ el.classList.remove('visible'); }
 
-  window.onload = () => {
-    // Play HimVoice and show textbox
-    himVoice.play().catch(() => console.log("Autoplay blocked"));
+/* ---------- SCENE -------------------------------------------------- */
+async function playScene(){
+  /* 1-second delay before anything happens ------------------------- */
+  await new Promise(r=>setTimeout(r,1000));
 
-    // When HimVoice ends, fade out text box and start next phase
-    himVoice.onended = () => {
-      fadeOut(textBox, 1500).then(() => {
-        textBox.style.display = "none";
-        startRasorPhase();
-      });
-    };
+  /* 1️⃣  show textbox + play voice -------------------------------- */
+  show(textBox);
+  himVoice.play();
+
+  himVoice.onended = async ()=>{
+    /* hide textbox -------------------------------------------------- */
+    hide(textBox);
+
+    /* 2️⃣  razor phase -------------------------------------------- */
+    rasorSfx.play().catch(()=>{});
+
+    /* cross-fade backgrounds                                        */
+    bg2.style.opacity = '1';
+    bg1.style.opacity = '0';
+
+    /* show back button after 8 s ---------------------------------- */
+    setTimeout(()=> backBtn.style.display='block', 6000);
   };
+}
 
-  function fadeOut(element, duration) {
-    return new Promise(resolve => {
-      element.style.transition = `opacity ${duration}ms ease`;
-      element.style.opacity = 0;
-      setTimeout(() => resolve(), duration);
-    });
-  }
-
-  function fadeIn(element, duration) {
-    return new Promise(resolve => {
-      element.style.display = "";
-      element.style.transition = `opacity ${duration}ms ease`;
-      element.style.opacity = 1;
-      setTimeout(() => resolve(), duration);
-    });
-  }
-
-  async function startRasorPhase() {
-    // Start playing Rasor.mp3
-    rasorAudio.play().catch(() => console.log("Autoplay blocked"));
-
-    // Fade in background2 over background1
-    await fadeIn(bg2, 1500);
-    // Fade out background1 simultaneously
-    bg1.style.transition = `opacity 1500ms ease`;
-    bg1.style.opacity = 0;
-
-    // Now background2 is visible and rasorAudio plays
-  }
+/* ---------- AUTO START -------------------------------------------- */
+window.onload = playScene;
 </script>
 
 </body>

@@ -3,191 +3,195 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>4policeAnt Scene</title>
+<title>4 · Police Ant View</title>
+
 <style>
-  html, body {
-    margin: 0; padding: 0; height: 100%; background: black;
-    display: flex; justify-content: center; align-items: center;
-  }
-  .scene-container {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    background: none;
-  }
-  img.background {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    position: absolute;
-    top: 0; left: 0;
-    z-index: 0;
-  }
-  .him-textbox {
-    position: absolute;
-    bottom: 5%;
-    left: 38%;
-    transform: translateX(-50%, 0);
-    width: 40%;
-    max-width: 400px;
-    height: auto;
-    z-index: 1;
-    opacity: 1;
-    transition: opacity 1.5s ease;
-  }
-  .police-textbox {
-    position: absolute;
-    bottom: 77%;
-    left: 38%;
-    transform: translateX(-50%, 0);
-    width: 40%;
-    max-width: 400px;
-    height: auto;
-    z-index: 1;
-    opacity: 1;
-    transition: opacity 1.5s ease;
-  }
-  #choices {
-    position: absolute;
-    bottom: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 1s ease;
-    z-index: 2;
-  }
-  #choices img {
-    max-width: 10vw;
-    height: auto;
-    cursor: pointer;
-    user-select: none;
-    transition: filter 0.3s;
-  }
+/* ---------- 1. RESET ------------------------------------------------ */
+html,body{
+  margin:0;
+  width:100vw;
+  height:100dvh;
+}
 
-  @media (max-width: 900px) {
-    #choices img {
-      max-width: 40vw;
-    }
-  }
+/* ---------- 2. OUTER STAGE  ---------------------------------------- */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fffceb;                  /* letter-box colour                 */
+  font-family:sans-serif;
+  cursor:default;
+}
 
-  @media (max-width: 600px) {
-    #choices img {
-      max-width: 60vw;
-    }
-  }
-  #choices img:hover {
-    filter: brightness(1.1) drop-shadow(0 0 10px #fff);
-  }
-  #choices.visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
+/* ---------- 3. PICTURE  -------------------------------------------- */
+/* biggest 16 : 9 rectangle that fits inside the viewport              */
+.picture{
+  width :min(100vw,calc(100vh*16/9));
+  height:min(100vh,calc(100vw*9/16));
+
+  position:relative;               /* positioning context for children  */
+  overflow:hidden;
+}
+
+/* two background frames                                                */
+.background{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  object-fit:contain;
+  user-select:none;pointer-events:none;
+  transition:opacity 1.5s ease;
+  opacity:0;
+  z-index:1;
+}
+#bg1{opacity:1;}                  /* first frame visible on load       */
+
+/* ---------- 4. SPEECH BALLOONS ------------------------------------- */
+.textbox{
+  position:absolute;
+  width:30%;
+  left:50%;
+  height:auto;
+  opacity:0;
+  transform:translateX(-50%);
+  transition:opacity 1.5s ease;
+  pointer-events:none;
+  user-select:none;
+  z-index:2;
+}
+/* positions in % of the picture */
+#himTextBox   {bottom:5%;}
+#policeTextBox{top:10%;}
+.textbox.visible{opacity:1;pointer-events:auto;}
+
+/* ---------- 5. CHOICE BUTTONS -------------------------------------- */
+#choices{
+  position:absolute;
+  bottom:5%;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  justify-content: center;
+  gap:5vw;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 1s ease;
+  z-index:3;
+}
+#choices.visible{opacity:1;pointer-events:auto;}
+
+#choices img{
+  width:25%;
+  height:auto;
+  cursor:pointer;
+  user-select:none;
+  transition:filter .3s, transform .2s;
+}
+#choices img:hover{
+  transform: scale(1.1);
+}
 </style>
 </head>
+
+
+
 <body>
 
-<div id="container">
-  <img id="bg1" class="background" src="../assets/4policeAnt/Police-AntView.png" alt="Background 1" />
-  <img id="bg2" class="background" src="../assets/4policeAnt/Police-AntView2.png" alt="Background 2" style="opacity:0; pointer-events:none;" />
-  <img id="himTextBox" class="him-textbox" src="../assets/4policeAnt/HimAppologyTextBox.png" alt="Him Apology Text Box" style="display:none;" />
-  <img id="textBox" class="police-textbox" src="../assets/4policeAnt/policeTextBox.png" alt="Police Text Box" style="display:none;" />
+<div class="picture">
+
+  <!-- backgrounds -->
+  <img id="bg1" class="background"
+       src="../assets/4policeAnt/Police-AntView.png"  alt="Ant view frame 1">
+  <img id="bg2" class="background"
+       src="../assets/4policeAnt/Police-AntView2.png" alt="Ant view frame 2">
+
+  <!-- speech balloons -->
+  <img id="himTextBox"    class="textbox"
+       src="../assets/4policeAnt/HimAppologyTextBox.png"
+       alt="Him apology">
+
+  <img id="policeTextBox" class="textbox"
+       src="../assets/4policeAnt/policeTextBox.png"
+       alt="Police reply">
+
+  <!-- choices -->
   <div id="choices">
-    <img id="choice1" src="../assets/4policeAnt/himTextBox1.png" alt="Choice 1" />
-    <img id="choice2" src="../assets/4policeAnt/himTextBox2.png" alt="Choice 2" />
+    <img id="choice1" src="../assets/4policeAnt/himTextBox1.png" alt="Choice 1">
+    <img id="choice2" src="../assets/4policeAnt/himTextBox2.png" alt="Choice 2">
   </div>
+
+  <!-- audio -->
+  <audio id="himVoice"     src="../assets/4policeAnt/RahaSorryPolice.wav"></audio>
+  <audio id="policeVoice"  src="../assets/4policeAnt/PoliceHumiliateRaha.wav"></audio>
+  <audio id="choice1Audio" src="../assets/4policeAnt/RahaAcceptChoice.wav"></audio>
+  <audio id="choice2Audio" src="../assets/4policeAnt/RahaAskHelpChoice.wav"></audio>
+
 </div>
 
+
+
 <script>
-  const himVoice = new Audio("../assets/4policeAnt/RahaSorryPolice.wav");
-  const policeVoice = new Audio("../assets/4policeAnt/PoliceHumiliateRaha.wav");
-  const choice1Sound = new Audio("../assets/4policeAnt/RahaAcceptChoice.wav");
-  const choice2Sound = new Audio("../assets/4policeAnt/RahaAskHelpChoice.wav");
+/* ---------- ELEMENTS ------------------------------------------------ */
+const bg1          = document.getElementById('bg1');
+const bg2          = document.getElementById('bg2');
 
-  const himTextBox = document.getElementById("himTextBox");
-  const textBox = document.getElementById("textBox");
-  const bg1 = document.getElementById("bg1");
-  const bg2 = document.getElementById("bg2");
-  const choices = document.getElementById("choices");
-  const choice1 = document.getElementById("choice1");
-  const choice2 = document.getElementById("choice2");
+const himBox       = document.getElementById('himTextBox');
+const policeBox    = document.getElementById('policeTextBox');
 
-  function fadeIn(el) {
-    el.style.display = '';
-    setTimeout(() => el.style.opacity = 1, 10);
-  }
-  function fadeOut(el) {
-    el.style.opacity = 0;
-    setTimeout(() => { el.style.display = 'none'; }, 1500);
-  }
-  function fadeBgIn(bg) {
-    bg.style.transition = 'opacity 1.5s';
-    bg.style.opacity = 1;
-  }
-  function fadeBgOut(bg) {
-    bg.style.transition = 'opacity 1.5s';
-    bg.style.opacity = 0;
-  }
+const choicesWrap  = document.getElementById('choices');
+const choice1      = document.getElementById('choice1');
+const choice2      = document.getElementById('choice2');
 
-  window.onload = () => {
-    // Hide all except himTextBox and bg1
-    bg1.style.opacity = 1;
-    bg2.style.opacity = 0;
-    himTextBox.style.display = '';
-    himTextBox.style.opacity = 1;
-    textBox.style.display = 'none';
-    choices.classList.remove('visible');
+const himVoice     = document.getElementById('himVoice');
+const policeVoice  = document.getElementById('policeVoice');
+const choice1Audio = document.getElementById('choice1Audio');
+const choice2Audio = document.getElementById('choice2Audio');
 
-    // Play Him's apology voice
-    himVoice.play().catch(() => {
-      console.log("Autoplay prevented, wait for user interaction.");
-    });
-    himVoice.onended = () => {
-      // Fade out Him textbox, fade in Police textbox and voice
-      fadeOut(himTextBox);
-      setTimeout(() => {
-        textBox.style.display = '';
-        textBox.style.opacity = 1;
-        policeVoice.play();
-        policeVoice.onended = () => {
-          // Fade out police textbox, fade in bg2, show choices
-          fadeOut(textBox);
-          setTimeout(() => {
-            fadeBgIn(bg2);
-            choices.classList.add('visible');
-          }, 1500);
-        };
-      }, 1500);
-    };
-  }
+/* ---------- SMALL HELPERS ----------------------------------------- */
+function show(el){ el.classList.add('visible'); }
+function hide(el){ el.classList.remove('visible'); }
 
-  // Hover sound effects for choices
-  choice1.addEventListener("mouseenter", () => {
-    choice1Sound.currentTime = 0;
-    choice1Sound.play();
-  });
-  choice1.addEventListener("mouseleave", () => {
-    choice1Sound.pause();
-  });
+/* ---------- MAIN SEQUENCE ----------------------------------------- */
+async function playScene(){
+  /* small delay before anything appears ---------------------------- */
+  await new Promise(r=>setTimeout(r,1000));
 
-  choice2.addEventListener("mouseenter", () => {
-    choice2Sound.currentTime = 0;
-    choice2Sound.play();
-  });
-  choice2.addEventListener("mouseleave", () => {
-    choice2Sound.pause();
-  });
+  /* 1️⃣  Him apologises -------------------------------------------- */
+  show(himBox);
+  himVoice.play();
 
-  // Click handlers for redirecting
-  choice1.addEventListener("click", () => {
-    window.location.href = "6policeRasor.html";
-  });
-  choice2.addEventListener("click", () => {
-    window.location.href = "3policeFight.html";
-  });
+  himVoice.onended = ()=>{
+    hide(himBox);
+
+    setTimeout(()=>{
+      /* 2️⃣  Police replies ---------------------------------------- */
+      show(policeBox);
+      policeVoice.play();
+
+      policeVoice.onended = ()=>{
+        hide(policeBox);
+
+        setTimeout(()=>{
+          /* 3️⃣  switch background + show choices ------------------ */
+          hide(bg1); show(bg2);
+          show(choicesWrap);
+        },1500);                                            // wait for fade
+      };
+    },1500);                                                // after himBox fade
+  };
+}
+
+/* ---------- HOVER AUDIO ------------------------------------------- */
+choice1.onmouseenter = ()=>{ choice2Audio.pause(); choice1Audio.currentTime=0; choice1Audio.play(); };
+choice1.onmouseleave = ()=>{ choice1Audio.pause(); };
+choice2.onmouseenter = ()=>{ choice1Audio.pause(); choice2Audio.currentTime=0; choice2Audio.play(); };
+choice2.onmouseleave = ()=>{ choice2Audio.pause(); };
+
+/* ---------- CLICK NAVIGATION -------------------------------------- */
+choice1.onclick = ()=> location.href = '6policeRasor.html';
+choice2.onclick = ()=> location.href = '3policeFight.html';
+
+/* ---------- AUTO START -------------------------------------------- */
+window.onload = playScene;
 </script>
 
 </body>

@@ -1,110 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>201policeWalkCHill Scene</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>201 · Police Walk Chill</title>
 
-    .background {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      user-select: none;
-      pointer-events: none;
-      position: absolute;
-      top: 0; left: 0;
-      transition: opacity 6s ease;
-    }
-    .fade-bg {
-      z-index: 1;
-    }
+<style>
+/* ---------- 1. RESET ------------------------------------------------ */
+html,body{
+  margin:0;
+  width:100vw;
+  height:100dvh;
+}
 
-    .textbox {
-      position: absolute;
-      bottom: 65%;   /* adjust as needed */
-      left: 60%;     /* adjust as needed */
-      width: 15%;    /* responsive width */
-      height: auto;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      user-select: none;
-    }
+/* ---------- 2. OUTER STAGE  ---------------------------------------- */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f0f0f0;         /* colour of the outer letter-box bands */
+}
 
-    .textbox.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-  </style>
+/* ---------- 3. PICTURE  -------------------------------------------- */
+/* size = largest 16:9 rectangle that fits inside the viewport         */
+.picture{
+  width :min(100vw,calc(100vh*16/9));
+  height:min(100vh,calc(100vw*9/16));
+
+  position:relative;          /* positioning context for children     */
+  overflow:hidden;
+}
+
+/* two interchangeable background images that fill the picture         */
+.background{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  object-fit:contain;         /* show the whole drawing, no cropping  */
+  user-select:none;pointer-events:none;
+  transition:opacity 6s ease; /* long cross-fade                      */
+  z-index:1;
+}
+#bg2{opacity:0;}              /* starts invisible                     */
+
+/* ---------- 4. SPEECH BOX ------------------------------------------ */
+.textbox{
+  position:absolute;
+  top:30%;left:67%;            /* relative to the picture itself       */
+  transform:translate(-50%,-50%);
+  width:15%;
+  height:auto;                 /* keep aspect-ratio                    */
+  opacity:0;                   /* shown via JS                         */
+  transition:opacity .5s ease;
+  pointer-events:none;
+  user-select:none;
+  z-index:2;
+}
+.textbox.visible{opacity:1;pointer-events:auto;}
+
+/* ---------- 5. RESPONSIVE NEXT BUTTON ----------------------------- */
+.responsive-image-button {
+  position: absolute;
+  top: 5%;
+  right: 3%;
+  z-index: 100;
+  display: none;
+}
+
+.responsive-image-button img {
+  display: block;
+  width: 7vw;
+  max-width: 70px;
+  min-width: 20px;
+  height: auto;
+  transition: transform 0.2s ease-out;
+}
+
+.responsive-image-button:hover img {
+  transform: scale(1.1);
+}
+</style>
 </head>
+
+
+
 <body>
-  <div class="scene-container">
-    <img src="../assets/201policeWalkCHill/Police-WallChill.png" alt="Background" class="background" id="bg1" />
-    <img src="../assets/201policeWalkCHill/Police-WallChill2.png" alt="Background 2" class="background fade-bg" id="bg2" style="opacity:0; pointer-events:none;" />
-    <img src="../assets/201policeWalkCHill/HimTextBox.png" alt="Textbox" class="textbox" id="himTextbox" />
-    <audio id="himAudio" src="../assets/201policeWalkCHill/raha-walk-police.wav"></audio>
-    <audio id="sadWalkAudio" src="../assets/201policeWalkCHill/SadWalk.mp3"></audio>
-  </div>
 
-  <script>
-    const himTextbox = document.getElementById('himTextbox');
-    const himAudio = document.getElementById('himAudio');
+<div class="picture">
 
-    function playScene() {
-      himTextbox.classList.add('visible');
-      himAudio.play();
+  <img id="bg1" class="background"
+       src="../assets/201policeWalkCHill/Police-WallChill.png"
+       alt="Background 1">
 
-      // Fade in SadWalk.mp3 at low volume under the dialogue
-      const sadWalkAudio = document.getElementById('sadWalkAudio');
-      sadWalkAudio.volume = 0.0;
-      sadWalkAudio.play();
-      // Fade in to low volume (0.15) over 1.5s
-      let fadeInStep = 0;
-      const fadeInInterval = setInterval(() => {
-        fadeInStep++;
-        sadWalkAudio.volume = Math.min(0.15, fadeInStep / 10 * 0.15);
-        if (sadWalkAudio.volume >= 0.15) clearInterval(fadeInInterval);
-      }, 150);
+  <img id="bg2" class="background"
+       src="../assets/201policeWalkCHill/Police-WallChill2.png"
+       alt="Background 2">
 
-      himAudio.onended = () => {
-        himTextbox.classList.remove('visible');
-        // Raise SadWalk.mp3 volume to 0.5 over 1.5s
-        let currentVol = sadWalkAudio.volume;
-        let targetVol = 0.5;
-        let steps = 15;
-        let step = 0;
-        const upInterval = setInterval(() => {
-          step++;
-          sadWalkAudio.volume = currentVol + (targetVol - currentVol) * (step / steps);
-          if (step >= steps) {
-            sadWalkAudio.volume = targetVol;
-            clearInterval(upInterval);
-          }
-        }, 100);
-        // Fade in new background after textbox fades out
-        setTimeout(() => {
-          document.getElementById('bg2').style.opacity = '1';
-          document.getElementById('bg1').style.opacity = '0';
-        }, 500); // wait for textbox fade-out
-      };
+  <img id="himTextbox" class="textbox"
+       src="../assets/201policeWalkCHill/HimTextBox.png"
+       alt="Textbox">
 
-    }
+  <!-- Responsive next button -->
+  <a href="../../game.html" id="flipbook_back_button" class="responsive-image-button">
+    <img src="../assets/201policeWalkCHill/albumIcon.png" alt="Back to Game">
+  </a>
 
-    // Automatically start when page loads (optional)
-    window.onload = () => {
-      playScene();
-    };
-  </script>
+  <!-- audio -->
+  <audio id="himAudio"     src="../assets/201policeWalkCHill/raha-walk-police.wav"></audio>
+  <audio id="sadWalkAudio" src="../assets/201policeWalkCHill/SadWalk.mp3"></audio>
+
+</div>
+
+
+
+<script>
+/* ---------- ELEMENTS ------------------------------------------------ */
+const himTextbox   = document.getElementById('himTextbox');
+const himAudio     = document.getElementById('himAudio');
+const sadWalkAudio = document.getElementById('sadWalkAudio');
+const bg1          = document.getElementById('bg1');
+const bg2          = document.getElementById('bg2');
+
+/* ---------- SCENE SEQUENCE ----------------------------------------- */
+function playScene(){
+  /* show balloon + start dialogue ----------------------------------- */
+  himTextbox.classList.add('visible');
+  himAudio.play();
+
+  /* fade-in low background music ------------------------------------ */
+  sadWalkAudio.volume = 0.0;
+  sadWalkAudio.play();
+  const fadeIn = setInterval(()=>{
+    sadWalkAudio.volume = Math.min(0.15, sadWalkAudio.volume + 0.015);
+    if(sadWalkAudio.volume >= 0.15) clearInterval(fadeIn);
+  },150);
+
+  /* show next button after 8 seconds ------------------------------- */
+  setTimeout(()=>{
+    document.getElementById('flipbook_back_button').style.display = 'block';
+  }, 8000);
+
+  /* when dialogue ends … ------------------------------------------- */
+  himAudio.onended = ()=>{
+    /* hide balloon -------------------------------------------------- */
+    himTextbox.classList.remove('visible');
+
+    /* raise music to 0.5 in 1.5 s ---------------------------------- */
+    const steps = 15;
+    let i = 0;
+    const lift = setInterval(()=>{
+      i++;
+      sadWalkAudio.volume = 0.15 + (0.5-0.15)*(i/steps);
+      if(i>=steps) clearInterval(lift);
+    },100);
+
+    /* cross-fade backgrounds after balloon faded out --------------- */
+    setTimeout(()=>{
+      bg2.style.opacity = '1';
+      bg1.style.opacity = '0';
+    },500);                       // wait for textbox fade-out
+  };
+}
+
+/* start automatically */
+window.onload = async () => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  playScene();
+};
+</script>
+
 </body>
 </html>

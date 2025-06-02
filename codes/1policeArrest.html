@@ -4,107 +4,134 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Police Arrest Dialogue</title>
+
 <style>
-  html, body {
-    margin: 0;
-    height: 100dvh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fffceb;
-  }
-  .container {
-    position: relative;
-    width: 100vw;
-    height: 100dvh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    background: #fffceb;
-  } /* position: relative ensures absolutely positioned children (textbox) are relative to this container */
+/* --- 1. RESET --------------------------------------------------- */
+html,body{
+  margin:0;
+  width:100vw;
+  height:100dvh;
+}
 
-  .container img.background {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: block;
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 0;
-  }
-  /* ------------- generic look ------------- */
-  .textbox {
-    position: absolute;
-    opacity: 0;
-    transition: opacity 1s ease;
-    user-select: none;
-    width: 20%; /* Responsive: 20% of parent width */
-    max-width: 1000px;
-    min-width: 10px;
-    max-height: 20%; /* Responsive: up to 20% of parent height */
-    min-height: 10px;
-    transform: translateX(-50%);
-    z-index: 2;
-    box-sizing: border-box;
-  }
-  .textbox--him {
-    left: 50%;
-    top: 12%;
-  }
-  .textbox--police {
-    left: 40%;
-    top: 60%;
-  }
+/* --- 2. OUTER STAGE (fills the screen, centres the picture) ----- */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fffceb;               /* colour of the letter-box bands   */
+}
 
+/* --- 3. PICTURE  ------------------------------------------------- */
+.picture{
+  /* size = biggest rectangle that fits into the viewport
+     while keeping a 16 : 9 ratio                                       */
+  width :min(100vw,calc(100vh*16/9));
+  height:min(100vh,calc(100vw*9/16));
+
+  background:url("../assets/1policeArrest/Police-Arrest.png")
+            center/contain
+            no-repeat;
+
+  position:relative;                /* children use absolute coords      */
+  overflow:hidden;                  /* hide anything that might stick out*/
+}
+
+/* --- 4. SPEECH BALLOONS ----------------------------------------- */
+.textbox{
+  position:absolute;
+  width:20%;
+  max-width:20rem;
+  transform:translateX(-50%);        /* centre on its own X-anchor       */
+
+  opacity:0;                         /* revealed by JS                   */
+  display:none;                      /* "
+  transition:opacity 1s ease;        /* "                                */
+  user-select:none;
+  z-index:2;
+}
+
+.textbox--him   {left:40%; top:13%;}
+.textbox--police{left:25%; top:18%;}
+.responsive-image-button {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  z-index: 100;
+  display: none;
+}
+
+.responsive-image-button img {
+  display: block;
+  width: 7vw;
+  max-width: 70px;
+  min-width: 20px;
+  height: auto;
+  transition: transform 0.2s ease-out;
+}
+
+.responsive-image-button:hover img {
+  transform: scale(1.1);
+}
 </style>
 </head>
-<body>
 
-<div class="container">
-  <img class="background" src="../assets/1policeArrest/Police-Arrest.png" alt="Background">
-  <img id="textbox-him" class="textbox textbox--him" src="../assets/1policeArrest/HimTextbox.png" alt="Textbox Him">
-  <img id="textbox-police" class="textbox textbox--police" src="../assets/1policeArrest/Police.png" alt="Textbox Police">
-</div>
+
+
+<body>
+  <div class="picture">
+    <!-- Responsive next button -->
+    <a href="2policeHatChoice.html" id="next_scene_button" class="responsive-image-button">
+      <img src="../assets/1policeArrest/nextIcon.png" alt="Next Scene">
+    </a>
+    <!-- balloons are placed *inside* the picture -->
+    <img id="textbox-him"    class="textbox textbox--him"
+         src="../assets/1policeArrest/HimTextbox.png"    alt="Textbox Him">
+    <img id="textbox-police" class="textbox textbox--police"
+         src="../assets/1policeArrest/Police.png"        alt="Textbox Police">
+  </div>
+
+
 
 <script>
-  const himVoice = new Audio('../assets/1policeArrest/HimVoice.mp3');
-  const policeVoice = new Audio('../assets/1policeArrest/policeVoice.mp3');
-  const textbox = document.getElementById('textbox');
+/* ---------- AUDIO ------------------------------------------------ */
+const himVoice    = new Audio('../assets/1policeArrest/HimVoice.mp3');
+const policeVoice = new Audio('../assets/1policeArrest/policeVoice.mp3');
 
-  // Utility to show/hide a textbox by id
-  function showTextbox(id) {
+/* ---------- HELPERS --------------------------------------------- */
+function showTextbox(id){
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  requestAnimationFrame(()=> el.style.opacity = '1');
+}
+
+function hideTextbox(id){
+  return new Promise(resolve=>{
     const el = document.getElementById(id);
     el.style.opacity = '0';
-    el.style.display = 'block';
-    requestAnimationFrame(() => el.style.opacity = '1');
-  }
-  function hideTextbox(id) {
-    return new Promise(resolve => {
-      const el = document.getElementById(id);
-      el.style.opacity = '0';
-      setTimeout(() => {
-        el.style.display = 'none';
-        resolve();
-      }, 1000);
-    });
-  }
+    setTimeout(()=>{ el.style.display = 'none'; resolve(); },1000);
+  });
+}
 
-  // Sequence
+/* ---------- SEQUENCE -------------------------------------------- */
+(async () => {
+  await new Promise(resolve => setTimeout(resolve, 1500));
   showTextbox('textbox-him');
   himVoice.play();
+})();
 
-  himVoice.onended = async () => {
-    await hideTextbox('textbox-him');
-    showTextbox('textbox-police');
-    policeVoice.play();
+himVoice.onended = async ()=>{
+  await hideTextbox('textbox-him');
+  showTextbox('textbox-police');
+  policeVoice.play();
 
-    policeVoice.onended = async () => {
-      await hideTextbox('textbox-police');
-      //window.location.href = '2policeHatChoice.html';
-    };
+  policeVoice.onended = async ()=>{
+    await hideTextbox('textbox-police');
+    // Show the next scene button
+    document.getElementById('next_scene_button').style.display = 'block';
+    // Optionally, you can auto-focus or animate the button here
   };
 
+};
 </script>
 
 </body>

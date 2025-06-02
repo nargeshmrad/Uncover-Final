@@ -1,221 +1,179 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Police Hat Choice</title>
-  <style>
-    html, body {
-      margin: 0; padding: 0; height: 100%;
-      overflow: hidden;
-      background: url('../assets/2policeHatChoice/Police-ChooseHat.png') no-repeat center center;
-      background-size: cover;
-      position: relative;
-      cursor: default;
-      font-family: sans-serif;
-    }
-    #textbox {
-  position: absolute;
-  bottom: 3%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  max-width: 350px;
-  min-width: 120px;
-  padding: 8px 12px;
-  font-size: 14px;
-  opacity: 0;
-  transition: opacity 1s ease;
-  user-select: none;
-  pointer-events: none;
-  box-sizing: border-box;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Police Hat Choice</title>
+
+<style>
+/* ---------- 1. RESET ------------------------------------------------ */
+html,body{
+  margin:0;
+  width:100vw;
+  height:100dvh;
 }
-    #choices {
-      position: absolute;
-      bottom: 3%;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 50px;
-      opacity: 0;
-      transition: opacity 1s ease;
-      pointer-events: none;
-    }
-    .container {
-    position: relative;
-    width: 100vw;
-    height: 100dvh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    background: #fffceb;
-  }
-  .container img.background {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: block;
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 0;
-  }
-  .textbox {
-    position: absolute;
-    opacity: 0;
-    transition: opacity 1s ease;
-    user-select: none;
-    z-index: 2;
-    box-sizing: border-box;
-  }
-  .choice {
-    position: absolute;
-    cursor: pointer;
-    user-select: none;
-    opacity: 0;
-    transition: opacity 1s ease;
-    display: none;
-    /* width and height will be set via JS */
-  }
-  </style>
+
+/* ---------- 2. OUTER STAGE  ---------------------------------------- */
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fffceb;            /* colour of the letter-box bands     */
+  font-family:sans-serif;
+  cursor:default;
+}
+
+/* ---------- 3. PICTURE  -------------------------------------------- */
+/* Size = largest 16 : 9 rectangle that fits in the viewport            */
+.picture{
+  width :min(100vw,calc(100vh*16/9));
+  height:min(100vh,calc(100vw*9/16));
+
+  background:url("../assets/2policeHatChoice/Police-ChooseHat.png")
+            center/contain
+            no-repeat;
+
+  position:relative;             /* ≙ positioning context for children */
+  overflow:hidden;
+}
+
+/* ---------- 4. TEXT BOXES & CHOICES -------------------------------- */
+#textbox{
+  position:absolute;
+  bottom:5%;
+  left:50%;
+  width:25%;
+  transform:translateX(-50%);
+
+  opacity:0;                     /* revealed by JS                     */
+  transition:opacity 1s ease;
+  user-select:none;
+  pointer-events:none;
+}
+
+.choice{
+  position:absolute;
+  bottom:5%;
+  width:12%;
+  transform: translateX(-50%);
+
+  cursor:pointer;
+  user-select:none;
+  opacity:0;                     /* revealed by JS                     */
+  transition: opacity 1s ease, transform 0.2s ease-out;
+  display:none;
+}
+
+.choice:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* symmetrical horizontal placement */
+#choice1{left:42%;}
+#choice2{left:58%;}
+</style>
 </head>
+
+
+
 <body>
 
-<div class="container">
-  <img id="scene-bg" class="background" src="../assets/2policeHatChoice/Police-ChooseHat.png" alt="Background">
-  <img id="textbox" class="textbox" src="" alt="Textbox">
-  <img id="choice1" class="choice" src="../assets/2policeHatChoice/choice1.png" alt="Choice 1" />
-<img id="choice2" class="choice" src="../assets/2policeHatChoice/choice2.png" alt="Choice 2" />
+<div class="picture">
+
+  <!-- speech box -->
+  <img  id="textbox"
+        src=""
+        alt="Textbox">
+
+  <!-- clickable choices -->
+  <img  id="choice1"
+        class="choice"
+        src="../assets/2policeHatChoice/choice1.png"
+        alt="Choice 1">
+
+  <img  id="choice2"
+        class="choice"
+        src="../assets/2policeHatChoice/choice2.png"
+        alt="Choice 2">
+
 </div>
 
+
+
 <script>
-  const himVoice = new Audio('../assets/2policeHatChoice/HatChoiceQuestion-raha.wav');
-  const himChoice1Voice = new Audio('../assets/2policeHatChoice/HatChoice1.wav');
-  const himChoice2Voice = new Audio('../assets/2policeHatChoice/HatChoice2.wav');
+/* ---------- AUDIO -------------------------------------------------- */
+const himVoice        = new Audio('../assets/2policeHatChoice/HatChoiceQuestion-raha.wav');
+const himChoice1Voice = new Audio('../assets/2policeHatChoice/HatChoice1.wav');
+const himChoice2Voice = new Audio('../assets/2policeHatChoice/HatChoice2.wav');
 
-  const textbox = document.getElementById('textbox');
-  const choice1 = document.getElementById('choice1');
-  const choice2 = document.getElementById('choice2');
+/* ---------- ELEMENTS ---------------------------------------------- */
+const textbox = document.getElementById('textbox');
+const choice1 = document.getElementById('choice1');
+const choice2 = document.getElementById('choice2');
 
-  // Position textbox relative to visible image area
-  function positionTextboxOnImage(textbox, img, topPercent, leftPercent, widthPercent = 20, maxHeightPercent = 20) {
-    const imgRect = img.getBoundingClientRect();
-    const containerRect = img.parentElement.getBoundingClientRect();
-    // Offset relative to container
-    const imgTop = imgRect.top - containerRect.top;
-    const imgLeft = imgRect.left - containerRect.left;
-    const top = imgTop + imgRect.height * (topPercent / 100);
-    const left = imgLeft + imgRect.width * (leftPercent / 100);
-    textbox.style.top = `${top}px`;
-    textbox.style.left = `${left}px`;
-    textbox.style.transform = 'translate(-50%, 0)'; // center horizontally
-    // Responsive width and max-height based on image size
-    textbox.style.width = (imgRect.width * (widthPercent / 100)) + 'px';
-    textbox.style.maxHeight = (imgRect.height * (maxHeightPercent / 100)) + 'px';
-  }
+/* ---------- HELPERS ------------------------------------------------ */
+function showTextbox(src){
+  textbox.src = src;
+  textbox.style.display = 'block';
+  requestAnimationFrame(()=> textbox.style.opacity = '1');
+}
 
-  function positionAllTextboxes() {
-    const img = document.getElementById('scene-bg');
-    positionTextboxOnImage(document.getElementById('textbox'), img, 85, 50, 20, 20); // 20% width, 20% max-height of image
-    // Choices: 70% from top, 40% and 60% from left, 18% width, 20% max-height
-    positionTextboxOnImage(document.getElementById('choice1'), img, 85, 43, 10, 10);
-    positionTextboxOnImage(document.getElementById('choice2'), img, 85, 55, 10, 10);
-  }
-
-  window.addEventListener('resize', positionAllTextboxes);
-  window.addEventListener('DOMContentLoaded', () => {
-    const img = document.getElementById('scene-bg');
-    if (img.complete) {
-      positionAllTextboxes();
-    } else {
-      img.onload = positionAllTextboxes;
-    }
-  });
-
-  // Show textbox with fade in
-  function showTextbox(src) {
-    textbox.src = src;
+function hideTextbox(){
+  return new Promise(resolve=>{
     textbox.style.opacity = '0';
-    textbox.style.display = 'block';
-    setTimeout(() => {
-      textbox.style.opacity = '1';
-    }, 50);
-  }
+    setTimeout(()=>{ textbox.style.display = 'none'; resolve(); },1000);
+  });
+}
 
-  // Hide textbox with fade out (returns a Promise)
-  function hideTextbox() {
-    return new Promise(resolve => {
-      textbox.style.opacity = '0';
-      setTimeout(() => {
-        textbox.style.display = 'none';
-        resolve();
-      }, 1000);
-    });
-  }
+function showChoices(){
+  [choice1,choice2].forEach(choice=>{
+    choice.style.display = 'block';
+    requestAnimationFrame(()=> choice.style.opacity = '1');
+  });
+}
 
-  // Show choices with fade in
-  function showChoices() {
-    [choice1, choice2].forEach(choice => {
-      choice.style.display = 'block';
-      setTimeout(() => {
-        choice.style.opacity = '1';
-      }, 50);
-    });
-  }
+function hideChoices(){
+  return new Promise(resolve=>{
+    [choice1,choice2].forEach(c=> c.style.opacity = '0');
+    setTimeout(()=>{
+      [choice1,choice2].forEach(c=> c.style.display = 'none');
+      resolve();
+    },1000);
+  });
+}
 
-  // Hide choices with fade out (returns a Promise)
-  function hideChoices() {
-    return new Promise(resolve => {
-      [choice1, choice2].forEach(choice => {
-        choice.style.opacity = '0';
-      });
-      setTimeout(() => {
-        [choice1, choice2].forEach(choice => {
-          choice.style.display = 'none';
-        });
-        resolve();
-      }, 1000);
-    });
-  }
-
-  // Start by showing HimTextbox1 and playing HimVoice
+/* ---------- SEQUENCE ---------------------------------------------- */
+(async () => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
   showTextbox('../assets/2policeHatChoice/HimTextbox1.png');
   himVoice.play();
+})();
 
-  himVoice.onended = async () => {
-    await hideTextbox();
-    showChoices();
-  };
+himVoice.onended = async ()=>{
+  await hideTextbox();
+  showChoices();
+};
 
-  // Play choice audio on hover, stop when hover ends
-  choice1.addEventListener('mouseenter', () => {
-    himChoice2Voice.pause();
-    himChoice2Voice.currentTime = 0;
-    himChoice1Voice.play();
-  });
-  choice1.addEventListener('mouseleave', () => {
-    himChoice1Voice.pause();
-    himChoice1Voice.currentTime = 0;
-  });
+/* ---------- CHOICE HOVER SOUND ------------------------------------ */
+choice1.addEventListener('mouseenter', ()=>{
+  himChoice2Voice.pause(); himChoice2Voice.currentTime = 0;
+  himChoice1Voice.play();
+});
+choice1.addEventListener('mouseleave', ()=>{
+  himChoice1Voice.pause(); himChoice1Voice.currentTime = 0;
+});
 
-  choice2.addEventListener('mouseenter', () => {
-    himChoice1Voice.pause();
-    himChoice1Voice.currentTime = 0;
-    himChoice2Voice.play();
-  });
-  choice2.addEventListener('mouseleave', () => {
-    himChoice2Voice.pause();
-    himChoice2Voice.currentTime = 0;
-  });
+choice2.addEventListener('mouseenter', ()=>{
+  himChoice1Voice.pause(); himChoice1Voice.currentTime = 0;
+  himChoice2Voice.play();
+});
+choice2.addEventListener('mouseleave', ()=>{
+  himChoice2Voice.pause(); himChoice2Voice.currentTime = 0;
+});
 
-  // Click navigations
-  choice1.addEventListener('click', () => {
-    window.location.href = '202policeTalk.html';
-  });
-
-  choice2.addEventListener('click', () => {
-    window.location.href = '201policeWalkCHill.html';
-  });
+/* ---------- CLICK NAVIGATION -------------------------------------- */
+choice1.addEventListener('click', ()=> window.location.href = '202policeTalk.html');
+choice2.addEventListener('click', ()=> window.location.href = '201policeWalkCHill.html');
 </script>
 
 </body>
