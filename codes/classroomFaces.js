@@ -2,7 +2,7 @@
 const hotspots = [
     {
       id: 'hotspot1',
-      audioSrc: '../assets/classroomFaces/classroomVoice1.mp3',
+      audioSrc: '../assets/classroomFaces/classmate-1.wav',
       textboxId: 'textbox1',
       position: { top: '8%', left: '12%' },
       size: { width: '330px', height: '260px' },
