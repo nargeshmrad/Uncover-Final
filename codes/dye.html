@@ -213,9 +213,13 @@
 
     // Function to draw the green rectangle
     function drawGreenRectangle() {
+      ctx.save();
+      ctx.globalAlpha = 0; // fully transparent
       ctx.strokeStyle = 'green';
       ctx.lineWidth = 3;
       ctx.strokeRect(rectX, rectY, rectWidth, rectHeight);
+      ctx.globalAlpha = 1;
+      ctx.restore();
     }
 
 
