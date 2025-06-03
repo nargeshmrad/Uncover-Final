@@ -1,0 +1,50 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #f0f0f0;
+}
+
+.container {
+  position: relative;
+  width: auto;
+  max-width: 1070px;
+  aspect-ratio: 1070 / 1176;
+  height: auto;
+  max-height: 100vh;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+#ripple-bg {
+  width: 100%;
+  height: 100%;
+  background: url('../assets/HimOnWater/WaterLastPage-Background.png') no-repeat center center;
+  background-size: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.floating-him {
+  position: absolute;
+  width: 320px;
+  height: auto;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+#floating-paper-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

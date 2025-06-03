@@ -18,8 +18,25 @@ $(document).ready(function () {
     // Floating animation for HimOnWater.png
     const $container = $('.container');
     const $floatImg = $('.floating-him');
-    const imgWidth = 230; // px, must match CSS
+    const imgWidth = 320; // px, must match CSS
     let containerRect = $container[0].getBoundingClientRect();
+    
+    // Set container height based on aspect ratio and width
+    function resizeContainer() {
+      const maxWidth = 1070;
+      const aspectRatio = 1070 / 1176;
+      let width = Math.min(window.innerWidth, maxWidth);
+      let height = width / aspectRatio;
+      if (height > window.innerHeight) {
+        height = window.innerHeight;
+        width = height * aspectRatio;
+      }
+      $container.css({ width: width + 'px', height: height + 'px' });
+      containerRect = $container[0].getBoundingClientRect();
+    }
+    
+    $(window).on('resize', resizeContainer);
+    resizeContainer();
 
     function randomFloat(min, max) {
       return Math.random() * (max - min) + min;
@@ -31,7 +48,7 @@ $(document).ready(function () {
       const maxLeft = containerRect.width - imgWidth;
       const maxTop = containerRect.height - imgWidth * 1.1; // estimate height
 
-      // Get current position
+      // Get current position (relative to container)
       const currentLeft = parseFloat($floatImg.css('left')) || containerRect.width / 2;
       const currentTop = parseFloat($floatImg.css('top')) || containerRect.height / 2;
 
