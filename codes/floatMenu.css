@@ -45,7 +45,7 @@ body {
   justify-content: center;
   pointer-events: auto;
   font-family: 'Comic Sans MS', 'Comic Sans', 'Comic Neue', cursive, sans-serif;
-  font-size: 1.4em;
+  font-size: 1.4vw;
   background: transparent;
   z-index: 21;
 }
