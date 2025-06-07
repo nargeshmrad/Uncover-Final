@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Intro Hover Switch</title>
+  <style>
+  html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .background-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .hover-image {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .hover-image img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: opacity 0.4s ease;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .hover-image img.eng {
+      opacity: 0;
+    }
+
+    .hover-image:hover img.eng {
+      opacity: 1;
+    }
+
+    .hover-image:hover img.pers {
+      opacity: 0;
+    }
+    .caption-container {
+  position: absolute;
+  width: 40vw;
+  max-width: 500px;
+  min-width: 250px;
+  aspect-ratio: 3 / 1;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.caption-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#farsiCaption {
+  left: 30%;
+  opacity: 1;
+}
+
+#englishCaption {
+  left: 20%;
+  opacity: 0;
+}
+
+.caption-container:hover #englishCaption {
+  opacity: 1;
+}
+
+.caption-container:hover #farsiCaption {
+  opacity: 0;
+}
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img src="IntroBackground.png" alt="Background" class="background-img">
+    <div class="caption-container">
+      <img id="farsiCaption" class="caption-image" src="introPers.png" alt="Farsi Caption">
+      <img id="englishCaption" class="caption-image" src="introEng.png" alt="English Caption">
+    </div>
+
+</body>
+</html>
