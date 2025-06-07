@@ -162,11 +162,34 @@ document.addEventListener('mousemove', (e) => {
         document.body.style.cursor = "url('../assets/HimInMirrorAlbum/eyeCursor.png') 35 35, auto";
         // Add click-to-navigate
         hotspot.addEventListener('click', goToClosetChange);
+
+        // --- Fade out mirrorDirtAudio after 3s delay, only once ---
+        if (!window.mirrorDirtFadeStarted) {
+          window.mirrorDirtFadeStarted = true;
+          setTimeout(() => {
+            let fadeDuration = 1000; // 1 second
+            let fadeSteps = 20;
+            let fadeStepTime = fadeDuration / fadeSteps;
+            let originalVolume = mirrorDirtAudio.volume;
+            let currentStep = 0;
+            let fadeInterval = setInterval(() => {
+              currentStep++;
+              mirrorDirtAudio.volume = Math.max(0, originalVolume * (1 - currentStep / fadeSteps));
+              if (currentStep >= fadeSteps) {
+                clearInterval(fadeInterval);
+                mirrorDirtAudio.pause();
+                mirrorDirtAudio.volume = originalVolume; // Reset for next play
+                mirrorDirtAudio.src = '';
+              }
+            }, fadeStepTime);
+          }, 3000);
+        }
+        // --- End fadeout logic ---
       }
 
 // Navigation function
 function goToClosetChange() {
-  window.location.href = 'closetChange.html';
+  //window.location.href = 'closetChange.html';
 }
 
     }

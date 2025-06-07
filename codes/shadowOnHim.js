@@ -103,6 +103,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 shadow.style.cursor = 'default';
                 hasLightCursor = false;
                 fadingShadow = false;
+
+                // --- Fade out shadowMusic 5 seconds after bg2 appears ---
+                if (!shadowMusic.paused) {
+                    setTimeout(() => {
+                        let fadeDuration = 2000; // 1 second
+                        let fadeSteps = 20;
+                        let fadeStepTime = fadeDuration / fadeSteps;
+                        let originalVolume = shadowMusic.volume;
+                        let currentStep = 0;
+                        let fadeInterval = setInterval(() => {
+                            currentStep++;
+                            shadowMusic.volume = Math.max(0, originalVolume * (1 - currentStep / fadeSteps));
+                            if (currentStep >= fadeSteps) {
+                                clearInterval(fadeInterval);
+                                shadowMusic.pause();
+                                shadowMusic.volume = originalVolume; // Reset for next play
+                                // Free the resource immediately after fadeout
+                                shadowMusic.src = '';
+                            }
+                        }, fadeStepTime);
+                    }, 5000); // Wait 5 seconds before starting fadeout
+                }
+                // --- End fadeout logic ---
+
                 setTimeout(() => {
                     document.body.classList.remove('light-cursor-fadeout');
                     document.body.classList.remove('fading');

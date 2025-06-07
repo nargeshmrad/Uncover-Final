@@ -1,299 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nail Polish Effect</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
-    <style>
-      html, body {
-        margin: 0;
-        height: 100%;
-        background: black;
-      }
-      .container {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        overflow: hidden;
-      }
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nail Polish – Responsive version</title>
+<!-- disable the automatic p5 loading message -->
+<script>window._disable_p5_loading_screen = true;</script>
+<!-- p5 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
 
-      canvas {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: contain !important;
-      }
-      body, canvas {
-    cursor: url('../assets/NailPolishScene/nailBrush.png') 0 256, auto;
-  }
+<style>
+html,body{margin:0; width:100vw; height:100dvh;}
+body{display:flex; align-items:center; justify-content:center; background:#fffceb; cursor:none;}
+
+.picture{width:min(100vw,calc(100vh*16/9)); height:min(100vh,calc(100vw*9/16));
+         position:relative; overflow:hidden;}
+.picture canvas{position:absolute !important; width:100% !important; height:100% !important;
+                top:0; left:0; object-fit:contain;}
+
+.textbox{position:absolute; width:25%; transform:translateX(-50%);
+         opacity:0; display:none; transition:opacity 1s ease; user-select:none; z-index:2;}
+.textbox--mom1{left:15%; top:40%} .textbox--dad1{left:27%; top:29%}
+.textbox--mom2{left:15%; top:40%} .textbox--dad2{left:27%; top:29%}
+.textbox--mom3{left:15%; top:40%}
+
+.fight-overlay{position:absolute; left:0; top:0; width:25%; max-width:25rem;
+               opacity:0; display:none; transition:opacity 0.8s ease; user-select:none; z-index:1;}
+
+.cursor-img{position:fixed; left:0; top:0; pointer-events:none;
+            width:clamp(25px,6vw,60px); height:auto; z-index:4;}
+
+.instant-bg{
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:100%;
+  object-fit:contain;
+  z-index:0;                     /* stays behind the balloons etc. */
+}
+
+.responsive-image-button {
+  position: absolute;
+  top: 5%;
+  right: 3%;
+  z-index: 100;
+  display: none;
+}
+
+.responsive-image-button img {
+  display: block;
+  width: 7vw;
+  max-width: 70px;
+  min-width: 20px;
+  height: auto;
+  transition: transform 0.2s ease-out;
+}
+
+.responsive-image-button:hover img {
+  transform: scale(1.1);
+}
 </style>
-  </head>
-  <body>
-    <div class="container">
-    <script>
-      let topLayer;
-      let middleLayer;
-      let img1, img2;
-      let cursorImg, padImg;
-      let pad;
-      let isDraggingPad = false;
-      let padX = 600;  // Moved more to the right
-      let padY = 300;
-      let isPadSelected = false;  // New variable to track if pad is selected
-      let showPad = false;  // Only show pad after all dialogues
-      let padOpacity = 0;  // For fade-in effect
-      let bgMusic;  // Background music variable
-      let brushSound;  // Paint brush sound effect
-      let happySound;  // Happy sound for first click
-      let noProblemHomeSound;  // Sound for second dialogue
-      let noHeWontSound;  // Sound for third dialogue
-      let maybeTalksSound;  // Sound for fourth dialogue
-      let youMeanSound;  // Sound for fifth dialogue
-      let notOppressionSound;  // Sound for sixth dialogue
-      let ifHeHasSound;  // Sound for seventh dialogue
-      let heCanWearSound;  // Sound for eighth dialogue
-      let beforeShameSound;  // Sound for ninth dialogue
-      let cautionSound;  // Sound for tenth dialogue
-      let clickCount = 0;  // Track number of clicks
-      let showText = false;  // Whether to show the text
-      let currentText = '';  // Current text to display
-      let sadNailMusic;  // Sad music for pad erasing
-      let sadMusicVolume = 0;  // For fade-in/out effect
-      let hasPadBeenUsed = false;  // Track if pad has been used
-      let isSadMusicPlaying = false;  // Track if sad music is currently playing
-
-      function preload() {
-        img1 = loadImage("../assets/NailPolishScene/NailPolishScene1.png");
-        img2 = loadImage("../assets/NailPolishScene/NailPolishScene2.png");
-        cursorImg = loadImage("../assets/NailPolishScene/nailBrush.png");
-        padImg = loadImage("../assets/NailPolishScene/pad.png");
-        bgMusic = loadSound("../assets/NailPolishScene/Birds-morning.mp3");  // Load the background music
-        brushSound = loadSound("../assets/NailPolishScene/paintBrush.mp3");  // Load the brush sound
-        happySound = loadSound("../assets/NailPolishScene/happy.m4a");  // Load happy sound
-        noProblemHomeSound = loadSound("../assets/NailPolishScene/noProblemHome.m4a");  // Load no problem home sound
-        noHeWontSound = loadSound("../assets/NailPolishScene/No.HeWont.m4a");  // Load no he won't sound
-        maybeTalksSound = loadSound("../assets/NailPolishScene/MaybeHeTalks.m4a");  // Load maybe he talks sound
-        youMeanSound = loadSound("../assets/NailPolishScene/YouMean.m4a");  // Load you mean sound
-        notOppressionSound = loadSound("../assets/NailPolishScene/NotOppression.m4a");  // Load not oppression sound
-        ifHeHasSound = loadSound("../assets/NailPolishScene/IfHeHas.m4a");  // Load if he has sound
-        heCanWearSound = loadSound("../assets/NailPolishScene/HeCanWear.m4a");  // Load he can wear sound
-        beforeShameSound = loadSound("../assets/NailPolishScene/BeforeShame.m4a");  // Load before shame sound
-        cautionSound = loadSound("../assets/NailPolishScene/Caution.m4a");
-        sadNailMusic = loadSound("../assets/NailPolishScene/SadNail.mp3");  // Load caution sound
-      }
+</head>
 
 
 
-      function setup() {
-        createCanvas(windowWidth, windowHeight);
-        topLayer = createGraphics(windowWidth, windowHeight);
-        middleLayer = createGraphics(windowWidth, windowHeight);
-        textFont('Comic Sans MS');
-        textSize(15);
-        textAlign(CENTER, BOTTOM);
-        angleMode(DEGREES);
-        
-        // Draw NailPolish1 to top layer
-        topLayer.image(img1, 0, 0, width, height);
-        topLayer.blendMode(DIFFERENCE);
+<body>
+  <div id="stage" class="picture">
+    <!--  ❶ instant placeholder  -->
+    <img id="instant-bg" class="instant-bg"
+         src="../assets/NailPolishScene/NailPolishScene1.png" alt="">
+    <img id="textbox-mom1" class="textbox textbox--mom1"
+         src="../assets/NailPolishScene/nailMom1Text.png" alt="">
+    <img id="textbox-dad1" class="textbox textbox--dad1"
+         src="../assets/NailPolishScene/nailDad1Text.png" alt="">
+    <img id="textbox-mom2" class="textbox textbox--mom2"
+         src="../assets/NailPolishScene/nailMom2Text.png" alt="">
+    <img id="textbox-dad2" class="textbox textbox--dad2"
+         src="../assets/NailPolishScene/nailDad2Text.png" alt="">
+    <img id="textbox-mom3" class="textbox textbox--mom3"
+         src="../assets/NailPolishScene/nailMom3Text.png" alt="">
 
-        // Draw NailPolish2 to middle layer
-        middleLayer.image(img2, 0, 0, width, height);
-        middleLayer.blendMode(DIFFERENCE);
-        
-        noCursor(); // Hide the default cursor
-        
-        // Play background music on loop
-        bgMusic.loop();
-        bgMusic.setVolume(0.5);  // Set volume to 50%
-      }
+    <img id="fight-overlay" class="fight-overlay"
+         src="../assets/NailPolishScene/momDadFight.png" alt="">
 
-      function draw() {
-  // Hide the default cursor
-  noCursor();
+    <img id="cursor-img" class="cursor-img"
+         src="../assets/NailPolishScene/nailBrush.png" alt="">
 
-  // Draw the pad image as cursor if pad is active, otherwise draw the brush image
-  if (showPad && padImg) {
-    image(padImg, mouseX - padImg.width/2, mouseY - padImg.height/2);
-  } else if (cursorImg) {
-    image(cursorImg, mouseX, mouseY - cursorImg.height);
+    <!-- Responsive back to flipbook button -->
+    <a href="../../game.html" id="flipbook_back_button" class="responsive-image-button">
+      <img src="../assets/NailPolishScene/albumIcon.png" alt="Back to Game">
+    </a>
+  </div>
+
+
+
+<script>
+/* =====================================================================
+   SETTINGS (tweak here)
+===================================================================== */
+const DEBUG              = false;   // true → red outline
+const BRUSH_SIDE_RATIO   = 0.01;    // square brush side = 3 % of canvas width
+const BRUSH_OFFSET_X_PX  =  2;      // 5 px to the right of pointer
+const BRUSH_OFFSET_Y_PX  =  -4;      // 5 px up (negative)
+
+/* =====================================================================
+   0.  HELPERS
+===================================================================== */
+const _$ = id => document.getElementById(id);
+const showTextbox = id => {const e=_$(id); e.style.display='block';
+                           requestAnimationFrame(()=>e.style.opacity='1');};
+const hideTextbox = id => new Promise(r=>{const e=_$(id); e.style.opacity='0';
+                           setTimeout(()=>{e.style.display='none';r();},1e3);});
+const showOverlay = ()=>{const e=_$('fight-overlay'); e.style.display='block';
+                          requestAnimationFrame(()=>e.style.opacity='1');};
+const hideOverlay = ()=>new Promise(r=>{const e=_$('fight-overlay'); e.style.opacity='0';
+                          setTimeout(()=>{e.style.display='none';r();},800);});
+
+/* =====================================================================
+   1.  ASSETS
+===================================================================== */
+let img1,img2,bgMusic,brushSound,nailMom1,nailDad1,nailMom2,nailDad2,nailMom3,sadNailMusic;
+function preload(){
+  img1=loadImage("../assets/NailPolishScene/NailPolishScene1.png");
+  img2=loadImage("../assets/NailPolishScene/NailPolishScene2.png");
+  bgMusic   =loadSound("../assets/NailPolishScene/Birds-morning.mp3");
+  brushSound=loadSound("../assets/NailPolishScene/paintBrush.mp3");
+  nailMom1=loadSound("../assets/NailPolishScene/nail-mom1.wav");
+  nailDad1=loadSound("../assets/NailPolishScene/nail-dad1.wav");
+  nailMom2=loadSound("../assets/NailPolishScene/nail-mom2.wav");
+  nailDad2=loadSound("../assets/NailPolishScene/nail-dad2.wav");
+  nailMom3=loadSound("../assets/NailPolishScene/nail-mom3.wav");
+  sadNailMusic=loadSound("../assets/NailPolishScene/SadNail.mp3");
+}
+
+/* =====================================================================
+   2.  CANVAS & LAYERS
+===================================================================== */
+let canvas,topLayer,middleLayer;
+function bestFit16x9(){const w=windowWidth,h=windowHeight;
+  return (w/h>16/9)?{w:h*16/9,h}:{w,h:w*9/16};}
+
+/* strokes store shape + offset already applied */
+const strokes=[]; /* {x,y,sizeNorm,both,shape} */
+
+function applyStrokeShape(g,x,y,size,shape){
+  g.erase(); g.noStroke();
+  if(shape==='circle') g.ellipse(x,y,size);
+  else                 g.rect(x,y-size,size,size); /* bottom-left anchor */
+  g.noErase();
+}
+function newLayers(w,h){
+  topLayer=createGraphics(w,h); middleLayer=createGraphics(w,h);
+  topLayer.image(img1,0,0,w,h); topLayer.blendMode(DIFFERENCE);
+  middleLayer.image(img2,0,0,w,h); middleLayer.blendMode(DIFFERENCE);
+  strokes.forEach(s=>{const X=s.x*w,Y=s.y*h,S=s.sizeNorm*w;
+    applyStrokeShape(topLayer,X,Y,S,s.shape);
+    if(s.both) applyStrokeShape(middleLayer,X,Y,S,s.shape);});
+}
+function setup(){
+  const {w,h}=bestFit16x9(); canvas=createCanvas(w,h); canvas.parent('stage');
+  const p=_$('instant-bg');
+  // the scene is ready – remove the placeholder
+  if(p) p.style.display='none';
+  newLayers(w,h); bgMusic.loop(); bgMusic.setVolume(0.5); noCursor();
+  updateCursorGraphic();
+}
+function windowResized(){const {w,h}=bestFit16x9(); resizeCanvas(w,h); newLayers(w,h);}
+
+function stopAllSounds(){
+  [
+    bgMusic, brushSound, sadNailMusic,
+    nailMom1, nailDad1, nailMom2, nailDad2, nailMom3
+  ].forEach(snd => snd && snd.isPlaying() && snd.stop());
+}
+
+/* 2. stop sounds *before* the browser follows the link */
+_$('flipbook_back_button').addEventListener('click', stopAllSounds);
+
+/* =====================================================================
+   3.  CURSOR & ACTIVE AREAS
+===================================================================== */
+const cursorEl=_$('cursor-img');
+document.addEventListener('mousemove',e=>{
+  cursorEl.style.left=e.clientX+'px';
+  cursorEl.style.top =e.clientY+'px';
+});
+let showPad=false,padOpacity=0,isPadSelected=false;
+function updateCursorGraphic(){
+  if(showPad){
+    cursorEl.src="../assets/NailPolishScene/pad.png";
+    cursorEl.style.transform="translate(-50%,-50%)";
+  }else{
+    cursorEl.src="../assets/NailPolishScene/nailBrush.png";
+    cursorEl.style.transform="translate(0%,-100%)";
+  }
+}
+const brushSidePx = () => BRUSH_SIDE_RATIO*width;
+const padRadiusPx = () => {
+  const cssHalf=_$('cursor-img').getBoundingClientRect().width/2;
+  return cssHalf*(width/canvas.elt.getBoundingClientRect().width);
+};
+
+/* =====================================================================
+   4.  STATE
+===================================================================== */
+let hasPadBeenUsed=false,sadMusicVolume=0,isSadMusicPlaying=false;
+let dialogueStarted=false;
+let flipbookButtonTimeout = null; // To track the timeout for showing back button
+
+
+/* =====================================================================
+   5.  DRAW LOOP
+===================================================================== */
+function draw(){
+  image(img1,0,0,width,height);
+
+  if(mouseIsPressed && !isPadSelected){
+    const side=brushSidePx();
+    const bx=mouseX+BRUSH_OFFSET_X_PX;
+    const by=mouseY+BRUSH_OFFSET_Y_PX;
+    applyStrokeShape(topLayer,bx,by,side,'square');
+    strokes.push({x:bx/width,y:by/height,sizeNorm:side/width,
+                  both:false,shape:'square'});
+    if(!brushSound.isPlaying()) brushSound.loop();
   }
 
-        // Draw the bottom image (NailPolish1 again)
-        image(img1, 0, 0, width, height);
-
-
-        
-        // When mouse is pressed (not pad), erase top layer to reveal NailPolish2
-        if (mouseIsPressed && !isPadSelected) {
-          topLayer.erase();
-          topLayer.noStroke();
-          topLayer.ellipse(mouseX, mouseY, 50);
-          topLayer.noErase();
-          
-          // Play brush sound if not already playing
-          if (!brushSound.isPlaying()) {
-            brushSound.loop();
-            brushSound.setVolume(0.5);
-          }
-        }
-
-        // When pad is selected and mouse is pressed, erase both layers to reveal NailPolish1
-        if (mouseIsPressed && isPadSelected) {
-          topLayer.erase();
-          topLayer.noStroke();
-          topLayer.ellipse(mouseX, mouseY, 50);
-          topLayer.noErase();
-          
-          middleLayer.erase();
-          middleLayer.noStroke();
-          middleLayer.ellipse(mouseX, mouseY, 50);
-          middleLayer.noErase();
-          
-          // Play brush sound if not already playing
-          if (!brushSound.isPlaying()) {
-            brushSound.loop();
-            brushSound.setVolume(0.5);
-          }
-        }
-
-        // Stop brush sound if mouse is not pressed
-        if (!mouseIsPressed && brushSound.isPlaying()) {
-          brushSound.stop();
-        }
-
-        // Draw the middle and top layers
-        image(middleLayer, 0, 0);
-        image(topLayer, 0, 0);
-
-        // Handle erasing based on pad visibility
-        if (showPad) {
-          // After all dialogues, handle pad cursor and erasing
-          if (padOpacity < 255) {
-            padOpacity += 2;  // Gradually increase opacity
-          }
-          
-          if (mouseIsPressed && padOpacity > 50) {  // Only allow erasing when pad is somewhat visible
-            // Start sad music on first use of pad if it hasn't been used yet
-            if (!hasPadBeenUsed) {
-              hasPadBeenUsed = true;
-              isSadMusicPlaying = true;
-              sadNailMusic.loop();
-              sadNailMusic.setVolume(0.05); // Start at 5% volume
-            }
-            
-            // Gradually increase sad music volume if it's playing
-            if (isSadMusicPlaying && sadMusicVolume < 0.3) {
-              sadMusicVolume += 0.0005;  // Very slowly increase volume
-              sadNailMusic.setVolume(sadMusicVolume);
-            }
-            
-            // Erase both layers with pad
-            topLayer.erase();
-            topLayer.noStroke();
-            topLayer.ellipse(mouseX, mouseY, 50);
-            topLayer.noErase();
-            
-            middleLayer.erase();
-            middleLayer.noStroke();
-            middleLayer.ellipse(mouseX, mouseY, 50);
-            middleLayer.noErase();
-            
-            // Play brush sound
-            if (!brushSound.isPlaying()) {
-              brushSound.loop();
-              brushSound.setVolume(0.5);
-            }
-          }
-
-          // Show fading pad cursor
-          tint(255, padOpacity);  // Apply opacity to the pad
-          image(padImg, mouseX - 25, mouseY - 25, 50, 50);  // Show pad as cursor
-          noTint();  // Reset tint for other images
-        } else {
-          // Before pad appears, only erase top layer if mouse is pressed
-          if (mouseIsPressed) {
-            topLayer.erase();
-            topLayer.noStroke();
-            topLayer.ellipse(mouseX, mouseY, 50);
-            topLayer.noErase();
-            
-            if (!brushSound.isPlaying()) {
-              brushSound.loop();
-              brushSound.setVolume(0.5);
-            }
-          }
-          // Show brush cursor
-          image(cursorImg, mouseX - cursorImg.width/4, mouseY - cursorImg.height/2, cursorImg.width/2, cursorImg.height/2);
-        }
-
-        // Display text if it should be shown
-        if (showText) {
-          fill(255);  // White text
-          stroke(0);  // Black outline
-          strokeWeight(3);
-          text(currentText, width/2, height - 800);
-        }
+  if(mouseIsPressed && isPadSelected){
+    const r=padRadiusPx();
+    applyStrokeShape(topLayer,mouseX,mouseY,r*2,'circle');
+    applyStrokeShape(middleLayer,mouseX,mouseY,r*2,'circle');
+    strokes.push({x:mouseX/width,y:mouseY/height,sizeNorm:(r*2)/width,
+                  both:true,shape:'circle'});
+    if(!brushSound.isPlaying()) brushSound.loop();
+    if(!hasPadBeenUsed){
+      hasPadBeenUsed=true; isSadMusicPlaying=true;
+      sadNailMusic.loop(); sadNailMusic.setVolume(0.05);
+      // Show back button after 8 seconds from sad music start
+      if (flipbookButtonTimeout === null) {
+        flipbookButtonTimeout = setTimeout(() => {
+          const btn = document.getElementById('flipbook_back_button');
+          if (btn) btn.style.display = 'block';
+        }, 8000);
       }
+    }
+    if(isSadMusicPlaying && sadMusicVolume<0.3){
+      sadMusicVolume+=0.0005; sadNailMusic.setVolume(sadMusicVolume);}
+  }
 
-      let dialogueStarted = false;
-      const dialogues = [
-        { text: "He’s happy painting his nails. What’s wrong with that?", sound: () => happySound },
-        { text: "At home, no problem. But what if he does it outside?", sound: () => noProblemHomeSound },
-        { text: "He won’t. I don’t want us to oppress him.", sound: () => noHeWontSound },
-        { text: "It’s not oppression, it’s survival.", sound: () => notOppressionSound },
-        { text: "He can’t survive hiding who he is. I don’t want to teach him shame.", sound: () => ifHeHasSound }
-      ];
+  if(!mouseIsPressed && brushSound.isPlaying()) brushSound.stop();
 
-      function mousePressed() {
-        // Check if mouse is over or near the pad (with 20px buffer zone) and if pad should be shown
-        let buffer = 20;
-        if (showPad && mouseX > padX - buffer && mouseX < padX + 50 + buffer && 
-            mouseY > padY - buffer && mouseY < padY + 50 + buffer) {
-          isPadSelected = true;  // Set pad as selected when clicked
-          isDraggingPad = true;
-        } else if (!dialogueStarted) {
-          dialogueStarted = true;
-          playDialogueSequence(0);
-        }
-      }
+  image(middleLayer,0,0); image(topLayer,0,0);
 
-      function playDialogueSequence(index) {
-        if (index >= dialogues.length) {
-          showText = false;
-          currentText = '';
-          // After the last dialogue, activate the pad tool
-          showPad = true;
-          isPadSelected = true;
-          return;
-        }
-        showText = true;
-        currentText = dialogues[index].text;
-        let snd = dialogues[index].sound();
-        if (snd && typeof snd.play === 'function') {
-          snd.play();
-          snd.onended(() => playDialogueSequence(index + 1));
-        } else {
-          // fallback: fixed delay if sound missing
-          setTimeout(() => playDialogueSequence(index + 1), 2000);
-        }
-      }
+  if(showPad){if(padOpacity<255) padOpacity+=2; cursorEl.style.opacity=padOpacity/255;}
+  else cursorEl.style.opacity=1;
 
-      function mouseDragged() {
-        // No need for dragging logic anymore as pad follows cursor automatically
-      }
+  if(DEBUG){
+    noFill(); stroke(255,0,0); strokeWeight(2);
+    if(isPadSelected||showPad){
+      const r=padRadiusPx(); ellipse(mouseX,mouseY,r*2);
+    }else{
+      const s=brushSidePx();
+      rect(mouseX+BRUSH_OFFSET_X_PX,mouseY+BRUSH_OFFSET_Y_PX-s,s,s);
+    }
+  }
+}
 
-      function mouseReleased() {
-        if (brushSound.isPlaying()) {
-          brushSound.stop();
-        }
-        // Don't stop the sad music when releasing mouse
-        // Let it play until the end
-      }
-    </script>
-  </body>
+/* =====================================================================
+   6.  DIALOGUE SEQUENCE
+===================================================================== */
+const dialogues=[
+  {img:'textbox-mom1',sound:()=>nailMom1},
+  {img:'textbox-dad1',sound:()=>nailDad1},
+  {img:'textbox-mom2',sound:()=>nailMom2},
+  {img:'textbox-dad2',sound:()=>nailDad2},
+  {img:'textbox-mom3',sound:()=>nailMom3}
+];
+function playDialogue(i){
+  if(i===0) showOverlay();
+  if(i>=dialogues.length){
+    hideOverlay(); showPad=true; isPadSelected=true; updateCursorGraphic(); return;
+  }
+  const d=dialogues[i]; showTextbox(d.img);
+  const snd=d.sound(); if(snd&&snd.play){
+    snd.play(); snd.onended(()=>hideTextbox(d.img).then(()=>playDialogue(i+1)));
+  }else setTimeout(()=>hideTextbox(d.img).then(()=>playDialogue(i+1)),2e3);
+}
+
+/* =====================================================================
+   7.  INPUT
+===================================================================== */
+function mousePressed(){ if(showPad){isPadSelected=true; return;}
+  if(!dialogueStarted){dialogueStarted=true; playDialogue(0);} }
+function mouseReleased(){ if(brushSound.isPlaying()) brushSound.stop(); }
+</script>
+</body>
 </html>
