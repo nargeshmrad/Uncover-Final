@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Responsive Music Album Interaction</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      position: relative;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+      background: url('assets/optimized/musicbackground.png') no-repeat center/cover;
+    }
+
+    .ear-zone {
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      left: 15%;
+      top: 15%;
+      cursor: url('assets/optimized/earCursor.png') 16 16, auto;
+      z-index: 2;
+      pointer-events: auto;
+      background: transparent;
+    }
+    /* CDs should be above .ear-zone */
+    #cd, #cd2, #cd3, #cd4 {
+      z-index: 3;
+      cursor: url('assets/optimized/earCursor.png') 16 16, auto !important;
+      pointer-events: auto;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    #cd {
+      position: absolute;
+      top: 30%; /* visually center in lower half, adjust as needed */
+      left: 30%;
+      transform: translate(-50%, -50%);
+      width: 25%;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.1s linear;
+      will-change: transform;
+      cursor: inherit;
+    }
+    #cd2 {
+      position: absolute;
+      top: 30%;
+      left:70%;
+      transform: translate(-50%, -50%);
+      width: 25%;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.1s linear;
+      will-change: transform;
+      cursor: inherit;
+    }
+    #cd3 {
+      position: absolute;
+      top: 70%;
+      left: 30%;
+      transform: translate(-50%, -50%);
+      width: 25%;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.1s linear;
+      will-change: transform;
+      cursor: inherit;
+    }
+    #cd4 {
+      position: absolute;
+      top: 70%;
+      left: 70%;
+      transform: translate(-50%, -50%);
+      width: 25%;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.1s linear;
+      will-change: transform;
+      cursor: inherit;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" aria-label="Music album container">
+    <div class="ear-zone" aria-label="Ear cursor zone"></div>
+    <img id="cd" src="assets/optimized/cd.png" alt="Music CD" aria-label="Music CD" draggable="false" />
+    <img id="cd2" src="assets/optimized/cd1.png" alt="Music CD 2" aria-label="Music CD 2" draggable="false" />
+    <img id="cd3" src="assets/optimized/cd2.png" alt="Music CD 3" aria-label="Music CD 3" draggable="false" />
+    <img id="cd4" src="assets/optimized/cd3.png" alt="Music CD 4" aria-label="Music CD 4" draggable="false" />
+  </div>
+
+  <audio id="setar" src="assets/optimized/setar.mp3" loop></audio>
+  <audio id="santour" src="assets/optimized/santour.mp3" loop></audio>
+  <audio id="kamanche" src="assets/optimized/Kamanche.mp3" loop></audio>
+  <audio id="setar2" src="assets/optimized/tar.mp3" loop></audio>
+
+  <script src="musicAlbum.js"></script>
+</body>
+</html>

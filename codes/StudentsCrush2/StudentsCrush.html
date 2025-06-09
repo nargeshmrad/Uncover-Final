@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Students Crush Eraser Interaction</title>
+  <style>
+    /* Only show eye cursor when hovering #students3 at the end */
+    #students3.eye-cursor-hover {
+      cursor: url('assets/optimized/eyeCursor.png'), auto;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .students {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 65%;
+      height: auto;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    #scribblesCanvas {
+      position: absolute;
+      top: 33%;
+      left: 15%;
+      width: 40%;
+      height: 20%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .eraser {
+      position: absolute;
+      bottom: 59.5%; /* 700px / 1176 */
+      right: 56%;    /* 600px / 1070 */
+      width: 20%;   /* Increased from 15% */
+      height: auto;
+      cursor: grab;
+      z-index: 3;
+    }
+
+    .students.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .letter {
+      position: absolute;
+      top: 80%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55%;
+      height: auto;
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      cursor: pointer;
+    }
+
+    .letter.visible {
+      opacity: 1;
+    }
+
+    .opened-letter {
+      position: absolute;
+      top: 70%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55%;
+      height: auto;
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+      cursor: pointer;
+    }
+
+    .opened-letter.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .opened-letter.front {
+      z-index: 6;
+    }
+
+    .opened-letter2 {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55%;
+      height: auto;
+      z-index: 5;
+      opacity: 0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .opened-letter2.visible {
+      opacity: 1;
+    }
+
+    .opened-letter2.front {
+      z-index: 6;
+    }
+
+    .scribbles {
+      position: absolute;
+      top: 25%;
+      left: 45%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      height: auto;
+      z-index: 2;
+      transition: opacity 4s ease;
+    }
+
+    .eraser {
+      position: absolute;
+      bottom: 59.5%; /* 700px / 1176 */
+      right: 56%;    /* 600px / 1070 */
+      width: 20%;   /* Increased from 15% */
+      height: auto;
+      cursor: grab;
+      z-index: 3;
+    }
+
+    .eraser.dragging {
+      cursor: grabbing;
+    }
+
+    .text-overlay {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Audio -->
+  <audio id="eraserSound" preload="auto" src="assets/optimized/eraser.mp3"></audio>
+  <audio id="laughingSound" preload="auto" loop src="assets/optimized/laughing.mp3"></audio>
+  <audio id="studentYardAudio" preload="auto" src="assets/optimized/StudentAskYard.mp3"></audio>
+
+  <div class="container" id="interactionArea">
+    <img class="background" src="assets/optimized/studentCrushBackground.png" alt="Background">
+    <img class="students" id="students1" src="assets/optimized/studentCrush1.png" alt="Students 1">
+    <img class="students hidden" id="students2" src="assets/optimized/studentCrush2.png" alt="Students 2">
+    <img class="students hidden" id="students3" src="assets/optimized/studentCrush3.png" alt="Students 3">
+    <canvas id="scribblesCanvas"></canvas>
+    <img class="eraser" id="eraser" src="assets/optimized/Eraser.png" alt="Eraser">
+
+  </div>
+
+  <script src="StudentsCrush.js"></script>
+</body>
+</html>

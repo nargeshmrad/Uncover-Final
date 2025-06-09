@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mom Dad Japan Scene</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+      background-color: #fff;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      z-index: 2;
+    }
+
+    .spring-japan-hotspot {
+      width: 40%;
+      height: 55%;
+      top: 20%;
+      left: 35%;
+    }
+
+    .text-overlay {
+      position: absolute;
+      top: 90%;
+      left: 50%;
+      width: 55%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+    
+
+  <div class="container" id="springJapanScene">
+    <img class="background" src="assets/optimized/SpringJapan.png" alt="Spring Japan Background">
+
+    <div class="hotspot spring-japan-hotspot" id="springJapanHotspot"></div>
+
+    <img class="text-overlay" id="momSayCheese" src="assets/optimized/MomsayCheese.png" alt="Mom Says Cheese">
+    <img class="text-overlay" id="dadAnswerCheese" src="assets/optimized/DadanswerCheese.png" alt="Dad Answers Cheese">
+  </div>
+
+  <!-- Audio files -->
+  <audio id="momAudio" src="assets/optimized/japan-firstPic-mom.wav"></audio>
+  <audio id="dadAudio" src="assets/optimized/japan-firstPic-dad.wav"></audio>
+  <audio id="birdChirp" src="assets/optimized/birdChirp.mp3" loop></audio>
+
+  <script>
+    const springHotspot = document.getElementById('springJapanHotspot');
+    const momAudio = document.getElementById('momAudio');
+    const dadAudio = document.getElementById('dadAudio');
+    const birdChirp = document.getElementById('birdChirp');
+
+    const momImg = document.getElementById('momSayCheese');
+    const dadImg = document.getElementById('dadAnswerCheese');
+
+    let isHovering = false;
+    let birdChirpFadeIn = null;
+    let birdChirpFadeOut = null;
+
+    springHotspot.addEventListener('mouseenter', () => {
+      isHovering = true;
+
+      // Cancel fade out if running
+      if (birdChirpFadeOut) {
+        clearInterval(birdChirpFadeOut);
+        birdChirpFadeOut = null;
+      }
+      // Fade in bird chirping
+      birdChirp.volume = 0;
+      birdChirp.currentTime = 0;
+      birdChirp.play();
+      if (birdChirpFadeIn) {
+        clearInterval(birdChirpFadeIn);
+        birdChirpFadeIn = null;
+      }
+      birdChirpFadeIn = setInterval(() => {
+        if (birdChirp.volume < 0.9) {
+          birdChirp.volume = Math.min(birdChirp.volume + 0.1, 1);
+        } else {
+          birdChirp.volume = 1;
+          clearInterval(birdChirpFadeIn);
+          birdChirpFadeIn = null;
+        }
+      }, 100);
+
+      // Show mom text and play audio
+      momImg.style.opacity = 1;
+      momAudio.play();
+
+      momAudio.onended = () => {
+        if (!isHovering) return;
+        momImg.style.opacity = 0;
+        dadImg.style.opacity = 1;
+        dadAudio.play();
+      };
+
+      dadAudio.onended = () => {
+        if (!isHovering) return;
+        setTimeout(() => {
+          dadImg.style.opacity = 0;
+        }, 1000);
+      };
+    });
+
+    // Track fade-out interval globally
+    let birdChirpFade = null;
+
+    springHotspot.addEventListener('mouseleave', () => {
+      isHovering = false;
+
+      momAudio.pause();
+      momAudio.currentTime = 0;
+      dadAudio.pause();
+      dadAudio.currentTime = 0;
+
+      momImg.style.opacity = 0;
+      dadImg.style.opacity = 0;
+
+      // Cancel fade-in if running
+      if (birdChirpFadeIn) {
+        clearInterval(birdChirpFadeIn);
+        birdChirpFadeIn = null;
+      }
+      // Fade out bird chirping and ensure it fully stops and resets
+      if (birdChirpFadeOut) {
+        clearInterval(birdChirpFadeOut);
+        birdChirpFadeOut = null;
+      }
+      if (!birdChirp.paused || birdChirp.volume > 0.1) {
+        birdChirpFadeOut = setInterval(() => {
+          if (birdChirp.volume > 0.1) {
+            birdChirp.volume = Math.max(birdChirp.volume - 0.1, 0);
+          } else {
+            birdChirp.pause();
+            birdChirp.currentTime = 0;
+            birdChirp.volume = 1;
+            clearInterval(birdChirpFadeOut);
+            birdChirpFadeOut = null;
+          }
+        }, 100);
+      }
+    });
+
+    // Always reset birdChirp volume to 1 when starting playback (add this wherever you play birdChirp)
+    // Example:
+    // birdChirp.volume = 1;
+    // birdChirp.play();
+  </script>
+</body>
+</html>

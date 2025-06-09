@@ -74,16 +74,31 @@
       height: 30%;  /* Increased from 40% */
       z-index: 3;
     }
+    .textbox {
+      position: absolute;
+      top: 90%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 55%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <img class="background" src="../assets/workClothes/backgrundAlbum.png" alt="Background">
-    <img class="work-clothes" id="workClothes" src="../assets/workClothes/WorkClothes1.png" alt="Work Clothes">
+    <img class="background" src="../assets/workClothes2/backgrundAlbum.png" alt="Background">
+    <img class="work-clothes" id="workClothes" src="../assets/workClothes2/WorkClothes1.png" alt="Work Clothes">
     <div class="dropzone" id="dropzone"></div>
-    <img class="draggable" id="kimono" src="../assets/workClothes/kimonoOnFloor.png" alt="Kimono">
-    <img class="draggable" id="coat" src="../assets/workClothes/coatOnFloor.png" alt="Coat">
+    <img class="draggable" id="kimono" src="../assets/workClothes2/kimonoOnFloor.png" alt="Kimono">
+    <img class="draggable" id="coat" src="../assets/workClothes2/coatOnFloor.png" alt="Coat">
+    <img class="textbox" id="wearCoatText" src="../assets/workClothes2/wearCoatText.png" alt="Wear Coat Text" style="opacity:0;" />
+    <audio id="coatWorkAudio" src="../assets/workClothes2/coat-work-raha.wav"></audio>
+    <img class="textbox" id="wearKimonoText" src="../assets/workClothes2/wearKimonoText.png" alt="Wear Kimono Text" style="opacity:0;" />
+    <audio id="kimonoWorkAudio" src="../assets/workClothes2/kimono-work-raha.wav"></audio>
   </div>
 
   <script>

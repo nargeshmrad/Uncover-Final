@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>One Night Stand</title>
+  <link rel="stylesheet" href="oneNightStand.css">
+</head>
+<body>
+  <style>
+    /* Responsive frame like skyAlbum.html */
+    .picture {
+      aspect-ratio: 1065 / 1176;
+      width: min(100vw, calc(100vh * (1065 / 1176)));
+      height: min(100vh, calc(100vw * (1176 / 1065)));
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+      background: #f0f0f0;
+    }
+    .background-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    .sequence-img {
+      position: absolute;
+      top: 13.5%;
+      left: 18.5%;
+      width: 62%;
+      height: 62%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.7s cubic-bezier(.4,0,.2,1);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .sequence-img.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* Caption container pattern from skyAlbum.html */
+    .caption-container {
+      position: absolute;
+     top:90%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55%;
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .caption-image {
+      position: absolute;
+      width: 100%;
+      height: auto;
+      top: 0;
+      left: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .caption-image--english { opacity: 0; }
+    .caption-container:hover .caption-image--farsi { opacity: 0; }
+    .caption-container:hover .caption-image--english { opacity: 1; }
+  </style>
+  <div class="picture" id="oneNightContainer">
+    <img src="assets/optimized/oneNightStandBackground.png" class="background-img" alt="Background" />
+    <img src="assets/optimized/oneNightStand1.png" class="sequence-img active" id="sequence1" alt="One Night 1" />
+    <img src="assets/optimized/oneNightStand2.png" class="sequence-img" id="sequence2" alt="One Night 2" />
+    <img src="assets/optimized/oneNightStand3.png" class="sequence-img" id="sequence3" alt="One Night 3" />
+    <img src="assets/optimized/oneNightStand4.png" class="sequence-img" id="sequence4" alt="One Night 4" />
+
+    <!-- Hotspot overlay for dialogueManager -->
+    <div id="oneNightHotspot" style="position:absolute; top:13.5%; left:18.5%; width:62%; height:62%; z-index:10;"></div>
+
+    <!-- Textbox for Step 1 -->
+    <div id="caption1" class="caption-container" style="display:none;">
+      <img class="caption-image" src="assets/optimized/oneNightText1.png" alt="Textbox 1" />
+    </div>
+    <!-- Textbox for Step 2 -->
+    <div id="caption2" class="caption-container" style="display:none;">
+      <img class="caption-image" src="assets/optimized/oneNightText2.png" alt="Textbox 2" />
+    </div>
+
+    <audio id="audio1" src="assets/optimized/oneNightStand1.mp3"></audio>
+    <audio id="audio2" src="assets/optimized/oneNightStand2.mp3"></audio>
+    <!-- If you still get 404 errors, check that all asset files exist and the paths are correct. -->
+  </div>
+  <script type="module" src="oneNightStand.js"></script>
+</body>
+</html>

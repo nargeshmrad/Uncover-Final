@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sky Scene</title>
+  <style>
+    /* --- 1. RESET & STAGE --------------------------------------------- */
+    html, body {
+      margin: 0;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+    }
+
+    /* --- 2. PICTURE (Responsive Container) --------------------------- */
+    .picture {
+      aspect-ratio: 1065 / 1176; 
+      width: min(100vw, calc(100vh * (1065 / 1176)));
+      height: min(100vh, calc(100vw * (1176 / 1065)));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* --- 3. HOTSPOTS (Direct Children of .picture) -------------------- */
+    .hotspot {
+      position: absolute;
+      z-index: 1;
+      /*outline: 1px solid red;  /* Debugging outline */
+    }
+
+    .hotspot--high {
+      top: 14.25%;
+      left: 24.7%;
+      width: 50.4%;
+      height: 29.7%;
+    }
+
+    .hotspot--low {
+      top: 52.3%;
+      left: 25.7%;
+      width: 50.9%;
+      height: 31.7%;
+    }
+
+    /* --- 4. TEXT OVERLAYS (Direct Children of .picture) ------ */
+    .text-overlay {
+      position: absolute;
+      top: 85%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55%;
+      height: auto;
+      opacity: 0;
+      display: none;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+
+    /* --- 5. NESTED CAPTION LOGIC (MINIMAL CHANGE) --- */
+    /* This container for the captions lives INSIDE the hotspot */
+    .caption-container-low {
+      position: absolute;
+      /* Positions calculated to appear the same, but now relative to the hotspot */
+      top: 82.1%; 
+      left: 47.7%;
+      transform: translateX(-50%);
+      width: 45%; /* (30 / 50.9) * 100% to maintain visual size */
+      z-index: 2; 
+    }
+
+    .caption-container-high {
+      position: absolute;
+      /* Positions calculated to appear the same, but now relative to the hotspot */
+      top: 82.1%; 
+      left: 47.7%;
+      transform: translateX(-50%);
+      width: 45%; /* (30 / 50.9) * 100% to maintain visual size */
+      z-index: 2; 
+    }
+
+    /* Style for both caption images */
+    .caption-image {
+      position: absolute;
+      width: 100%;
+      height: auto;
+      top: 0;
+      left: 0;
+      transition: opacity 0.3s ease;
+    }
+    /* The English version is hidden by default */
+    .caption-image--english {
+      opacity: 0;
+    }
+
+    /* When the caption container is hovered, swap image visibility */
+    .caption-container-low:hover .caption-image--farsi {
+      opacity: 0;
+    }
+    .caption-container-low:hover .caption-image--english {
+      opacity: 1;
+    }
+    .caption-container-high:hover .caption-image--farsi {
+      opacity: 0;
+    }
+    .caption-container-high:hover .caption-image--english {
+      opacity: 1;
+    }
+
+
+  </style>
+</head>
+<body>
+
+  <div class="picture">
+    <img class="background" src="assets/optimized/skysAlbum.png" alt="Sky Background">
+
+    <!-- Hotspots are direct children of .picture -->
+    <div class="hotspot hotspot--high" id="highHotspot">
+      <div class="caption-container-high">
+        <img class="caption-image caption-image--farsi" src="assets/optimized/tehranTextjapanese.png" alt="Farsi Caption">
+        <img class="caption-image caption-image--english" src="assets/optimized/tehranTextENg.png" alt="English Caption">
+      </div>
+    </div>
+    
+    <!-- MINIMAL CHANGE 1: The caption system is now NESTED inside the hotspot -->
+    <div class="hotspot hotspot--low" id="lowHotspot">
+      <div class="caption-container-low">
+        <img class="caption-image caption-image--farsi" src="assets/optimized/tokyoTextjapanese.png" alt="Farsi Caption">
+        <img class="caption-image caption-image--english" src="assets/optimized/tokyoTextENg.png" alt="English Caption">
+      </div>
+    </div>
+
+    <!-- Text overlays are direct children of .picture -->
+    <img class="text-overlay" id="skyText1" src="assets/optimized/skysText1.png" alt="Sky Text 1">
+    <img class="text-overlay" id="skyText2" src="assets/optimized/skysText2.png" alt="Sky Text 2">
+    <img class="text-overlay" id="skyText3" src="assets/optimized/skysText3.png" alt="Sky Text 3">
+    <img class="text-overlay" id="askMomText" src="assets/optimized/AskMomPoemText.png" alt="Ask Mom Poem Text">
+    <img class="text-overlay" id="momAnswerText" src="assets/optimized/MomAnswerPoemText.png" alt="Mom Answer Poem Text">
+
+  </div>
+
+  <script type="module" src="skyAlbum.js"></script>
+
+</body>
+</html>

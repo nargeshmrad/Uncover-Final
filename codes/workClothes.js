@@ -26,33 +26,42 @@ window.initWorkClothesDrag = function() {
   setInitialPixelPosition(kimono);
   setInitialPixelPosition(coat);
 
-  function makeDraggable(item, replacementImage) {
+  function makeDraggable(item, replacementImage, isKimono = false) {
     let isDragging = false;
-    let startX, startY;
+    let offsetX = 0, offsetY = 0;
     let hasRevealed = false;
 
     // Ensure draggable has absolute positioning
     item.style.position = 'absolute';
-
-    // Use named handlers for removal
-    item._dragStartHandler = dragStart;
-    window._dragHandler = drag;
-    window._dragEndHandler = dragEnd;
-    item.addEventListener('mousedown', item._dragStartHandler);
-    window.addEventListener('mousemove', window._dragHandler);
-    window.addEventListener('mouseup', window._dragEndHandler);
+    item.style.cursor = 'grab';
 
     function dragStart(e) {
       if (e.button !== 0) return; // Only left mouse button
       if (item.classList.contains('faded')) return; // Don't drag if faded
+      // --- Fix: set left/top as px before dragging ---
+      const computed = window.getComputedStyle(item);
+      const container = item.parentElement;
+      const containerRect = container.getBoundingClientRect();
+      // Convert % to px if needed
+      ['left', 'top'].forEach((prop) => {
+        let val = computed[prop];
+        if (val && val.includes('%')) {
+          let percent = parseFloat(val) / 100;
+          let px = (prop === 'left' ? containerRect.width : containerRect.height) * percent;
+          item.style[prop] = px + 'px';
+        }
+      });
+      // --- End fix ---
       isDragging = true;
       item.style.cursor = 'grabbing';
       const rect = item.getBoundingClientRect();
-      startX = e.clientX - rect.left;
-      startY = e.clientY - rect.top;
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
       // Bring to top while dragging
       item.style.zIndex = 10;
       hasRevealed = false;
+      document.addEventListener('mousemove', drag);
+      window.addEventListener('mouseup', dragEnd);
     }
 
     function drag(e) {
@@ -62,8 +71,8 @@ window.initWorkClothesDrag = function() {
       const containerRect = container.getBoundingClientRect();
       const itemW = item.offsetWidth;
       const itemH = item.offsetHeight;
-      let newX = e.clientX - containerRect.left - startX;
-      let newY = e.clientY - containerRect.top - startY;
+      let newX = e.clientX - containerRect.left - offsetX;
+      let newY = e.clientY - containerRect.top - offsetY;
       // Clamp within container boundaries
       newX = Math.max(0, Math.min(containerRect.width - itemW, newX));
       newY = Math.max(0, Math.min(containerRect.height - itemH, newY));
@@ -83,12 +92,41 @@ window.initWorkClothesDrag = function() {
         );
         if (isOverDropzone && !hasRevealed) {
           workClothes.src = replacementImage;
+          item.classList.add('faded');
           hasRevealed = true;
-        }
-        if (!isOverDropzone && hasRevealed) {
-          // Optionally: revert to original image if you want preview only while hovering
-          // workClothes.src = ...original image...
-          // hasRevealed = false;
+          // If this is the coat, show textbox and play audio
+          if (isKimono) {
+            const textbox = document.getElementById('wearKimonoText');
+            const audio = document.getElementById('kimonoWorkAudio');
+            if (textbox) {
+              textbox.style.opacity = 1;
+            }
+            if (audio) {
+              audio.currentTime = 0;
+              audio.play();
+              audio.onended = function() {
+                if (textbox) textbox.style.opacity = 0;
+              };
+            }
+          } else {
+            const textbox = document.getElementById('wearCoatText');
+            const audio = document.getElementById('coatWorkAudio');
+            if (textbox) {
+              textbox.style.opacity = 1;
+            }
+            if (audio) {
+              audio.currentTime = 0;
+              audio.play();
+              // When audio ends, hide the textbox
+              audio.onended = function() {
+                if (textbox) textbox.style.opacity = 0;
+              };
+            }
+          }
+          // Remove listeners so it can't be dragged again
+          item.removeEventListener('mousedown', dragStart);
+          document.removeEventListener('mousemove', drag);
+          window.removeEventListener('mouseup', dragEnd);
         }
       }
     }
@@ -98,8 +136,8 @@ window.initWorkClothesDrag = function() {
       isDragging = false;
       item.style.cursor = 'grab';
       item.style.zIndex = 2;
-      // Do not reset position; leave at last drag location
-
+      document.removeEventListener('mousemove', drag);
+      window.removeEventListener('mouseup', dragEnd);
       // Dropzone logic: if dropped inside, reveal and fade
       const itemRect = item.getBoundingClientRect();
       const dropzoneRect = dropzone.getBoundingClientRect();
@@ -113,13 +151,13 @@ window.initWorkClothesDrag = function() {
         workClothes.src = replacementImage;
         item.classList.add('faded');
         // Remove listeners so it can't be dragged again
-        item.removeEventListener('mousedown', item._dragStartHandler);
-        window.removeEventListener('mousemove', window._dragHandler);
-        window.removeEventListener('mouseup', window._dragEndHandler);
+        item.removeEventListener('mousedown', dragStart);
       }
     }
+
+    item.addEventListener('mousedown', dragStart);
   }
 
-  makeDraggable(kimono, "../assets/workClothes/WorkClothes2.png");
-  makeDraggable(coat,   "../assets/workClothes/WorkClothes3.png");
+  makeDraggable(kimono, "../assets/workClothes2/WorkClothes2.png", true);
+  makeDraggable(coat,   "../assets/workClothes2/WorkClothes3.png", false);
 };

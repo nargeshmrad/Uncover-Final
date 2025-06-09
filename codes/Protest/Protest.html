@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Protest Scene</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+    }
+    .picture {
+      aspect-ratio: 1065 / 1176;
+      width: min(100vw, calc(100vh * (1065 / 1176)));
+      height: min(100vh, calc(100vw * (1176 / 1065)));
+      position: relative;
+      overflow: hidden;
+    }
+    .background {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scene-image {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 65%;
+  height: auto;
+  object-fit: contain;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+.fade-out {
+  opacity: 0;
+}
+
+    /* Caption logic adapted from skyAlbum */
+    .caption-container-protest {
+      position: absolute;
+      bottom: 28%;
+      left: 52%;
+      transform: translateX(-50%);
+      width: 25%;
+      z-index: 2;
+      height: auto;
+    }
+    .caption-image {
+      position: absolute;
+      width: 80%;
+      height: auto;
+      top: 0;
+      left: 0;
+      transition: opacity 0.3s ease;
+    }
+    .caption-image--eng {
+      opacity: 0;
+    }
+    .caption-image--pers {
+      opacity: 1;
+    }
+    .caption-container-protest:hover .caption-image--eng {
+      opacity: 1;
+    }
+    .caption-container-protest:hover .caption-image--pers {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+    <div class="picture" id="interactionArea">
+        <img class="background" src="assets/optimized/protestBackground.png" alt="Protest Background">
+        <img id="protestImage" class="scene-image" src="assets/optimized/protest1.png" alt="Protest Sequence">
+      </div>
+    <!-- Caption container for protest captions -->
+    <div class="caption-container-protest">
+      <img class="caption-image caption-image--eng" src="assets/optimized/protestcapEng.png" alt="Protest Caption English">
+      <img class="caption-image caption-image--pers" src="assets/optimized/protestcapPers.png" alt="Protest Caption Persian">
+    </div>
+    <audio id="protestAudio" src="assets/optimized/protest.mp3" preload="auto"></audio>
+    <script src="Protest.js"></script>
+</body>
+</html>

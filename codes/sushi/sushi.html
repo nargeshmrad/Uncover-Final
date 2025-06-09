@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>sushi</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #f9f9f9;
+    }
+
+    .container {
+      position: relative;
+      width: auto;
+      max-width: 1070px;
+      aspect-ratio: 1070 / 1176;
+      height: auto;
+      max-height: 100vh;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .container img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      z-index: 2;
+
+      box-sizing: border-box;
+    }
+
+    /* Adjust these values based on where the sushi should be hovered */
+    .sushi-hotspot {
+      width: 43%;  /* Adjust as needed */
+      height: 43%;
+      top: 5%;
+      left: 8%;
+    }
+
+    .text-overlay {
+      position: absolute;
+      top: 90%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 3;
+    }
+
+    .caption-container {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      z-index: 4;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      pointer-events: auto;
+    }
+    .class-cap-container {
+      top: 47%;
+      left: 45%;
+      height: 13%;
+    }
+    .handwriting-cap-container {
+      top: 83%;
+      left: 45%;
+      height: 10%;
+    }
+    .caption-img {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      left: 0;
+      top: 0;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.5s;
+      pointer-events: none;
+    }
+    .caption-img.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .caption-container:hover .caption-img.visible {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .caption-container:hover .caption-img:not(.visible) {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="container">
+    <div class="picture">
+      <img class="background" src="assets/optimized/SushiJapan.png" alt="Sushi Japan Background">
+      <div class="hotspot sushi-hotspot" id="sushiHotspot"></div>
+      <img class="text-overlay" id="sushiDadImg" src="assets/optimized/sushiDad.png" alt="Sushi Dad Text">
+
+      <!-- Class Caption Container -->
+      <div class="caption-container class-cap-container">
+        <img class="caption-img class-cap-jap visible" id="classCapJap" src="assets/optimized/classCapEJap.png" alt="Class Caption Japanese">
+        <img class="caption-img class-cap-eng" id="classCapEng" src="assets/optimized/classCapEng.png" alt="Class Caption English">
+      </div>
+
+      <!-- Handwriting Caption Container -->
+      <div class="caption-container handwriting-cap-container">
+        <img class="caption-img handwriting-cap-jap visible" id="handWritingCapJap" src="assets/optimized/handWritingCapJap.png" alt="Handwriting Caption Japanese">
+        <img class="caption-img handwriting-cap-eng" id="handWritingCapEng" src="assets/optimized/handWritingCapEng.png" alt="Handwriting Caption English">
+      </div>
+
+  </div>
+
+  <!-- Audio -->
+  <audio id="sushiDadAudio" src="assets/optimized/sushi-dad.wav"></audio>
+  <audio id="cameraShutter" src="assets/optimized/cameraShutter.mp3"></audio>
+
+  <script>
+    const sushiHotspot = document.getElementById('sushiHotspot');
+    const sushiDadImg = document.getElementById('sushiDadImg');
+    const sushiDadAudio = document.getElementById('sushiDadAudio');
+    const cameraShutter = document.getElementById('cameraShutter');
+
+    let isSushiHovering = false;
+
+    sushiHotspot.addEventListener('mouseenter', () => {
+      isSushiHovering = true;
+      sushiDadImg.style.opacity = 1;
+      sushiDadAudio.currentTime = 0;
+      sushiDadAudio.play();
+    });
+
+    sushiHotspot.addEventListener('mouseleave', () => {
+      isSushiHovering = false;
+      sushiDadImg.style.opacity = 0;
+      sushiDadAudio.pause();
+      sushiDadAudio.currentTime = 0;
+      cameraShutter.pause();
+      cameraShutter.currentTime = 0;
+    });
+
+    sushiDadAudio.onended = () => {
+      if (isSushiHovering) {
+        cameraShutter.currentTime = 0;
+        cameraShutter.play();
+      }
+    };
+  </script>
+
+</body>
+</html>

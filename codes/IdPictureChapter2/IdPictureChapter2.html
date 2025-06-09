@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Intro Hover Switch</title>
+  <style>
+  /* --- 1. RESET & STAGE --------------------------------------------- */
+  html, body {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+    overflow: hidden;
+  }
+
+  /* --- 2. PICTURE (Responsive Container) --------------------------- */
+  .picture {
+    aspect-ratio: 1065 / 1176;
+    width: min(100vw, calc(100vh * (1065 / 1176)));
+    height: min(100vh, calc(100vw * (1176 / 1065)));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .background {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .caption-container {
+    position: absolute;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    aspect-ratio: 3 / 1;
+    z-index: 2;
+  }
+    .caption-container:hover .text-overlay--pers {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .caption-container:hover .text-overlay--eng {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .caption-container {
+  position: absolute;
+  top: 60.1%; /* Relative to .picture height */
+  left: 60%;
+  transform: translateX(-50%);
+  width: 45%; /* Relative to .picture width */
+  z-index: 2;
+}
+
+.caption-image {
+  width: 50%;
+  height: auto;
+  transition: opacity 0.3s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#farsiCaption {
+  opacity: 1;
+}
+
+#englishCaption {
+  opacity: 0;
+  transform: scale(1.15);
+}
+
+.caption-container:hover #englishCaption {
+  opacity: 1;
+}
+
+.caption-container:hover #farsiCaption {
+  opacity: 0;
+}
+  </style>
+</head>
+<body>
+  <div class="picture">
+    <img class="background" src="assets/optimized/personel picturechapter2.png" alt="Background">
+    <div class="caption-container">
+      <img id="farsiCaption" class="caption-image" src="assets/optimized/personel picturechaptercapPers.png" alt="Farsi Caption">
+      <img id="englishCaption" class="caption-image" src="assets/optimized/personel picturechaptercapENg.png" alt="English Caption">
+    </div>
+  </div>
+</body>
+</html>

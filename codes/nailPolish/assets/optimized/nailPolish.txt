@@ -1,0 +1,3 @@
+The textbox and nailPolish2.png are for after when we have a state.
+
+for now, we can use nailPolish.png

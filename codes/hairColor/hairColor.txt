@@ -1,0 +1,1 @@
+For now, we can use dyeHair2.png but after, when we dye hair in the full screen scene we can see dyeHair2.png, and before playing the scene we see dyeHair1.png

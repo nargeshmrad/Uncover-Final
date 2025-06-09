@@ -1,0 +1,12 @@
+Before, the audio was all in one AirplaneDialog.mp3 but now we have separate. 
+
+AirplaneToIrancapJap.png under the photo and when we hover : AirplaneToIrancapEng.png
+
+the voice and textboxes in order : 
+
+Background music: airplaneAmbience.mp3
+
+airplane-raha1.wav , AskMomPlaneJapan.png
+airplane-mom.wav, MomPlaneJapanAnswer.png
+airplane-raha2.wav, AskDadPlaneJapan.png
+airplane-dad.wav, DadPlaneJapanAnswer.png

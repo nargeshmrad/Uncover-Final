@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Divorce Look Past</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+    }
+
+    /* Responsive Picture Container */
+    .picture {
+      aspect-ratio: 1065 / 1176;
+      width: min(100vw, calc(100vh * (1065 / 1176)));
+      height: min(100vh, calc(100vw * (1176 / 1065)));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scene-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: auto;
+      object-fit: contain;
+      z-index: 1;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+
+    .fade-out {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="picture" id="interactionArea">
+    <img class="background" src="assets/optimized/DivorcePastBackground.png" alt="Background">
+    <img id="sceneImage" class="scene-image" src="assets/optimized/BeachDadPast1.png" alt="Scene">
+  </div>
+
+  <audio id="divorceAudio" src="assets/optimized/DivorceSad.mp3" preload="auto"></audio>
+
+  <script>
+    const interactionArea = document.getElementById('interactionArea');
+    const sceneImage = document.getElementById('sceneImage');
+    const divorceAudio = document.getElementById('divorceAudio');
+
+    const imageSequence = [
+    "assets/optimized/BeachDadPast1.png",
+      "assets/optimized/BeachDadPast2.png",
+      "assets/optimized/HillsMomPast1.png",
+      "assets/optimized/HillsMomPast2.png",
+      "assets/optimized/MomDadPast1.png",
+      "assets/optimized/MomDadPast2.png"
+    ];
+
+    const changeDelay = 3000; // 3 seconds delay
+    let sequenceTimeout = null;
+    let fadeTimeout = null;
+    let index = 0;
+
+    function resetSequence() {
+      if (sequenceTimeout) clearTimeout(sequenceTimeout);
+      if (fadeTimeout) clearTimeout(fadeTimeout);
+      index = 0;
+      sceneImage.src = imageSequence[0];
+      sceneImage.classList.remove('fade-out');
+    }
+
+    function startSequence() {
+      // Start from second image (first transition after delay)
+      index = 1;
+      function updateImage() {
+        // Fade out current image
+        sceneImage.classList.add('fade-out');
+        fadeTimeout = setTimeout(() => {
+          sceneImage.src = imageSequence[index];
+          sceneImage.classList.remove('fade-out');
+          index++;
+          if (index < imageSequence.length) {
+            sequenceTimeout = setTimeout(updateImage, changeDelay);
+          }
+        }, 1000); // Match fade-out duration
+      }
+      sequenceTimeout = setTimeout(updateImage, changeDelay);
+    }
+
+    sceneImage.addEventListener('mouseenter', () => {
+      resetSequence();
+      divorceAudio.currentTime = 0;
+      divorceAudio.play();
+      startSequence();
+    });
+
+    sceneImage.addEventListener('mouseleave', () => {
+      divorceAudio.pause();
+      divorceAudio.currentTime = 0;
+      resetSequence();
+    });
+  </script>
+
+</body>
+</html>

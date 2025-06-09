@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Page 2</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100vw;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+
+    .container {
+      width: min(100vw, calc(100vh * (1065 / 1176)));
+      height: min(100vh, calc(100vw * (1176 / 1065)));
+      aspect-ratio: 1065 / 1176;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .picture {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .picture img.background {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .hotspot {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      width: 65%;
+      height: 70%;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 2;
+      /* outline: 1px solid red; */
+    }
+
+    .text-box {
+      position: absolute;
+      top: 90%;
+      left: 50%;
+      width: 55%;
+      transform: translateX(-50%);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0.5s;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .text-box.visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .text-box img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="picture">
+      <img class="background" src="assets/optimized/eyes.png" alt="Hospital Background">
+      
+      <div class="hotspot"></div>
+
+      <div class="caption-container">
+        <img id="farsiCaption" class="caption-image" src="assets/optimized/HospitalFarsiCaption.png" alt="Farsi Caption">
+        <img id="englishCaption" class="caption-image" src="assets/optimized/HospitalEnglishCaption.png" alt="English Caption">
+      </div>
+
+      <div id="eyeTextBox" class="text-box">
+        <img src="assets/optimized/eyesText.png" alt="Eye's message">
+      </div>
+    
+    </div>
+  </div>
+
+  <audio id="eyeVoice" src="assets/optimized/eyesAlbum.wav"></audio>
+
+
+  <script>
+    const hotspot = document.querySelector('.hotspot');
+    const eyeVoice = document.getElementById('eyeVoice');
+
+
+    let isPlaying = false;
+
+    function showTextBox(textBox) {
+      textBox.classList.add('visible');
+    }
+
+    function hideTextBox(textBox) {
+      textBox.classList.remove('visible');
+    }
+
+    function resetAudio() {
+      eyeVoice.pause();
+      eyeVoice.currentTime = 0;
+      hideTextBox(eyeTextBox);
+      isPlaying = false;
+    }
+
+    function playSequence() {
+      if (isPlaying) return;
+
+      isPlaying = true;
+      showTextBox(eyeTextBox);
+      eyeVoice.play();
+
+      eyeVoice.onended = () => {
+        hideTextBox(eyeTextBox);
+        isPlaying = false;
+      };
+    }
+
+    hotspot.addEventListener('mouseenter', playSequence);
+    hotspot.addEventListener('mouseleave', resetAudio);
+  </script>
+
+</body>
+</html>
