@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Hair Coloring Interaction</title>
+  <link rel="stylesheet" href="dye.css">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
   <style>
@@ -14,20 +16,24 @@
 
 
     #dialogueText {
-      position: fixed;
-      bottom: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgb(0, 0, 0);
-      font-size: 24px;
-      text-align: center;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      display: none;
-      font-family: 'Comic Sans MS', 'Comic Sans', cursive;
-      max-width: 80%;
-      padding: 15px;
-    }
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 15px;
+  color: #222;
+  font-size: 16px;
+  text-align: center;
+  z-index: 1000;
+  display: none;
+  font-family: Arial, sans-serif;
+  max-width: 100vw;
+  padding: 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
 
 
 
@@ -53,20 +59,16 @@
       cursor: none;
     }
 
-
-    #brushHair {
+    #hotspot {
       position: absolute;
-      width: 50px;
-      height: 50px;
-      background-image: url('.. /assets/Dye/brush.png');
-      background-size: contain;
-      background-repeat: no-repeat;
-      pointer-events: none;
-      z-index: 1000;
-      transform: translate(-50%, -50%);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: auto;
+      /* Optional: background: rgba(0,0,0,0.05); for debugging */
     }
-
-
 
 
     .overlay-image {
@@ -111,7 +113,7 @@
       position: absolute;
       top: 65%;  /* Adjust this to change the bowl position */
       left: 42%;
-      width: 150px;
+      width: 50px;
       z-index: 5;
       opacity: 1;
       transition: opacity 3s ease-out;
@@ -124,7 +126,7 @@
       position: absolute;
       top: 65%;  /* Adjust this to change the bowl position */
       left: 42%;
-      width: 150px;
+      width: 50px;
       z-index: 5;
       opacity: 0;
       transition: opacity 4s ease-in;
@@ -135,8 +137,8 @@
 
     #brushHair {
       position: fixed;
-      width: 60px;
-      height: 60px;
+      width: 30px;
+      height: 30px;
       pointer-events: none;
       z-index: 9999; /* Increased to ensure it's always on top */
       transform: translate(-50%, -50%);
@@ -152,7 +154,10 @@
 
 
   <div id="gameContainer">
+    <div id="hotspot"></div>
     <div id="dialogueText"></div>
+<img id="dialogueBox1" src="../assets/DyeHairScene/dialogue1.png" alt="Dialogue Box 1" style="display:none; position:fixed; left:50%; bottom:15px; transform:translateX(-50%); z-index:2000; max-width:40vw; height:auto;">
+<img id="dialogueBox2" src="../assets/DyeHairScene/dialogue2.png" alt="Dialogue Box 2" style="display:none; position:fixed; left:50%; bottom:15px; transform:translateX(-50%); z-index:2000; max-width:40vw; height:auto;">
     <div id="overlayImage2" class="overlay-image" style="background-image: url('../assets/DyeHairScene/DyeHair2.png');"></div>
     <div id="overlayImage1" class="overlay-image" style="background-image: url('../assets/DyeHairScene/DyeHair1.png');"></div>
     <canvas id="revealCanvas"></canvas>
@@ -168,6 +173,7 @@
   <script>
     const brush = document.getElementById("brushHair");
     const gameContainer = document.getElementById("gameContainer");
+    const dialogueText = document.getElementById("dialogueText");
     const canvas = document.getElementById("drawingCanvas");
     const ctx = canvas.getContext("2d");
     const revealCanvas = document.getElementById("revealCanvas");
@@ -180,7 +186,7 @@
 
 
 
-    let rectX = 650, rectY = 50, rectWidth = 400, rectHeight = 400;
+    let rectX = 0, rectY = 0, rectWidth = window.innerWidth, rectHeight = window.innerHeight;
     let opacity = 1.0;
     let isInSquare = false;
     let isMouseDown = false;
@@ -213,13 +219,7 @@
 
     // Function to draw the green rectangle
     function drawGreenRectangle() {
-      ctx.save();
-      ctx.globalAlpha = 0; // fully transparent
-      ctx.strokeStyle = 'green';
-      ctx.lineWidth = 3;
       ctx.strokeRect(rectX, rectY, rectWidth, rectHeight);
-      ctx.globalAlpha = 1;
-      ctx.restore();
     }
 
 
@@ -295,7 +295,7 @@
           }, 3200); // Wait for bleachBowl to fully fade out + extra pause
         } else {
           // Second transition complete, Mirror-Colored3 is now fully visible
-          overlayImage.style.display = 'none';
+          overlayImage2.style.display = 'none';
         }
       }
     }
@@ -311,25 +311,23 @@
         if (!hasPlayedBleachSound && !canRevealFinal) {
           hasPlayedBleachSound = true;
           bleachSound.play();
-          let text = "I hope I don't fry my hair… but I'm doing it anyway. They think I'm too scared to change—let them watch.";
-          dialogueText.textContent = text;
-          dialogueText.style.display = 'block';
-         
-          // Hide dialogue text after delay
-          setTimeout(() => {
-            dialogueText.style.display = 'none';
-          }, 4000);
+          // Show dialogue1.png as a textbox overlay
+          const dialogueBox1 = document.getElementById('dialogueBox1');
+          dialogueBox1.style.display = 'block';
+          // Hide dialogue image when audio ends
+          bleachSound.onended = () => {
+            dialogueBox1.style.display = 'none';
+          };
         } else if (!hasPlayedColorSound && canRevealFinal && !hasInitialClick) {
           hasPlayedColorSound = true;
           colorSound.play();
-          let text = "I feel like a rebel. I look in the mirror and see someone real.";
-          dialogueText.textContent = text;
-          dialogueText.style.display = 'block';
-         
-          // Hide dialogue text after delay
-          setTimeout(() => {
-            dialogueText.style.display = 'none';
-          }, 4000);
+          // Show dialogue2.png as a textbox overlay
+          const dialogueBox2 = document.getElementById('dialogueBox2');
+          dialogueBox2.style.display = 'block';
+          // Hide dialogue image when audio ends
+          colorSound.onended = () => {
+            dialogueBox2.style.display = 'none';
+          };
         }
         if (!hasInitialClick) {
           updateOpacity(initialFadeAmount);
@@ -381,6 +379,105 @@
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
