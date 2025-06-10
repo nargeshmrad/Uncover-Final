@@ -8,8 +8,6 @@
   body, html {
     margin: 0; padding: 0; height: 100%; overflow: hidden;
     cursor: url('../assets/classroomFaces/earCursor.png'), auto;
-    background: url('../assets/classroomFaces/ClassroomFaces.png') no-repeat center center;
-    background-size: contain;
     position: relative;
   }
 
@@ -37,17 +35,26 @@
 
   /* Textbox style */
   .textbox {
+   
+    left: 30%;
+    top: 82%;
+    width: 40%;
+    max-width: 200px;
+    height: auto;
     position: absolute;
+    z-index: 1;
     pointer-events: none;
     opacity: 0;
     transition: opacity 1s ease;
     user-select: none;
     display: none;
   }
+  
 </style>
 </head>
 <body>
 <div id="container">
+  <img id="bg" src="../assets/classroomFaces/ClassroomFaces.png" alt="Background" style="width:100%;height:100%;object-fit:contain;position:absolute;top:0;left:0;z-index:0;" />
   <img id="textbox1" class="textbox" src="../assets/classroomFaces/classroomTextbox1.png" alt="Textbox 1" />
   <img id="textbox2" class="textbox" src="../assets/classroomFaces/classroomTextbox2.png" alt="Textbox 2" />
   <img id="textbox3" class="textbox" src="../assets/classroomFaces/classroomTextbox3.png" alt="Textbox 3" />

@@ -82,12 +82,6 @@ const hotspots = [
     // Get textbox element
     const textbox = document.getElementById(hotspot.textboxId);
   
-    // Set textbox position and size
-    textbox.style.top = hotspot.textboxPosition.top;
-    textbox.style.left = hotspot.textboxPosition.left;
-    textbox.style.width = hotspot.textboxSize.width;
-    textbox.style.height = hotspot.textboxSize.height;
-  
     // Mouse enter event
     div.addEventListener('mouseenter', () => {
       // Stop any existing audio and clear fade intervals
